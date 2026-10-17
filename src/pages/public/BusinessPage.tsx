@@ -37,7 +37,7 @@ export function BusinessPage() {
       <PublicLayout>
         <div className="max-w-6xl mx-auto px-4 py-32 text-center">
           <h1 className="text-2xl font-bold text-[var(--color-text-primary)] mb-2">Negocio no encontrado</h1>
-          <a href="/" className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">&larr; Volver al inicio</a>
+          <a href="/#/" className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">← Volver al inicio</a>
         </div>
       </PublicLayout>
     );

@@ -82,7 +82,7 @@ export function DashboardLayout({ children, currentTab = 'agenda' }: DashboardLa
               )}
             </svg>
           </button>
-          <a href="/" className="flex items-center gap-2">
+          <a href="/#/" className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-[var(--color-bg-surface)] border border-[var(--color-border-primary)] flex items-center justify-center shrink-0">
               <span className="text-[var(--color-text-primary)] text-xs font-bold">N</span>
             </div>
@@ -156,7 +156,7 @@ export function DashboardLayout({ children, currentTab = 'agenda' }: DashboardLa
               <path d="M3 12h18M3 6h18M3 18h18" strokeLinecap="round" />
             </svg>
           </button>
-          <a href="/" className="flex items-center gap-2">
+          <a href="/#/" className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-[var(--color-bg-surface)] border border-[var(--color-border-primary)] flex items-center justify-center shrink-0">
               <span className="text-[var(--color-text-primary)] text-xs font-bold">N</span>
             </div>

@@ -136,7 +136,7 @@ export function DashboardConfig() {
                 </div>
               </div>
 
-              <a href="/dashboard/hours" className="block">
+              <a href="/#/dashboard/hours" className="block">
                 <button className="btn-md w-full text-center">Administrar horarios</button>
               </a>
             </div>

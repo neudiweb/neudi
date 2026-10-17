@@ -218,7 +218,7 @@ export function BookingPage() {
             </div>
           </div>
 
-          <a href="/" className="inline-flex items-center justify-center bg-[var(--color-bg-surface)] border border-[var(--color-border-primary)] text-[var(--color-text-primary)] font-medium rounded-xl px-8 py-3 text-base hover:bg-[var(--color-bg-surface-hover)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-500)] focus-visible:ring-offset-2">
+          <a href="/#/" className="inline-flex items-center justify-center bg-[var(--color-bg-surface)] border border-[var(--color-border-primary)] text-[var(--color-text-primary)] font-medium rounded-xl px-8 py-3 text-base hover:bg-[var(--color-bg-surface-hover)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-500)] focus-visible:ring-offset-2">
             Volver al inicio
           </a>
         </div>
