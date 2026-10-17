@@ -5,21 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Neudi — Turnos para tu negocio</title>
   <script>
-    var path = location.pathname;
-    var search = location.search;
-    // Strip /neudi/ prefix to get the SPA route
-    var spaPath = path.replace(/^\/neudi\/?/, '');
-    if (spaPath === '' || spaPath === '/') {
-      location.replace('/neudi/');
-    } else if (search.indexOf('_route=') === -1) {
-      // Only redirect if we haven't already processed the route
-      location.replace('/neudi/?_route=' + encodeURIComponent(spaPath));
-    }
+    (function() {
+      var path = window.location.pathname;
+      var search = window.location.search;
+      var baseUrl = "/neudi";
+      var spaPath = path.replace(/^\/neudi\/?/, "/");
+      if (spaPath === "") spaPath = "/";
+      if (search.indexOf("_route=") !== -1) return;
+      window.location.replace(baseUrl + "/?_route=" + encodeURIComponent(spaPath));
+    })();
   </script>
 </head>
 <body>
-  <noscript>
-    <p>Neudi requiere JavaScript para funcionar.</p>
-  </noscript>
+  <noscript>Neudi requiere JavaScript para funcionar.</noscript>
 </body>
 </html>
