@@ -63,7 +63,7 @@ function App() {
           <Route path="/dashboard" element={
             <AuthGuard>
               <PlanGuard>
-                <Navigate to="/dashboard/agenda" replace />
+                <Navigate to="agenda" replace />
               </PlanGuard>
             </AuthGuard>
           } />
