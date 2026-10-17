@@ -1,10 +1,11 @@
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { LoadingSpinner } from './States';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, isLoading, onboardingRequired } = useAuth();
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -15,12 +16,12 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   }
 
   if (!user && !onboardingRequired) {
-    window.location.href = '/login';
+    React.useEffect(() => { navigate('/login', { replace: true }); }, [navigate]);
     return null;
   }
 
   if (onboardingRequired) {
-    window.location.href = '/onboarding';
+    React.useEffect(() => { navigate('/onboarding', { replace: true }); }, [navigate]);
     return null;
   }
 
@@ -103,6 +104,7 @@ function FreeAccessScreen() {
 
 export function PublicGuard({ children }: { children: React.ReactNode }) {
   const { user, isLoading, onboardingRequired } = useAuth();
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -114,12 +116,12 @@ export function PublicGuard({ children }: { children: React.ReactNode }) {
 
   // Authenticated users with businesses go to dashboard, others to onboarding
   if (user) {
-    window.location.href = '/dashboard';
+    React.useEffect(() => { navigate('/dashboard', { replace: true }); }, [navigate]);
     return null;
   }
 
   if (onboardingRequired) {
-    window.location.href = '/onboarding';
+    React.useEffect(() => { navigate('/onboarding', { replace: true }); }, [navigate]);
     return null;
   }
 
@@ -128,6 +130,7 @@ export function PublicGuard({ children }: { children: React.ReactNode }) {
 
 export function OnboardingGuard({ children }: { children: React.ReactNode }) {
   const { user, isLoading, onboardingRequired } = useAuth();
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -139,13 +142,13 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
 
   // Users with businesses go to dashboard
   if (user) {
-    window.location.href = '/dashboard';
+    React.useEffect(() => { navigate('/dashboard', { replace: true }); }, [navigate]);
     return null;
   }
 
   // Only show onboarding for users who need it
   if (!onboardingRequired) {
-    window.location.href = '/dashboard';
+    React.useEffect(() => { navigate('/dashboard', { replace: true }); }, [navigate]);
     return null;
   }
 
