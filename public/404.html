@@ -5,10 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Neudi — Turnos para tu negocio</title>
   <script>
-    // GitHub Pages con repo nested: siempre redirigir a index.html en /neudi/
-    var path = location.pathname;
-    if (path !== '/' && !location.search && !location.hash) {
+    // Redirigir a /neudi/ si estamos en la raíz del dominio
+    if (location.pathname === '/' || location.pathname === '') {
       location.replace('/neudi/');
+    }
+    // Para cualquier otra ruta (ej: /neudi/register), preservar el path como ?_route=
+    // para que la app SPA lo maneje con React Router
+    else {
+      var path = location.pathname + location.search;
+      location.replace('/neudi/?_route=' + encodeURIComponent(path));
     }
   </script>
 </head>

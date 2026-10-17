@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, createBrowserHistory, Router } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthGuard, PublicGuard, OnboardingGuard, PlanGuard } from './components/common/AuthGuard';
@@ -15,6 +15,18 @@ import { DashboardHours } from './pages/dashboard/DashboardHours';
 import { DashboardSettings } from './pages/dashboard/DashboardSettings';
 
 function App() {
+  // Cuando GitHub Pages sirve el 404.html, redirige con ?_route=/register
+  // Leemos ese param y lo aplicamos como estado inicial del history
+  const initRoute = React.useMemo(() => {
+    if (typeof window === 'undefined') return null;
+    const params = new URLSearchParams(window.location.search);
+    const route = params.get('_route');
+    if (route) {
+      window.history.replaceState(null, '', route);
+    }
+    return route;
+  }, []);
+
   return (
     <BrowserRouter>
       <ThemeProvider>

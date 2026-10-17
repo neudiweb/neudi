@@ -5,9 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Neudi — Turnos para tu negocio</title>
   <script>
-    var path = location.pathname;
-    if (path !== '/' && !location.search && !location.hash) {
-      location.replace('/neudi/' + (path.startsWith('/') ? path.slice(1) : path));
+    // Redirigir a /neudi/ si estamos en la raíz del dominio
+    if (location.pathname === '/' || location.pathname === '') {
+      location.replace('/neudi/');
+    }
+    // Para cualquier otra ruta (ej: /neudi/register), cargar la app en /neudi/
+    // con el path original para que React Router lo maneje
+    else {
+      location.replace('/neudi/index.html');
     }
   </script>
 </head>
