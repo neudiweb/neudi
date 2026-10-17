@@ -7,14 +7,6 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, isLoading, onboardingRequired } = useAuth();
   const navigate = useNavigate();
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
-  }
-
   React.useEffect(() => {
     if (!isLoading) {
       if (!user && !onboardingRequired) {
@@ -24,6 +16,14 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       }
     }
   }, [user, isLoading, onboardingRequired, navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
 
   if (!user && !onboardingRequired) return null;
   if (onboardingRequired) return null;
