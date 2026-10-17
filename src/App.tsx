@@ -1,4 +1,5 @@
-import { Routes, Route, Navigate, createBrowserHistory, Router } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import * as React from 'react';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthGuard, PublicGuard, OnboardingGuard, PlanGuard } from './components/common/AuthGuard';
@@ -14,25 +15,25 @@ import { DashboardClients } from './pages/dashboard/DashboardClients';
 import { DashboardHours } from './pages/dashboard/DashboardHours';
 import { DashboardSettings } from './pages/dashboard/DashboardSettings';
 
-// Custom history that resolves ?_route= from GitHub Pages 404 redirect
-function createSpaHistory() {
-  const base = createBrowserHistory({ basename: '/neudi' });
-  const params = new URLSearchParams(window.location.search);
-  const route = params.get('_route');
-  if (route) {
-    // Replace the URL to remove ?_route= and set the correct initial path
-    base.replace(route);
-  }
-  return base;
+// Component that redirects from ?_route= query param to the actual path
+function RouteRedirector() {
+  const navigate = useNavigate();
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const route = params.get('_route');
+    if (route) {
+      navigate(route, { replace: true });
+    }
+  }, [navigate]);
+  return null;
 }
-
-const spaHistory = createSpaHistory();
 
 function App() {
   return (
-    <Router history={spaHistory}>
+    <BrowserRouter basename="/neudi">
       <ThemeProvider>
         <AuthProvider>
+          <RouteRedirector />
           <Routes>
           {/* Public routes */}
           <Route path="/" element={<HomePage />} />
@@ -103,7 +104,7 @@ function App() {
         </Routes>
         </AuthProvider>
       </ThemeProvider>
-    </Router>
+    </BrowserRouter>
   );
 }
 
