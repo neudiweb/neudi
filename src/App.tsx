@@ -14,21 +14,23 @@ import { DashboardClients } from './pages/dashboard/DashboardClients';
 import { DashboardHours } from './pages/dashboard/DashboardHours';
 import { DashboardSettings } from './pages/dashboard/DashboardSettings';
 
-function App() {
-  // Cuando GitHub Pages sirve el 404.html, redirige con ?_route=/register
-  // Leemos ese param y lo aplicamos como estado inicial del history
-  const initRoute = React.useMemo(() => {
-    if (typeof window === 'undefined') return null;
-    const params = new URLSearchParams(window.location.search);
-    const route = params.get('_route');
-    if (route) {
-      window.history.replaceState(null, '', route);
-    }
-    return route;
-  }, []);
+// Custom history that resolves ?_route= from GitHub Pages 404 redirect
+function createSpaHistory() {
+  const base = createBrowserHistory({ basename: '/neudi' });
+  const params = new URLSearchParams(window.location.search);
+  const route = params.get('_route');
+  if (route) {
+    // Replace the URL to remove ?_route= and set the correct initial path
+    base.replace(route);
+  }
+  return base;
+}
 
+const spaHistory = createSpaHistory();
+
+function App() {
   return (
-    <BrowserRouter>
+    <Router history={spaHistory}>
       <ThemeProvider>
         <AuthProvider>
           <Routes>
@@ -101,7 +103,7 @@ function App() {
         </Routes>
         </AuthProvider>
       </ThemeProvider>
-    </BrowserRouter>
+    </Router>
   );
 }
 

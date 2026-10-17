@@ -5,15 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Neudi — Turnos para tu negocio</title>
   <script>
-    // Redirigir a /neudi/ si estamos en la raíz del dominio
-    if (location.pathname === '/' || location.pathname === '') {
+    var path = location.pathname;
+    // Strip /neudi/ prefix to get the SPA route
+    var spaPath = path.replace(/^\/neudi\/?/, '');
+    if (spaPath === '' || spaPath === '/') {
       location.replace('/neudi/');
-    }
-    // Para cualquier otra ruta (ej: /neudi/register), preservar el path como ?_route=
-    // para que la app SPA lo maneje con React Router
-    else {
-      var path = location.pathname + location.search;
-      location.replace('/neudi/?_route=' + encodeURIComponent(path));
+    } else {
+      location.replace('/neudi/?_route=' + encodeURIComponent(spaPath));
     }
   </script>
 </head>
