@@ -15,15 +15,18 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!user && !onboardingRequired) {
-    React.useEffect(() => { navigate('/login', { replace: true }); }, [navigate]);
-    return null;
-  }
+  React.useEffect(() => {
+    if (!isLoading) {
+      if (!user && !onboardingRequired) {
+        navigate('/login', { replace: true });
+      } else if (onboardingRequired) {
+        navigate('/onboarding', { replace: true });
+      }
+    }
+  }, [user, isLoading, onboardingRequired, navigate]);
 
-  if (onboardingRequired) {
-    React.useEffect(() => { navigate('/onboarding', { replace: true }); }, [navigate]);
-    return null;
-  }
+  if (!user && !onboardingRequired) return null;
+  if (onboardingRequired) return null;
 
   return <>{children}</>;
 }
