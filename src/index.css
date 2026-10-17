@@ -1,0 +1,702 @@
+@import "tailwindcss";
+
+/* === Color tokens — accent palettes === */
+:root,
+[data-theme="light"] {
+  /* Accent: Blue (default) */
+  --color-accent-50: #eff6ff;
+  --color-accent-100: #dbeafe;
+  --color-accent-200: #bfdbfe;
+  --color-accent-300: #93c5fd;
+  --color-accent-400: #60a5fa;
+  --color-accent-500: #3b82f6;
+  --color-accent-600: #2563eb;
+  --color-accent-700: #1d4ed8;
+
+  /* Success */
+  --color-success-50: #ecfdf5;
+  --color-success-100: #d1fae5;
+  --color-success-500: #10b981;
+  --color-success-600: #059669;
+  --color-success-700: #047857;
+
+  /* Warning */
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c7;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+
+  /* Danger */
+  --color-danger-50: #fef2f2;
+  --color-danger-100: #fee2e2;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+  --color-danger-700: #b91c1c;
+
+  /* Neutral */
+  --color-neutral-50: #fafafa;
+  --color-neutral-100: #f4f4f5;
+  --color-neutral-200: #e4e4e7;
+  --color-neutral-300: #d4d4d8;
+  --color-neutral-400: #a1a1aa;
+  --color-neutral-500: #71717a;
+  --color-neutral-600: #52525b;
+  --color-neutral-700: #3f3f46;
+  --color-neutral-800: #27272a;
+  --color-neutral-900: #18181b;
+
+  /* Semantic tokens */
+  --color-bg-primary: #ffffff;
+  --color-bg-surface: #ffffff;
+  --color-bg-surface-hover: #fafafa;
+  --color-text-primary: #18181b;
+  --color-text-primary-hover: #27272a;
+  --color-text-secondary: #71717a;
+  --color-text-inverse: #ffffff;
+  --color-border-primary: #e4e4e7;
+  --color-border-strong: #d4d4d8;
+
+  /* Light text colors for dark mode overrides (inverted neutral scale) */
+  --color-text-dark-900: #f4f4f5;
+  --color-text-dark-800: #e4e4e7;
+  --color-text-dark-700: #d4d4d8;
+  --color-text-dark-600: #a1a1aa;
+  --color-text-dark-500: #71717a;
+  --color-text-dark-400: #52525b;
+  --color-text-dark-300: #3f3f46;
+}
+
+/* === Accent color presets === */
+[data-accent="neutral"] {
+  --color-accent-50: #f9fafb;
+  --color-accent-100: #f3f4f6;
+  --color-accent-200: #e5e7eb;
+  --color-accent-300: #d1d5db;
+  --color-accent-400: #9ca3af;
+  --color-accent-500: #6b7280;
+  --color-accent-600: #4b5563;
+  --color-accent-700: #374151;
+}
+
+[data-accent="green"] {
+  --color-accent-50: #f0fdf4;
+  --color-accent-100: #dcfce7;
+  --color-accent-200: #bbf7d0;
+  --color-accent-300: #86efac;
+  --color-accent-400: #4ade80;
+  --color-accent-500: #22c55e;
+  --color-accent-600: #16a34a;
+  --color-accent-700: #15803d;
+}
+
+[data-accent="violet"] {
+  --color-accent-50: #f5f3ff;
+  --color-accent-100: #ede9fe;
+  --color-accent-200: #ddd6fe;
+  --color-accent-300: #c4b5fd;
+  --color-accent-400: #a78bfa;
+  --color-accent-500: #8b5cf6;
+  --color-accent-600: #7c3aed;
+  --color-accent-700: #6d28d9;
+}
+
+[data-accent="pink"] {
+  --color-accent-50: #fdf2f8;
+  --color-accent-100: #fce7f3;
+  --color-accent-200: #fbcfe8;
+  --color-accent-300: #f9a8d4;
+  --color-accent-400: #f472b6;
+  --color-accent-500: #ec4899;
+  --color-accent-600: #db2777;
+  --color-accent-700: #be185d;
+}
+
+[data-accent="orange"] {
+  --color-accent-50: #fff7ed;
+  --color-accent-100: #ffedd5;
+  --color-accent-200: #fed7aa;
+  --color-accent-300: #fdba74;
+  --color-accent-400: #fb923c;
+  --color-accent-500: #f97316;
+  --color-accent-600: #ea580c;
+  --color-accent-700: #c2410c;
+}
+
+/* === Dark mode === */
+[data-theme="dark"] {
+  --color-accent-50: #1e2a3a;
+  --color-accent-100: #1e3a5f;
+  --color-accent-200: #1e40af;
+  --color-accent-300: #3b82f6;
+  --color-accent-400: #60a5fa;
+  --color-accent-500: #93c5fd;
+  --color-accent-600: #bfdbfe;
+  --color-accent-700: #dbeafe;
+
+  --color-success-50: #052e16;
+  --color-success-100: #14532d;
+  --color-success-500: #4ade80;
+  --color-success-600: #86efac;
+  --color-success-700: #bbf7d0;
+
+  --color-warning-50: #451a03;
+  --color-warning-100: #78350f;
+  --color-warning-500: #fbbf24;
+  --color-warning-600: #fcd34d;
+  --color-warning-700: #fde68a;
+
+  --color-danger-50: #450a0a;
+  --color-danger-100: #7f1d1d;
+  --color-danger-500: #f87171;
+  --color-danger-600: #fca5a5;
+  --color-danger-700: #fecaca;
+
+  --color-neutral-50: #18181b;
+  --color-neutral-100: #1e1e20;
+  --color-neutral-200: #27272a;
+  --color-neutral-300: #3f3f46;
+  --color-neutral-400: #52525b;
+  --color-neutral-500: #71717a;
+  --color-neutral-600: #a1a1aa;
+  --color-neutral-700: #d4d4d8;
+  --color-neutral-800: #e4e4e7;
+  --color-neutral-900: #f4f4f5;
+
+  --color-bg-primary: #0f0f11;
+  --color-bg-surface: #18181b;
+  --color-bg-surface-hover: #1e1e20;
+  --color-text-primary: #f4f4f5;
+  --color-text-primary-hover: #e4e4e7;
+  --color-text-secondary: #71717a;
+  --color-text-inverse: #18181b;
+  --color-border-primary: #27272a;
+  --color-border-strong: #3f3f46;
+
+  /* Light text colors for dark mode overrides (inverted neutral scale) */
+  --color-text-dark-900: #f4f4f5;
+  --color-text-dark-800: #e4e4e7;
+  --color-text-dark-700: #d4d4d8;
+  --color-text-dark-600: #a1a1aa;
+  --color-text-dark-500: #71717a;
+  --color-text-dark-400: #52525b;
+  --color-text-dark-300: #3f3f46;
+}
+
+/* Dark mode accent overrides */
+[data-theme="dark"][data-accent="neutral"] {
+  --color-accent-50: #1f1f21;
+  --color-accent-100: #2a2a2d;
+  --color-accent-200: #3a3a3e;
+  --color-accent-300: #6b7280;
+  --color-accent-400: #9ca3af;
+  --color-accent-500: #d1d5db;
+  --color-accent-600: #e5e7eb;
+  --color-accent-700: #f3f4f6;
+}
+
+[data-theme="dark"][data-accent="green"] {
+  --color-accent-50: #052e16;
+  --color-accent-100: #14532d;
+  --color-accent-200: #166534;
+  --color-accent-300: #22c55e;
+  --color-accent-400: #4ade80;
+  --color-accent-500: #86efac;
+  --color-accent-600: #bbf7d0;
+  --color-accent-700: #dcfce7;
+}
+
+[data-theme="dark"][data-accent="violet"] {
+  --color-accent-50: #1e1b4b;
+  --color-accent-100: #312e81;
+  --color-accent-200: #3730a3;
+  --color-accent-300: #8b5cf6;
+  --color-accent-400: #a78bfa;
+  --color-accent-500: #c4b5fd;
+  --color-accent-600: #ddd6fe;
+  --color-accent-700: #ede9fe;
+}
+
+[data-theme="dark"][data-accent="pink"] {
+  --color-accent-50: #4a0d2e;
+  --color-accent-100: #831843;
+  --color-accent-200: #9d174d;
+  --color-accent-300: #ec4899;
+  --color-accent-400: #f472b6;
+  --color-accent-500: #f9a8d4;
+  --color-accent-600: #fbcfe8;
+  --color-accent-700: #fce7f3;
+}
+
+[data-theme="dark"][data-accent="orange"] {
+  --color-accent-50: #431407;
+  --color-accent-100: #7c2d12;
+  --color-accent-200: #9a3412;
+  --color-accent-300: #f97316;
+  --color-accent-400: #fb923c;
+  --color-accent-500: #fdba74;
+  --color-accent-600: #fed7aa;
+  --color-accent-700: #ffedd5;
+}
+
+/* === Global base === */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* === Utility classes === */
+@layer utilities {
+  .gradient-subtle {
+    background: linear-gradient(135deg, var(--color-bg-primary) 0%, var(--color-accent-50) 50%, var(--color-bg-primary) 100%);
+  }
+}
+
+/* === Card component === */
+.card {
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border-primary);
+  background-color: var(--color-bg-surface);
+}
+
+.card-hover:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  border-color: var(--color-border-strong);
+}
+
+[data-theme="dark"] .card-hover:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* === Badge component === */
+.badge-default {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--color-neutral-100);
+  color: var(--color-text-secondary);
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.badge-success {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--color-success-50);
+  color: var(--color-success-700);
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.badge-warning {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--color-warning-50);
+  color: var(--color-warning-700);
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.badge-danger {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--color-danger-50);
+  color: var(--color-danger-700);
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* === Button component === */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 0.75rem;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s ease;
+}
+
+.btn:hover:not(:disabled) { transform: translateY(-1px); }
+.btn:active:not(:disabled) { transform: translateY(0); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-primary {
+  background-color: var(--color-accent-600);
+  color: var(--color-text-inverse);
+}
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--color-accent-700);
+}
+
+.btn-secondary {
+  background-color: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-primary);
+}
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--color-bg-surface-hover);
+}
+
+.btn-danger {
+  background-color: var(--color-danger-50);
+  color: var(--color-danger-700);
+  border: 1px solid var(--color-danger-100);
+}
+.btn-danger:hover:not(:disabled) {
+  background-color: var(--color-danger-100);
+}
+
+.btn-ghost {
+  background-color: transparent;
+  color: var(--color-text-secondary);
+}
+.btn-ghost:hover:not(:disabled) {
+  background-color: var(--color-neutral-100);
+  color: var(--color-text-primary);
+}
+
+.btn-lg { padding: 12px 24px; font-size: 15px; }
+.btn-md { padding: 8px 16px; font-size: 13px; }
+
+/* === Input component === */
+.input-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin-bottom: 6px;
+}
+
+.input, .input input, .input textarea, .input select {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border-primary);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-surface);
+  transition: all 0.15s ease;
+  outline: none;
+}
+
+.input input:focus, .input textarea:focus, .input select:focus {
+  border-color: var(--color-accent-500);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent-500) 20%, transparent);
+}
+
+.input input::placeholder, .input textarea::placeholder {
+  color: var(--color-text-secondary);
+}
+
+/* === Empty state component === */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.empty-state-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  background-color: var(--color-neutral-100);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.empty-state-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 4px;
+}
+
+.empty-state-desc {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+/* === Error state component === */
+.error-state {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.error-state-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  background-color: var(--color-danger-50);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.error-state-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 4px;
+}
+
+.error-state-desc {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+/* === Textarea component === */
+.input textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+/* === Toast animation === */
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* === Dark mode overrides for Tailwind utilities ===
+ * Tailwind v4 generates static classes at build time,
+ * so we override them here for dark mode via [data-theme="dark"].
+ * ALL overrides must come AFTER Tailwind imports and use !important.
+ */
+
+/* Text colors — map dark neutral shades to light ones */
+[data-theme="dark"] .text-neutral-900,
+[data-theme="dark"] .text-neutral-900\/90,
+[data-theme="dark"] .text-neutral-900\/80,
+[data-theme="dark"] .text-neutral-900\/70 {
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .text-neutral-800,
+[data-theme="dark"] .text-neutral-800\/90,
+[data-theme="dark"] .text-neutral-800\/80,
+[data-theme="dark"] .text-neutral-800\/70 {
+  color: #e4e4e7 !important;
+}
+
+[data-theme="dark"] .text-neutral-700,
+[data-theme="dark"] .text-neutral-700\/90,
+[data-theme="dark"] .text-neutral-700\/80,
+[data-theme="dark"] .text-neutral-700\/70 {
+  color: #d4d4d8 !important;
+}
+
+[data-theme="dark"] .text-neutral-600,
+[data-theme="dark"] .text-neutral-600\/90,
+[data-theme="dark"] .text-neutral-600\/80,
+[data-theme="dark"] .text-neutral-600\/70 {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .text-neutral-500,
+[data-theme="dark"] .text-neutral-500\/90,
+[data-theme="dark"] .text-neutral-500\/80,
+[data-theme="dark"] .text-neutral-500\/70 {
+  color: #71717a !important;
+}
+
+[data-theme="dark"] .text-neutral-400,
+[data-theme="dark"] .text-neutral-400\/90,
+[data-theme="dark"] .text-neutral-400\/80,
+[data-theme="dark"] .text-neutral-400\/70 {
+  color: #52525b !important;
+}
+
+[data-theme="dark"] .text-neutral-300,
+[data-theme="dark"] .text-neutral-300\/90,
+[data-theme="dark"] .text-neutral-300\/80,
+[data-theme="dark"] .text-neutral-300\/70 {
+  color: #3f3f46 !important;
+}
+
+[data-theme="dark"] .text-black,
+[data-theme="dark"] .text-black\/90,
+[data-theme="dark"] .text-black\/80,
+[data-theme="dark"] .text-black\/70,
+[data-theme="dark"] .text-black\/60,
+[data-theme="dark"] .text-black\/50,
+[data-theme="dark"] .text-black\/40,
+[data-theme="dark"] .text-black\/30,
+[data-theme="dark"] .text-black\/20 {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .text-black\/10 {
+  color: #52525b !important;
+}
+
+/* Background colors */
+[data-theme="dark"] .bg-white,
+[data-theme="dark"] .bg-white\/90,
+[data-theme="dark"] .bg-white\/80,
+[data-theme="dark"] .bg-white\/70 {
+  background-color: #18181b !important;
+}
+
+[data-theme="dark"] .bg-neutral-900,
+[data-theme="dark"] .bg-neutral-900\/90,
+[data-theme="dark"] .bg-neutral-900\/80 {
+  background-color: #1e1e20 !important;
+}
+
+[data-theme="dark"] .bg-neutral-800,
+[data-theme="dark"] .bg-neutral-800\/90 {
+  background-color: #27272a !important;
+}
+
+[data-theme="dark"] .bg-neutral-700 {
+  background-color: #3f3f46 !important;
+}
+
+[data-theme="dark"] .bg-neutral-200 {
+  background-color: #27272a !important;
+}
+
+[data-theme="dark"] .bg-neutral-100 {
+  background-color: #1e1e20 !important;
+}
+
+[data-theme="dark"] .bg-neutral-50,
+[data-theme="dark"] .bg-neutral-50\/90,
+[data-theme="dark"] .bg-neutral-50\/80 {
+  background-color: #18181b !important;
+}
+
+/* Border colors */
+[data-theme="dark"] .border-white {
+  border-color: #3f3f46 !important;
+}
+
+[data-theme="dark"] .border-neutral-900 {
+  border-color: #3f3f46 !important;
+}
+
+[data-theme="dark"] .border-neutral-300 {
+  border-color: #3f3f46 !important;
+}
+
+[data-theme="dark"] .border-neutral-200 {
+  border-color: #27272a !important;
+}
+
+[data-theme="dark"] .border-neutral-100 {
+  border-color: #27272a !important;
+}
+
+/* Ring colors */
+[data-theme="dark"] .ring-neutral-300,
+[data-theme="dark"] .ring-neutral-300\/50,
+[data-theme="dark"] .ring-neutral-300\/20 {
+  --tw-ring-color: #3f3f46 !important;
+}
+
+[data-theme="dark"] .ring-neutral-200,
+[data-theme="dark"] .ring-neutral-200\/50 {
+  --tw-ring-color: #27272a !important;
+}
+
+/* Placeholder colors */
+[data-theme="dark"] .placeholder\:text-neutral-400::-moz-placeholder,
+[data-theme="dark"] .placeholder\:text-neutral-400::placeholder {
+  color: #52525b !important;
+}
+
+[data-theme="dark"] .placeholder\:text-neutral-500::-moz-placeholder,
+[data-theme="dark"] .placeholder\:text-neutral-500::placeholder {
+  color: #71717a !important;
+}
+
+/* Hover states */
+[data-theme="dark"] .hover\:bg-neutral-50:hover,
+[data-theme="dark"] .hover\:bg-neutral-50\/90:hover {
+  background-color: #1e1e20 !important;
+}
+
+[data-theme="dark"] .hover\:bg-neutral-100:hover {
+  background-color: #27272a !important;
+}
+
+[data-theme="dark"] .hover\:bg-neutral-200:hover {
+  background-color: #3f3f46 !important;
+}
+
+[data-theme="dark"] .hover\:bg-neutral-700:hover {
+  background-color: #52525b !important;
+}
+
+[data-theme="dark"] .hover\:bg-neutral-900:hover {
+  background-color: #1e1e20 !important;
+}
+
+[data-theme="dark"] .hover\:border-neutral-300:hover {
+  border-color: #52525b !important;
+}
+
+[data-theme="dark"] .hover\:border-neutral-100:hover {
+  border-color: #27272a !important;
+}
+
+[data-theme="dark"] .hover\:text-neutral-900:hover {
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .hover\:text-neutral-600:hover {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .hover\:text-neutral-700:hover {
+  color: #d4d4d8 !important;
+}
+
+/* Focus ring */
+[data-theme="dark"] .focus\:ring-accent-500\/30:focus,
+[data-theme="dark"] .focus\:ring-accent-500\/20:focus {
+  --tw-ring-color: color-mix(in srgb, var(--color-accent-500) 30%, transparent) !important;
+}
+
+/* Shadow */
+[data-theme="dark"] .shadow-neutral-200\/50,
+[data-theme="dark"] .shadow-neutral-200 {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Gradient backgrounds */
+[data-theme="dark"] .from-neutral-50 {
+  --tw-gradient-from: #18181b !important;
+}
+
+[data-theme="dark"] .via-white {
+  --tw-gradient-via: #18181b !important;
+}
+
+[data-theme="dark"] .from-neutral-50\/30 {
+  --tw-gradient-from: color-mix(in srgb, #18181b 30%, transparent) !important;
+}

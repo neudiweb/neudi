@@ -1,0 +1,27 @@
+- generic [ref=f6e4]:
+  - generic [ref=f6e5]:
+    - link [ref=f6e6] [cursor=pointer]:
+      - /url: /
+      - heading "Neudi" [level=1] [ref=f6e7]
+    - paragraph [ref=f6e8]: Iniciar sesión en tu cuenta
+  - generic [ref=f6e9]:
+    - generic [ref=f6e10]:
+      - generic [ref=f6e11]:
+        - generic [ref=f6e12]: Email
+        - textbox "Email" [ref=f6e13]:
+          - /placeholder: tu@email.com
+      - generic [ref=f6e14]:
+        - generic [ref=f6e15]:
+          - generic [ref=f6e16]: Contraseña
+          - textbox "Contraseña" [ref=f6e17]:
+            - /placeholder: Tu contraseña
+        - paragraph [ref=f6e18]: Mínimo 6 caracteres
+      - button "Iniciar sesión" [ref=f6e19] [cursor=pointer]
+    - generic [ref=f6e20]: o
+    - button "Probar demo" [ref=f6e24] [cursor=pointer]
+    - paragraph [ref=f6e29]:
+      - text: ¿No tenés cuenta?
+      - link "Crear una cuenta" [ref=f6e30] [cursor=pointer]:
+        - /url: /register
+  - link "Volver al inicio" [ref=f6e32] [cursor=pointer]:
+    - /url: /

@@ -1,0 +1,49 @@
+- generic [ref=e3]:
+  - generic [ref=e6]:
+    - link "Sistema de turnos gratuito para tu negocio" [ref=e7] [cursor=pointer]:
+      - /url: /register
+    - heading "Turnos online que simplifican tu día" [level=1] [ref=e9]
+    - paragraph [ref=e10]: Neudi permite que tus clientes reserven turnos 24/7 sin llamadas ni mensajes. Vos gestionás todo desde un panel simple.
+    - generic [ref=e11]:
+      - link "Empezar gratis" [ref=e12] [cursor=pointer]:
+        - /url: /register
+      - link "¿Cómo funciona?" [ref=e15] [cursor=pointer]:
+        - /url: "#como-funciona"
+    - generic [ref=e16]:
+      - generic [ref=e17]: Sin tarjeta de crédito
+      - generic [ref=e20]: Configuración en 5 min
+  - generic [ref=e24]:
+    - generic [ref=e25]:
+      - heading "Todo lo que necesitás, nada que no" [level=2] [ref=e26]
+      - paragraph [ref=e27]: Neudi se encarga de la gestión de turnos para que vos puedas enfocarte en tu negocio.
+    - generic [ref=e28]:
+      - generic [ref=e29]:
+        - heading "Calendario inteligente" [level=3] [ref=e34]
+        - paragraph [ref=e35]: Tus clientes ven los horarios disponibles y reservan al instante. Sin conflictos ni solapamientos.
+      - generic [ref=e36]:
+        - heading "Gestión de clientes" [level=3] [ref=e43]
+        - paragraph [ref=e44]: Historial de visitas, preferencias y datos de contacto de cada cliente en un solo lugar.
+      - generic [ref=e45]:
+        - heading "Servicios personalizables" [level=3] [ref=e50]
+        - paragraph [ref=e51]: Configurá servicios, duración, precios y opciones como seña o depósito.
+      - generic [ref=e52]:
+        - heading "Horarios flexibles" [level=3] [ref=e57]
+        - paragraph [ref=e58]: Definí horarios por día, feriados y períodos especiales fácilmente.
+      - generic [ref=e59]:
+        - heading "Página de reserva" [level=3] [ref=e65]
+        - paragraph [ref=e66]: Cada negocio tiene su página personalizada para que los clientes reserven online.
+      - generic [ref=e67]:
+        - heading "Fácil de usar" [level=3] [ref=e71]
+        - paragraph [ref=e72]: Interfaz intuitiva tanto para vos como para tus clientes. Sin curva de aprendizaje.
+  - generic [ref=e79]:
+    - heading "¿Listo para simplificar tu negocio?" [level=2] [ref=e80]
+    - paragraph [ref=e81]: Creá tu cuenta gratis y empezá a recibir turnos online en minutos.
+    - link "Crear mi cuenta gratuita" [ref=e82] [cursor=pointer]:
+      - /url: /register
+  - contentinfo [ref=e85]:
+    - generic [ref=e86]:
+      - link "N Neudi" [ref=e87] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e88]: "N"
+        - generic [ref=e90]: Neudi
+      - paragraph [ref=e91]: © 2026 Neudi. Todos los derechos reservados.

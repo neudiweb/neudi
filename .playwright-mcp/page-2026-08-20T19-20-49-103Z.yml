@@ -1,0 +1,35 @@
+- generic [ref=f7e4]:
+  - generic [ref=f7e5]:
+    - link [ref=f7e6] [cursor=pointer]:
+      - /url: /
+      - heading "Neudi" [level=1] [ref=f7e7]
+    - paragraph [ref=f7e8]: Crear tu cuenta gratuita
+  - generic [ref=f7e9]:
+    - generic [ref=f7e10]:
+      - generic [ref=f7e11]:
+        - generic [ref=f7e12]: Tu nombre
+        - textbox "Tu nombre" [ref=f7e13]:
+          - /placeholder: Juan Pérez
+      - generic [ref=f7e14]:
+        - generic [ref=f7e15]: Nombre del negocio
+        - textbox "Nombre del negocio" [ref=f7e16]:
+          - /placeholder: Peluquería Juan
+      - generic [ref=f7e17]:
+        - generic [ref=f7e18]: Email
+        - textbox "Email" [ref=f7e19]:
+          - /placeholder: tu@email.com
+      - generic [ref=f7e21]:
+        - generic [ref=f7e22]: Contraseña
+        - textbox "Contraseña" [ref=f7e23]:
+          - /placeholder: Mínimo 6 caracteres
+      - generic [ref=f7e24]:
+        - generic [ref=f7e25]: Confirmar contraseña
+        - textbox "Confirmar contraseña" [ref=f7e26]:
+          - /placeholder: Repetí tu contraseña
+      - button "Crear cuenta" [ref=f7e27] [cursor=pointer]
+    - paragraph [ref=f7e28]:
+      - text: ¿Ya tenés cuenta?
+      - link "Iniciar sesión" [ref=f7e29] [cursor=pointer]:
+        - /url: /login
+  - link "Volver al inicio" [ref=f7e31] [cursor=pointer]:
+    - /url: /
