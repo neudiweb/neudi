@@ -1,6 +1,6 @@
 import { getBusiness, type BusinessData } from '../../services/businessService';
 import { getAvailableSlots, createAppointment } from '../../services/appointmentService';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import * as React from 'react';
 import { PublicLayout } from '../../components/layout/PublicLayout';
 import { formatPrice, BUSINESS_TIMEZONE, parseLocalDate, formatDate } from '../../utils/helpers';
@@ -218,9 +218,9 @@ export function BookingPage() {
             </div>
           </div>
 
-          <a href="/#/" className="inline-flex items-center justify-center bg-[var(--color-bg-surface)] border border-[var(--color-border-primary)] text-[var(--color-text-primary)] font-medium rounded-xl px-8 py-3 text-base hover:bg-[var(--color-bg-surface-hover)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-500)] focus-visible:ring-offset-2">
+          <Link to="/" className="inline-flex items-center justify-center bg-[var(--color-bg-surface)] border border-[var(--color-border-primary)] text-[var(--color-text-primary)] font-medium rounded-xl px-8 py-3 text-base hover:bg-[var(--color-bg-surface-hover)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-500)] focus-visible:ring-offset-2">
             Volver al inicio
-          </a>
+          </Link>
         </div>
       </PublicLayout>
     );

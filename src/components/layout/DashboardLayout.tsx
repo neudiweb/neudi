@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface DashboardLayoutProps {
@@ -82,22 +83,22 @@ export function DashboardLayout({ children, currentTab = 'agenda' }: DashboardLa
               )}
             </svg>
           </button>
-          <a href="/#/" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-[var(--color-bg-surface)] border border-[var(--color-border-primary)] flex items-center justify-center shrink-0">
               <span className="text-[var(--color-text-primary)] text-xs font-bold">N</span>
             </div>
             {sidebarOpen && (
               <span className="font-bold text-lg tracking-tight text-[var(--color-text-primary)]">Neudi</span>
             )}
-          </a>
+          </Link>
         </div>
 
         {/* Navigation */}
         <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
           {tabs.map((tab) => (
-            <a
+            <Link
               key={tab.id}
-              href={`/dashboard/${tab.id}`}
+              to={`/dashboard/${tab.id}`}
               onClick={() => setMobileMenuOpen(false)}
               className={`flex items-center gap-3 rounded-lg text-sm font-medium transition-colors ${
                 currentTab === tab.id
@@ -109,7 +110,7 @@ export function DashboardLayout({ children, currentTab = 'agenda' }: DashboardLa
                 {tab.icon}
               </span>
               {sidebarOpen && <span>{tab.label}</span>}
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -156,12 +157,12 @@ export function DashboardLayout({ children, currentTab = 'agenda' }: DashboardLa
               <path d="M3 12h18M3 6h18M3 18h18" strokeLinecap="round" />
             </svg>
           </button>
-          <a href="/#/" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-[var(--color-bg-surface)] border border-[var(--color-border-primary)] flex items-center justify-center shrink-0">
               <span className="text-[var(--color-text-primary)] text-xs font-bold">N</span>
             </div>
             <span className="font-bold tracking-tight text-[var(--color-text-primary)]">Neudi</span>
-          </a>
+          </Link>
         </header>
 
         {/* Page content */}

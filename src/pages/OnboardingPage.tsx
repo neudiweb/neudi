@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -36,9 +37,9 @@ export function OnboardingPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <a href="/#/" className="inline-block">
+          <Link to="/" className="inline-block">
             <h1 className="text-2xl font-bold tracking-tight text-[var(--color-text-primary)]">Neudi</h1>
-          </a>
+          </Link>
           <p className="text-sm text-[var(--color-text-secondary)] mt-1">Creá tu negocio</p>
         </div>
 
@@ -101,13 +102,13 @@ export function OnboardingPage() {
 
           {/* Back to home */}
           <div className="text-center mt-4">
-            <a href="/#/" className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] inline-flex items-center gap-1.5">
+            <Link to="/" className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] inline-flex items-center gap-1.5">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M19 12H5" strokeLinecap="round" />
                 <path d="M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               Volver al inicio
-            </a>
+            </Link>
           </div>
         </div>
       </div>

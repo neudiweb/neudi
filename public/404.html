@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neudi — Turnos para tu negocio</title>
+  <script>
+    // GitHub Pages con repo nested: siempre redirigir a index.html en /neudi/
+    var path = location.pathname;
+    if (path !== '/' && !location.search && !location.hash) {
+      location.replace('/neudi/');
+    }
+  </script>
+</head>
+<body>
+  <noscript>
+    <p>Neudi requiere JavaScript para funcionar.</p>
+  </noscript>
+  <script>
+    // Redirección para cualquier ruta que no sea la raíz
+    if (location.pathname !== '/' && location.pathname !== '/neudi/') {
+      window.location.replace('/neudi/');
+    }
+  </script>
+</body>
+</html>

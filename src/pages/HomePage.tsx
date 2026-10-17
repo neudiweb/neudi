@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 
 export function HomePage() {
   return (
@@ -8,10 +9,10 @@ export function HomePage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-32">
           <div className="text-center max-w-3xl mx-auto">
             {/* Badge */}
-            <a href="/#/register" className="inline-flex items-center gap-1.5 text-xs font-medium text-accent-600 bg-accent-50 border border-accent-200 rounded-full px-4 py-1.5 mb-6 hover:bg-accent-100 transition-colors">
+            <Link to="/register" className="inline-flex items-center gap-1.5 text-xs font-medium text-accent-600 bg-accent-50 border border-accent-200 rounded-full px-4 py-1.5 mb-6 hover:bg-accent-100 transition-colors">
               <span className="w-1.5 h-1.5 rounded-full bg-accent-500" />
               Sistema de turnos gratuito para tu negocio
-            </a>
+            </Link>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[var(--color-text-primary)] leading-[1.1]">
               Turnos online que{' '}
@@ -26,12 +27,12 @@ export function HomePage() {
             </p>
 
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
-              <a href="/#/register" className="btn btn-primary btn-lg w-full sm:w-auto gap-2">
+              <Link to="/register" className="btn btn-primary btn-lg w-full sm:w-auto gap-2">
                 Empezar gratis
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-              </a>
+              </Link>
               <a href="#como-funciona" className="btn btn-secondary btn-lg w-full sm:w-auto">
                 ¿Cómo funciona?
               </a>
@@ -165,12 +166,12 @@ export function HomePage() {
               <p className="text-[var(--color-text-secondary)] max-w-md mx-auto mb-8">
                 Creá tu cuenta gratis y empezá a recibir turnos online en minutos.
               </p>
-              <a href="/#/register" className="btn btn-lg bg-white text-neutral-900 hover:bg-neutral-100 inline-flex items-center gap-2 font-medium">
+              <Link to="/register" className="btn btn-lg bg-white text-neutral-900 hover:bg-neutral-100 inline-flex items-center gap-2 font-medium">
                 Crear mi cuenta gratuita
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -179,12 +180,12 @@ export function HomePage() {
       {/* Footer */}
       <footer className="border-t border-[var(--color-border-primary)] py-8">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <a href="/#/" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-[var(--color-text-primary)] flex items-center justify-center">
               <span className="text-white text-xs font-bold">N</span>
             </div>
             <span className="font-bold tracking-tight text-[var(--color-text-primary)]">Neudi</span>
-          </a>
+          </Link>
           <p className="text-sm text-[var(--color-text-secondary)]">© 2026 Neudi. Todos los derechos reservados.</p>
         </div>
       </footer>

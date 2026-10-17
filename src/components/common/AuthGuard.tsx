@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { LoadingSpinner } from './States';
 
@@ -51,9 +52,9 @@ function FreeAccessScreen() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[var(--color-bg-primary)] via-[var(--color-bg-surface)] to-accent-50/30 px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <a href="/#/" className="inline-block">
+          <Link to="/" className="inline-block">
             <h1 className="text-2xl font-bold tracking-tight text-[var(--color-text-primary)]">Neudi</h1>
-          </a>
+          </Link>
         </div>
 
         <div className="bg-[var(--color-bg-surface)] border border-[var(--color-border-primary)] rounded-xl shadow-sm p-6 sm:p-8 space-y-6">

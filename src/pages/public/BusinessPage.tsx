@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import * as React from 'react';
 import { PublicLayout } from '../../components/layout/PublicLayout';
 import { getBusiness } from '../../services/businessService';
@@ -37,7 +37,7 @@ export function BusinessPage() {
       <PublicLayout>
         <div className="max-w-6xl mx-auto px-4 py-32 text-center">
           <h1 className="text-2xl font-bold text-[var(--color-text-primary)] mb-2">Negocio no encontrado</h1>
-          <a href="/#/" className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">← Volver al inicio</a>
+          <Link to="/" className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">← Volver al inicio</Link>
         </div>
       </PublicLayout>
     );
@@ -54,9 +54,9 @@ export function BusinessPage() {
           <p className="text-lg sm:text-xl text-[var(--color-text-secondary)] max-w-2xl mx-auto mb-10 leading-relaxed">
             {business.description}
           </p>
-          <a href={`/business/${slug}/reservar`} className="inline-flex items-center justify-center bg-[var(--color-text-primary)] text-[var(--color-bg-primary)] font-medium rounded-xl px-8 py-3 text-base hover:opacity-90 transition-opacity shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-500)] focus-visible:ring-offset-2">
+          <Link to={`/business/${slug}/reservar`} className="inline-flex items-center justify-center bg-[var(--color-text-primary)] text-[var(--color-bg-primary)] font-medium rounded-xl px-8 py-3 text-base hover:opacity-90 transition-opacity shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-500)] focus-visible:ring-offset-2">
             Reservar turno
-          </a>
+          </Link>
         </div>
       </section>
 
@@ -114,9 +114,9 @@ export function BusinessPage() {
         <div className="text-center max-w-lg mx-auto">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--color-text-primary)] mb-3">Ubicación</h2>
           <p className="text-[var(--color-text-secondary)] mb-8">{business.address}, {business.city}</p>
-          <a href={`/business/${slug}/reservar`} className="inline-flex items-center justify-center bg-[var(--color-bg-surface)] border border-[var(--color-border-primary)] text-[var(--color-text-primary)] font-medium rounded-xl px-8 py-3 text-base hover:bg-[var(--color-bg-surface-hover)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-500)] focus-visible:ring-offset-2">
+          <Link to={`/business/${slug}/reservar`} className="inline-flex items-center justify-center bg-[var(--color-bg-surface)] border border-[var(--color-border-primary)] text-[var(--color-text-primary)] font-medium rounded-xl px-8 py-3 text-base hover:bg-[var(--color-bg-surface-hover)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-500)] focus-visible:ring-offset-2">
             Reservar ahora
-          </a>
+          </Link>
         </div>
       </section>
     </PublicLayout>

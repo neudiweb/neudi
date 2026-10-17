@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import { supabase, type Business, type BusinessHour } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { getDayName } from '../../utils/helpers';
@@ -136,9 +137,9 @@ export function DashboardConfig() {
                 </div>
               </div>
 
-              <a href="/#/dashboard/hours" className="block">
+              <Link to="/dashboard/hours" className="block">
                 <button className="btn-md w-full text-center">Administrar horarios</button>
-              </a>
+              </Link>
             </div>
           ) : (
             <EmptyState title="No se pudo cargar la configuración" description="Intentá de nuevo más tarde." />

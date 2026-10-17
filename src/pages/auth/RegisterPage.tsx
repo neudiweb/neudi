@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Input, Textarea } from '../../components/ui/Input';
@@ -40,9 +41,9 @@ export function RegisterPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <a href="/#/" className="inline-block">
+          <Link to="/" className="inline-block">
             <h1 className="text-2xl font-bold tracking-tight text-[var(--color-text-primary)]">Neudi</h1>
-          </a>
+          </Link>
           <p className="text-sm text-[var(--color-text-secondary)] mt-1">Crear tu cuenta gratuita</p>
         </div>
 
@@ -119,21 +120,21 @@ export function RegisterPage() {
           {/* Login link */}
           <p className="text-center text-sm text-[var(--color-text-secondary)] pt-2">
             ¿Ya tenés cuenta?{' '}
-            <a href="/#/login" className="font-medium text-accent-600 hover:text-accent-700">
+            <Link to="/login" className="font-medium text-accent-600 hover:text-accent-700">
               Iniciar sesión
-            </a>
+            </Link>
           </p>
         </div>
 
         {/* Back to home */}
         <div className="text-center mt-6">
-          <a href="/#/" className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] inline-flex items-center gap-1.5">
+          <Link to="/" className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] inline-flex items-center gap-1.5">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M19 12H5" strokeLinecap="round" />
               <path d="M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             Volver al inicio
-          </a>
+          </Link>
         </div>
       </div>
     </div>
