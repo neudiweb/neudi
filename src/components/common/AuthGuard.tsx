@@ -109,6 +109,16 @@ export function PublicGuard({ children }: { children: React.ReactNode }) {
   const { user, isLoading, onboardingRequired } = useAuth();
   const navigate = useNavigate();
 
+  React.useEffect(() => {
+    if (!isLoading) {
+      if (user) {
+        navigate('/dashboard', { replace: true });
+      } else if (onboardingRequired) {
+        navigate('/onboarding', { replace: true });
+      }
+    }
+  }, [user, isLoading, onboardingRequired, navigate]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -117,16 +127,7 @@ export function PublicGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Authenticated users with businesses go to dashboard, others to onboarding
-  if (user) {
-    React.useEffect(() => { navigate('/dashboard', { replace: true }); }, [navigate]);
-    return null;
-  }
-
-  if (onboardingRequired) {
-    React.useEffect(() => { navigate('/onboarding', { replace: true }); }, [navigate]);
-    return null;
-  }
+  if (user || onboardingRequired) return null;
 
   return <>{children}</>;
 }
@@ -135,6 +136,16 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
   const { user, isLoading, onboardingRequired } = useAuth();
   const navigate = useNavigate();
 
+  React.useEffect(() => {
+    if (!isLoading) {
+      if (user) {
+        navigate('/dashboard', { replace: true });
+      } else if (!onboardingRequired) {
+        navigate('/dashboard', { replace: true });
+      }
+    }
+  }, [user, isLoading, onboardingRequired, navigate]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -143,17 +154,7 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Users with businesses go to dashboard
-  if (user) {
-    React.useEffect(() => { navigate('/dashboard', { replace: true }); }, [navigate]);
-    return null;
-  }
-
-  // Only show onboarding for users who need it
-  if (!onboardingRequired) {
-    React.useEffect(() => { navigate('/dashboard', { replace: true }); }, [navigate]);
-    return null;
-  }
+  if (user || !onboardingRequired) return null;
 
   return <>{children}</>;
 }
