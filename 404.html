@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neudi — Turnos para tu negocio</title>
+  <script>
+    // GitHub Pages: redirigir todo a index.html para que React Router maneje las rutas
+    var path = location.pathname;
+    if (path !== '/' && !location.search && !location.hash) {
+      location.replace('/neudi/' + (path.startsWith('/') ? path.slice(1) : path));
+    }
+  </script>
+</head>
+<body>
+  <noscript>
+    <p>Neudi requiere JavaScript para funcionar.</p>
+  </noscript>
+  <script>
+    // Redirección final a index.html
+    if (location.pathname !== '/' && location.pathname !== '/neudi/') {
+      window.location.replace('/neudi/');
+    }
+  </script>
+</body>
+</html>

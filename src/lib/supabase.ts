@@ -3,9 +3,15 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
+// En desarrollo sin .env, usar placeholders para que el build no crashee
+const _url = supabaseUrl || 'https://placeholder.supabase.co';
+const _key = supabaseKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder';
+
 if (!supabaseUrl || !supabaseKey) {
-  throw new Error(
-    'Faltan variables de entorno: VITE_SUPABASE_URL y VITE_SUPABASE_PUBLISHABLE_KEY son requeridas.'
+  console.warn(
+    '⚠️ Variables de entorno de Supabase no configuradas. ' +
+    'El cliente usará placeholders. En producción, seteá ' +
+    'VITE_SUPABASE_URL y VITE_SUPABASE_PUBLISHABLE_KEY.'
   );
 }
 
@@ -319,7 +325,7 @@ export interface Database {
   };
 }
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
+export const supabase = createClient<Database>(_url, _key, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
