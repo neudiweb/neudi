@@ -22,7 +22,11 @@ function RouteRedirector() {
     const params = new URLSearchParams(window.location.search);
     const route = params.get('_route');
     if (route) {
-      navigate(route, { replace: true });
+      // Defer navigation to next microtask to avoid React 310 error
+      // (Cannot update a component while rendering a different component)
+      setTimeout(() => {
+        navigate(route, { replace: true });
+      }, 10);
     }
   }, [navigate]);
   return null;

@@ -330,6 +330,7 @@ export const supabase = createClient<Database>(_url, _key, {
     autoRefreshToken: true,
     persistSession: true,
     storageKey: 'neudi-auth-token',
+    detectSessionInUrl: false,
   },
 });
 
