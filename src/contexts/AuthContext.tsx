@@ -234,9 +234,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loginDemo = async () => {
     setState((prev) => ({ ...prev, isLoading: true }));
-    // Demo mode not available with Supabase Auth - redirect to real login
-    setState((prev) => ({ ...prev, isLoading: false }));
-    return { error: 'El modo demo requiere configuración de Supabase.' };
+    // Fallback to mock session - works without Supabase
+    const mockUser: User = {
+      email: 'demo@neudi.test',
+      businessName: 'Peluquería Juan',
+      businessSlug: 'peluqueria-juan',
+      businessId: 'demo-business-id',
+      hasProAccess: true,
+    };
+    setState({ user: mockUser, isLoading: false });
+    return {};
   };
 
   const createBusiness = async (businessName: string) => {

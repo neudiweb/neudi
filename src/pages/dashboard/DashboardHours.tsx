@@ -2,7 +2,6 @@ import * as React from 'react';
 import { supabase, type BusinessHour, type Business } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
-import { Button } from '../../components/ui/Button';
 import { LoadingSpinner } from '../../components/common/States';
 import { timeToMinutes, validateTimeRanges, jsDayToBusinessDay, businessDayToJsDay } from '../../utils/dateTime';
 import { ErrorModal } from '../../components/ErrorModal';
@@ -320,15 +319,25 @@ export function DashboardHours() {
   return (
     <DashboardLayout currentTab="hours">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-neutral-900">Horarios de atención</h1>
-        <p className="text-sm text-neutral-500 mt-1">Definí qué días y horarios tu negocio atiende. Los días cerrados no mostrarán turnos disponibles.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-zinc-800 to-zinc-950 dark:from-zinc-100 dark:to-zinc-300 flex items-center justify-center shadow-lg shadow-zinc-300/30 dark:shadow-zinc-900/50">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" className="dark:stroke-zinc-900">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 6v6l4 2" strokeLinecap="round" />
+            </svg>
+          </div>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">Horarios de atención</h1>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 font-medium">Definí qué días y horarios tu negocio atiende. Los días cerrados no mostrarán turnos disponibles.</p>
+          </div>
+        </div>
       </div>
 
       <UpcomingHolidayNotice />
 
       {/* Days grid */}
-      <div className="space-y-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {DAYS.map((day, index) => {
           const jsDay = index;
           const dayData = dayHours.get(jsDay);
@@ -338,139 +347,153 @@ export function DashboardHours() {
           return (
             <div
               key={day}
-              className={`rounded-xl border transition-all duration-200 ${
+              className={`group rounded-2xl border transition-all duration-300 overflow-hidden ${
                 isOpen
-                  ? 'border-neutral-200 bg-white shadow-sm'
-                  : 'border-neutral-100 bg-neutral-50/50'
+                  ? 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm hover:shadow-lg hover:shadow-zinc-200/40 dark:hover:shadow-zinc-900/40'
+                  : 'border-zinc-100 dark:border-zinc-800/50 bg-zinc-50/80 dark:bg-zinc-900/30'
               }`}
             >
-              {/* Day header row */}
-              <div className="flex items-center justify-between p-4">
-                <div className="flex items-center gap-4">
-                  {/* Day name with icon */}
+              {/* Top accent bar */}
+              {isOpen && (
+                <div className="h-1.5 bg-gradient-to-r from-zinc-800 via-zinc-500 to-zinc-300 dark:from-zinc-100 dark:via-zinc-300 dark:to-zinc-500" />
+              )}
+              
+              <div className="p-4 sm:p-5">
+                {/* Day header row */}
+                <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg font-semibold ${
+                    {/* Day icon */}
+                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-base font-semibold transition-all duration-200 ${
                       isOpen
-                        ? 'bg-accent-50 text-accent-600'
-                        : 'bg-neutral-100 text-neutral-400'
+                        ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-md shadow-zinc-300/30 dark:shadow-zinc-900/50'
+                        : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500'
                     }`}>
                       {day.charAt(0)}
                     </div>
                     <div>
                       <span className={`text-sm font-semibold block ${
-                        isOpen ? 'text-neutral-900' : 'text-neutral-400'
+                        isOpen ? 'text-zinc-900 dark:text-zinc-50' : 'text-zinc-400 dark:text-zinc-500'
                       }`}>
                         {day}
                       </span>
-                      <span className={`text-xs ${
-                        isOpen ? 'text-neutral-500' : 'text-neutral-400'
+                      <span className={`text-xs font-medium ${
+                        isOpen ? 'text-zinc-500 dark:text-zinc-400' : 'text-zinc-400 dark:text-zinc-600'
                       }`}>
                         {isOpen ? 'Horario activo' : 'Día cerrado'}
                       </span>
                     </div>
                   </div>
+
+                  {/* Day toggle */}
+                  <button
+                    onClick={() => toggleDay(jsDay)}
+                    className={`relative w-12 h-7 rounded-full transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-zinc-900 focus-visible:outline-offset-2 ${
+                      isOpen
+                        ? 'bg-zinc-900 dark:bg-zinc-100 shadow-sm shadow-zinc-300/30 dark:shadow-zinc-900/50'
+                        : 'bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600'
+                    }`}
+                    aria-label={isOpen ? 'Cerrar día' : 'Abrir día'}
+                    role="switch"
+                    aria-checked={isOpen}
+                  >
+                    <span className={`absolute top-1 left-1 w-5 h-5 rounded-full transition-transform duration-300 flex items-center justify-center border-2 ${
+                      isOpen
+                        ? 'translate-x-5 bg-zinc-900 dark:bg-zinc-100 border-zinc-900 dark:border-zinc-100 text-white dark:text-zinc-900'
+                        : 'bg-zinc-300 dark:bg-zinc-500 border-zinc-300 dark:border-zinc-500 text-white'
+                    }`}>
+                      {isOpen && (
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                          <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                    </span>
+                  </button>
                 </div>
 
-                {/* Day toggle - larger, more visible */}
-                <button
-                  onClick={() => toggleDay(jsDay)}
-                  className={`relative w-14 h-8 rounded-full transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500 focus-visible:outline-offset-2 ${
-                    isOpen
-                      ? 'bg-accent-500 shadow-sm shadow-accent-200'
-                      : 'bg-neutral-200 hover:bg-neutral-300'
-                  }`}
-                  aria-label={isOpen ? 'Cerrar día' : 'Abrir día'}
-                  role="switch"
-                  aria-checked={isOpen}
-                >
-                  <span className={`absolute top-1 left-1 w-6 h-6 rounded-full transition-transform duration-200 flex items-center justify-center border-2 ${
-                    isOpen
-                      ? 'translate-x-6 bg-white border-accent-500 text-accent-600'
-                      : 'bg-neutral-300 border-neutral-300 text-white'
-                  }`}>
-                    {isOpen && (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                        <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    )}
-                  </span>
-                </button>
-              </div>
-
-              {/* Day content - time ranges */}
-              {isOpen && dayData && (
-                <div className="px-3 pb-3 sm:px-4 sm:pb-4 border-t border-neutral-100">
-                  <div className="pt-3 sm:pt-4 space-y-2 sm:space-y-3">
+                {/* Day content - time ranges */}
+                {isOpen && dayData && (
+                  <div className="space-y-2">
                     {dayData.ranges.map((range, rangeIndex) => (
                       <div
                         key={rangeIndex}
-                        className={`flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg transition-colors ${
+                        className={`rounded-xl transition-all duration-200 ${
                           range.isActive
-                            ? 'bg-white border border-neutral-100'
-                            : 'bg-neutral-50 border border-neutral-100 opacity-60'
+                            ? 'bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800'
+                            : 'bg-zinc-50/50 dark:bg-zinc-800/30 border border-zinc-100 dark:border-zinc-800/50 opacity-60'
                         }`}
                       >
-                        {/* Active indicator - badge style */}
-                        <button
-                          onClick={() => toggleRange(jsDay, rangeIndex)}
-                          className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500 focus-visible:outline-offset-2 ${
-                            range.isActive
-                              ? 'bg-accent-500 text-white shadow-sm'
-                              : 'bg-neutral-100 text-neutral-400 hover:bg-neutral-200'
-                          }`}
-                          aria-label={range.isActive ? 'Desactivar franja' : 'Activar franja'}
-                          title={range.isActive ? 'Franja activa' : 'Franja desactivada'}
-                        >
-                          {range.isActive ? (
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                              <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                          ) : (
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <circle cx="12" cy="12" r="10" />
-                              <path d="M12 6v6l4 2" strokeLinecap="round" />
-                            </svg>
+                        {/* Row header: active toggle + delete */}
+                        <div className="flex items-center justify-between px-2.5 pt-2 pb-0.5">
+                          <button
+                            onClick={() => toggleRange(jsDay, rangeIndex)}
+                            className={`flex items-center gap-2 px-2 py-1 rounded-lg transition-all duration-200 ${
+                              range.isActive
+                                ? 'text-zinc-900 dark:text-zinc-100'
+                                : 'text-zinc-400 dark:text-zinc-500'
+                            }`}
+                            aria-label={range.isActive ? 'Desactivar franja' : 'Activar franja'}
+                            title={range.isActive ? 'Franja activa' : 'Franja desactivada'}
+                          >
+                            <div className={`w-5 h-5 rounded flex items-center justify-center transition-all duration-200 ${
+                              range.isActive
+                                ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-100'
+                                : 'bg-zinc-200 dark:bg-zinc-700'
+                            }`}>
+                              {range.isActive && (
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5">
+                                  <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                              )}
+                            </div>
+                          </button>
+                          {dayData.ranges.length > 1 && (
+                            <button
+                              onClick={() => removeRange(jsDay, rangeIndex)}
+                              className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all duration-200 ${
+                                'text-zinc-400 dark:text-zinc-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40'
+                              }`}
+                              aria-label="Eliminar franja"
+                              title="Eliminar franja"
+                            >
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" />
+                              </svg>
+                            </button>
                           )}
-                        </button>
-
-                        {/* Time range display */}
-                        <div className="flex items-center gap-2 flex-1">
-                          <TimePicker
-                            value={range.startTime}
-                            onChange={(v) => updateRange(jsDay, rangeIndex, 'startTime', v)}
-                            disabled={!range.isActive}
-                          />
-                          <span className="text-neutral-300 text-lg font-light px-1">—</span>
-                          <TimePicker
-                            value={range.endTime}
-                            onChange={(v) => updateRange(jsDay, rangeIndex, 'endTime', v)}
-                            disabled={!range.isActive}
-                          />
                         </div>
 
-                        {/* Delete button */}
-                        <button
-                          onClick={() => removeRange(jsDay, rangeIndex)}
-                          className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-500 focus-visible:outline-offset-2 ${
-                            dayData.ranges.length <= 1
-                              ? 'text-neutral-200 cursor-not-allowed'
-                              : 'text-neutral-400 hover:text-red-500 hover:bg-red-50'
-                          }`}
-                          disabled={dayData.ranges.length <= 1}
-                          aria-label="Eliminar franja"
-                          title={dayData.ranges.length <= 1 ? 'Debes tener al menos una franja' : 'Eliminar franja'}
-                        >
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" />
-                          </svg>
-                        </button>
+                        {/* Time inputs - 2-col grid on mobile, side-by-side on desktop */}
+                        <div className="px-2.5 pb-2">
+                          <div className="grid grid-cols-2 gap-1.5 sm:flex sm:gap-2">
+                            <div>
+                              <label className="block text-[9px] font-medium uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1">
+                                Inicio
+                              </label>
+                              <TimePicker
+                                value={range.startTime}
+                                onChange={(v) => updateRange(jsDay, rangeIndex, 'startTime', v)}
+                                disabled={!range.isActive}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[9px] font-medium uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1">
+                                Fin
+                              </label>
+                              <TimePicker
+                                value={range.endTime}
+                                onChange={(v) => updateRange(jsDay, rangeIndex, 'endTime', v)}
+                                disabled={!range.isActive}
+                              />
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     ))}
 
                     {/* Add range button */}
                     <button
                       onClick={() => addRange(jsDay)}
-                      className="w-full flex items-center justify-center gap-2 py-3 px-4 border-2 border-dashed border-neutral-200 rounded-lg text-sm text-neutral-500 hover:border-accent-300 hover:text-accent-600 hover:bg-accent-50/50 transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500 focus-visible:outline-offset-2"
+                      className="w-full flex items-center justify-center gap-2 py-3 px-4 border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:border-zinc-400 dark:hover:border-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 hover:bg-zinc-50/80 dark:hover:bg-zinc-800/50 transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-zinc-900 focus-visible:outline-offset-2"
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M12 5v14M5 12h14" strokeLinecap="round" />
@@ -480,10 +503,10 @@ export function DashboardHours() {
 
                     {/* Validation errors */}
                     {hasErrors && (
-                      <div className="mt-2 p-3 bg-red-50 border border-red-100 rounded-lg text-xs text-red-600">
+                      <div className="mt-2 p-3 bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/50 rounded-xl text-xs text-red-600 dark:text-red-400">
                         {hasErrors.map((error, i) => (
-                          <div key={i} className="flex items-center gap-1">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <div key={i} className="flex items-center gap-1.5">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
                               <circle cx="12" cy="12" r="10" />
                               <path d="M12 8v4M12 16h.01" strokeLinecap="round" />
                             </svg>
@@ -493,21 +516,19 @@ export function DashboardHours() {
                       </div>
                     )}
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Closed day state */}
-              {!isOpen && (
-                <div className="px-4 pb-4 pt-2">
-                  <div className="flex items-center justify-center gap-2 py-4 text-neutral-400">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                {/* Closed day state */}
+                {!isOpen && (
+                  <div className="flex items-center justify-center gap-2 py-6 text-zinc-400 dark:text-zinc-600">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                       <circle cx="12" cy="12" r="10" />
                       <path d="M8 12h8" strokeLinecap="round" />
                     </svg>
                     <span className="text-sm font-medium">Este día está cerrado</span>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           );
         })}
@@ -515,7 +536,11 @@ export function DashboardHours() {
 
       {/* Save button */}
       <div className="flex justify-end mt-8">
-        <Button variant="primary" size="lg" onClick={handleSave} disabled={saving}>
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-semibold shadow-lg shadow-zinc-300/20 dark:shadow-zinc-900/30 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+        >
           {saving ? (
             <>
               <LoadingSpinner size="sm" />
@@ -523,14 +548,14 @@ export function DashboardHours() {
             </>
           ) : (
             <>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mr-2">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
                 <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
                 <path d="M17 21v-8H7v8M7 3v5h8" />
               </svg>
               Guardar cambios
             </>
           )}
-        </Button>
+        </button>
       </div>
 
       {saveError && <ErrorModal message={saveError} onClose={() => setSaveError(null)} />}

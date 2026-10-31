@@ -35,7 +35,10 @@ export default function States({ type, message }: StatesProps) {
       <div className="empty-state">
         <div className="empty-state-icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-secondary)" strokeWidth="1.5">
-            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+            <rect x="3" y="4" width="18" height="18" rx="2" />
+            <path d="M16 2v4" strokeLinecap="round" />
+            <path d="M8 2v4" strokeLinecap="round" />
+            <path d="M3 10h18" strokeLinecap="round" />
           </svg>
         </div>
         <p className="empty-state-title">{defaultMessages.empty}</p>
@@ -67,7 +70,10 @@ export function EmptyState({ title, description }: { title: string; description:
     <div className="empty-state">
       <div className="empty-state-icon">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-secondary)" strokeWidth="1.5">
-          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+          <rect x="3" y="4" width="18" height="18" rx="2" />
+          <path d="M16 2v4" strokeLinecap="round" />
+          <path d="M8 2v4" strokeLinecap="round" />
+          <path d="M3 10h18" strokeLinecap="round" />
         </svg>
       </div>
       <p className="empty-state-title">{title}</p>

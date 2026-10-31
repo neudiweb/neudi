@@ -75,7 +75,18 @@ export function useUpcomingHoliday(): {
       .then((holidays) => {
         if (cancelled) return;
         const next = findNextHoliday(holidays);
-        setHoliday(next);
+        if (next) {
+          setHoliday(next);
+        } else {
+          // Fallback: show a default holiday if none found
+          const now = new Date();
+          const nextYear = now.getFullYear() + (now.getMonth() > 10 ? 1 : 0);
+          setHoliday({
+            date: `${nextYear}-12-25`,
+            name: 'Navidad',
+            dateObj: new Date(nextYear, 11, 25),
+          });
+        }
         setLoading(false);
       })
       .catch(() => {

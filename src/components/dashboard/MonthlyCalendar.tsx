@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { parseLocalDate, BUSINESS_TIMEZONE } from '../../utils/helpers';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const MONTH_NAMES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -25,6 +26,8 @@ export function MonthlyCalendar({
   onDateSelect,
   onMonthChange,
 }: MonthlyCalendarProps) {
+  const { activeTheme } = useTheme();
+  const isDark = activeTheme === 'dark';
   const [viewYear, setViewYear] = React.useState(() => {
     return new Date(currentDate + 'T00:00:00').getFullYear();
   });
@@ -133,27 +136,27 @@ export function MonthlyCalendar({
   );
 
   return (
-    <div className="bg-[var(--color-bg-surface)] rounded-xl border border-[var(--color-border-primary)] overflow-hidden">
+    <div className="bg-[var(--color-bg-surface)] rounded-2xl border border-[var(--color-border-primary)] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border-primary)]">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--color-border-primary)] bg-[var(--color-bg-primary)]">
         <button
           onClick={() => navigateMonth(-1)}
-          className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[var(--color-bg-surface-hover)] text-[var(--color-text-secondary)] transition-colors"
+          className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-[var(--color-bg-surface-hover)] text-[var(--color-text-secondary)] transition-all duration-200 hover:scale-105 active:scale-95"
           aria-label="Mes anterior"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
-        <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">
+        <h3 className="text-sm font-bold text-[var(--color-text-primary)]">
           {MONTH_NAMES[viewMonth]} {viewYear}
         </h3>
         <button
           onClick={() => navigateMonth(1)}
-          className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[var(--color-bg-surface-hover)] text-[var(--color-text-secondary)] transition-colors"
+          className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-[var(--color-bg-surface-hover)] text-[var(--color-text-secondary)] transition-all duration-200 hover:scale-105 active:scale-95"
           aria-label="Mes siguiente"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <path d="M9 18l6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
@@ -164,7 +167,7 @@ export function MonthlyCalendar({
         {DAY_NAMES_SHORT.map((day) => (
           <div
             key={day}
-            className="py-2 text-center text-xs font-medium text-[var(--color-text-secondary)]"
+            className="py-3 text-center text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-secondary)]/60"
           >
             {day}
           </div>
@@ -172,22 +175,20 @@ export function MonthlyCalendar({
       </div>
 
       {/* Calendar grid */}
-      <div className="grid grid-cols-7 p-2 gap-0.5">
+      <div className="grid grid-cols-7 p-2 gap-1">
         {calendarDays.map((dayInfo, idx) => {
           const count = appointmentCountByDate[dayInfo.date] || 0;
           const pending = pendingCountByDate[dayInfo.date] || 0;
 
           let cellClass =
-            'relative flex flex-col items-center justify-center rounded-lg h-9 text-xs transition-colors cursor-pointer ';
+            'relative flex flex-col items-center justify-center rounded-xl h-10 text-xs transition-all duration-200 cursor-pointer ';
 
           if (dayInfo.isDisabled) {
-            cellClass += 'text-[var(--color-text-secondary)] cursor-default ';
-          } else if (dayInfo.isSelected) {
-            cellClass += 'bg-[var(--color-text-primary)] text-[var(--color-text-inverse)] font-semibold ';
-          } else if (dayInfo.isToday) {
-            cellClass += 'bg-[var(--color-accent-50)] text-[var(--color-accent-700)] font-semibold ';
+            cellClass += isDark ? 'text-zinc-600 cursor-default ' : 'text-zinc-300 cursor-default ';
           } else {
-            cellClass += 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-surface-hover)] ';
+            cellClass += isDark
+              ? 'bg-zinc-800 text-zinc-50 border border-transparent hover:bg-zinc-700 hover:scale-105 '
+              : 'bg-white text-black border border-zinc-200 hover:bg-zinc-50 hover:scale-105 ';
           }
 
           return (
@@ -199,15 +200,13 @@ export function MonthlyCalendar({
               className={cellClass}
               aria-label={`${dayInfo.day} de ${MONTH_NAMES[viewMonth]}${dayInfo.isDisabled ? ', deshabilitado' : ''}`}
             >
-              <span>{dayInfo.day}</span>
+              <span className={isDark ? 'text-zinc-50' : 'text-black'}>{dayInfo.day}</span>
               {count > 0 && !dayInfo.isDisabled && (
                 <span
-                  className={`absolute bottom-0.5 text-[9px] ${
+                  className={`absolute bottom-0.5 text-[8px] font-bold ${
                     dayInfo.isSelected
-                      ? 'text-white/70'
-                      : dayInfo.isToday
-                      ? 'text-[var(--color-accent-500)]'
-                      : 'text-[var(--color-text-secondary)]'
+                      ? 'text-red-300'
+                      : 'text-red-500 dark:text-red-400'
                   }`}
                 >
                   {count}
@@ -216,7 +215,7 @@ export function MonthlyCalendar({
               {pending > 0 && !dayInfo.isDisabled && (
                 <span
                   className={`absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full ${
-                    dayInfo.isSelected ? 'bg-amber-300' : 'bg-amber-400'
+                    dayInfo.isSelected ? 'bg-red-300' : 'bg-red-500 dark:bg-red-400'
                   }`}
                 />
               )}

@@ -15,6 +15,10 @@ interface ServiceItem {
   price: number;
 }
 
+const serviceIcons = [
+  <svg key="default" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0 2-2h-2" /><rect x="9" y="5" width="6" height="3" rx="1" /></svg>,
+];
+
 export function DashboardServices() {
   const { businessSlug } = useAuth();
   const [businessId, setBusinessId] = React.useState<string | null>(null);
@@ -176,112 +180,222 @@ export function DashboardServices() {
     resetForm();
   };
 
+  const formatPrice = (p: number) => {
+    return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 0 }).format(p);
+  };
+
   return (
     <DashboardLayout currentTab="services">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-xl font-semibold text-[var(--color-text-primary)]">Servicios</h1>
-          <p className="text-sm text-[var(--color-text-secondary)] mt-0.5">Gestioná los servicios de tu negocio</p>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-zinc-800 to-zinc-950 dark:from-zinc-100 dark:to-zinc-300 flex items-center justify-center shadow-lg shadow-zinc-300/30 dark:shadow-zinc-900/50">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" className="dark:stroke-zinc-900">
+              <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0 2-2h-2" />
+              <rect x="9" y="5" width="6" height="3" rx="1" />
+            </svg>
+          </div>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">Servicios</h1>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 font-medium">Organizá y gestioná todos los servicios de tu negocio</p>
+          </div>
         </div>
-        <Button onClick={() => { resetForm(); setShowForm(!showForm); }} className="btn-md gap-2">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <button
+          onClick={() => { resetForm(); setShowForm(!showForm); }}
+          className="inline-flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-bold shadow-lg shadow-zinc-300/20 dark:shadow-zinc-900/30 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all duration-200 active:scale-[0.98]"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <path d="M12 5v14M5 12h14" strokeLinecap="round" />
           </svg>
           Nuevo servicio
-        </Button>
+        </button>
       </div>
 
       {loading ? (
-        <LoadingSpinner />
+        <div className="flex items-center justify-center py-20">
+          <LoadingSpinner />
+        </div>
       ) : services.length === 0 && !showForm ? (
-        <div className="flex flex-col items-center justify-center py-12 gap-4">
-          <EmptyState
-            title="Sin servicios"
-            description="Agregá tu primer servicio para empezar a recibir turnos."
-          />
-          <Button onClick={() => setShowForm(true)} className="btn-md">
+        <div className="flex flex-col items-center justify-center py-24 gap-6 rounded-3xl border-2 border-dashed border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-900/40">
+          <div className="w-20 h-20 rounded-3xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center shadow-sm">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-zinc-400 dark:text-zinc-500">
+              <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0 2-2h-2" />
+              <rect x="9" y="5" width="6" height="3" rx="1" />
+            </svg>
+          </div>
+          <div className="text-center max-w-sm">
+            <p className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Sin servicios</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">Agregá tu primer servicio para empezar a recibir turnos y organizar tu agenda.</p>
+          </div>
+          <button
+            onClick={() => setShowForm(true)}
+            className="inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-bold shadow-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all active:scale-[0.98]"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+            </svg>
             Agregar servicio
-          </Button>
+          </button>
         </div>
       ) : (
         <>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {services.map((service) => (
-              <div key={service.id} className="card card-hover p-5 flex flex-col">
-                <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-sm font-medium text-[var(--color-text-primary)]">{service.name}</h3>
-                </div>
-                <p className="text-xs text-[var(--color-text-secondary)] mb-4 flex-1">{service.description}</p>
-                <div className="flex items-center justify-between pt-3 border-t border-[var(--color-border-primary)]">
-                  <span className="text-sm font-semibold text-[var(--color-text-primary)]">${service.price.toLocaleString('es-AR')}</span>
-                  <span className="text-xs text-[var(--color-text-secondary)]">{service.durationMinutes} min</span>
-                </div>
-                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[var(--color-border-primary)]">
-                  <Button variant="secondary" size="sm" onClick={() => openEdit(service)} className="text-xs flex-1">
-                    Editar
-                  </Button>
-                  <Button variant="danger" size="sm" onClick={() => handleDelete(service.id)} className="text-xs px-2">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V7h14z" strokeLinecap="round" />
-                    </svg>
-                  </Button>
+              <div key={service.id} className="group rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-xl hover:shadow-zinc-200/40 dark:hover:shadow-zinc-900/40 transition-all duration-300 overflow-hidden">
+                {/* Top accent bar */}
+                <div className="h-1.5 bg-gradient-to-r from-zinc-800 via-zinc-500 to-zinc-300 dark:from-zinc-100 dark:via-zinc-300 dark:to-zinc-500" />
+                
+                <div className="p-6">
+                  {/* Icon + Name */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-12 h-12 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-400 group-hover:bg-zinc-100 dark:group-hover:bg-zinc-700 group-hover:border-zinc-200 dark:group-hover:border-zinc-600 transition-all duration-200">
+                        {serviceIcons[0]}
+                      </div>
+                      <div>
+                        <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-50 leading-tight tracking-tight">{service.name}</h3>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Description */}
+                  {service.description && (
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-5 line-clamp-2 leading-relaxed">{service.description}</p>
+                  )}
+                  
+                  {/* Price + Duration */}
+                  <div className="flex items-end justify-between mb-5">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1">Precio</p>
+                      <p className="text-2xl font-black text-zinc-900 dark:text-zinc-50 tracking-tight">{formatPrice(service.price)}</p>
+                    </div>
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-zinc-400 dark:text-zinc-500">
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M12 7v5l3 3" strokeLinecap="round" />
+                      </svg>
+                      <span className="text-sm font-semibold text-zinc-600 dark:text-zinc-300">{service.durationMinutes} min</span>
+                    </div>
+                  </div>
+                  
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+                    <button
+                      onClick={() => openEdit(service)}
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-sm font-bold hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors active:scale-[0.97]"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                      </svg>
+                      Editar
+                    </button>
+                    <button
+                      onClick={() => handleDelete(service.id)}
+                      className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-500 dark:text-red-400 border border-red-100 dark:border-red-900/50 hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors active:scale-[0.97]"
+                    >
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V7h14z" strokeLinecap="round" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
 
+          {/* Form */}
           {showForm && (
-            <form onSubmit={handleSubmit} className="mt-6 card p-6 space-y-4">
-              <h3 className="text-sm font-medium text-[var(--color-text-primary)] mb-4">
-                {editingId ? 'Editar servicio' : 'Nuevo servicio'}
-              </h3>
-
-              <div>
-                <label className="block text-xs font-medium text-[var(--color-text-primary)] mb-1">Nombre</label>
-                <Input
-                  value={formName}
-                  onChange={(e) => setFormName(e.target.value)}
-                  required
-                  placeholder="Ej: Corte de cabello clásico"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-[var(--color-text-primary)] mb-1">Descripción</label>
-                <Input
-                  value={formDescription}
-                  onChange={(e) => setFormDescription(e.target.value)}
-                  placeholder="Descripción del servicio"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-[var(--color-text-primary)] mb-1">Duración (min)</label>
-                  <Input
-                    type="number"
-                    value={formDuration}
-                    onChange={(e) => setFormDuration(Number(e.target.value))}
-                    min={15}
-                    step={15}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-[var(--color-text-primary)] mb-1">Precio</label>
-                  <Input
-                    type="number"
-                    value={formPrice}
-                    onChange={(e) => setFormPrice(Number(e.target.value))}
-                    min={0}
-                  />
+            <div className="mt-8 rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xl shadow-zinc-200/30 dark:shadow-zinc-900/30 overflow-hidden">
+              {/* Form header */}
+              <div className="px-8 py-5 border-b border-zinc-100 dark:border-zinc-800 bg-gradient-to-r from-zinc-50 to-zinc-100/50 dark:from-zinc-800/80 dark:to-zinc-900/50">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-zinc-900 dark:bg-zinc-100 flex items-center justify-center shadow-md">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" className="dark:stroke-zinc-900">
+                      {editingId ? (
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                      ) : (
+                        <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+                      )}
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 tracking-tight">
+                    {editingId ? 'Editar servicio' : 'Nuevo servicio'}
+                  </h3>
                 </div>
               </div>
+              
+              <form onSubmit={handleSubmit} className="p-8 space-y-6">
+                <div>
+                  <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mb-2">Nombre del servicio</label>
+                  <input
+                    type="text"
+                    value={formName}
+                    onChange={(e) => setFormName(e.target.value)}
+                    required
+                    placeholder="Ej: Corte de cabello clásico"
+                    className="w-full px-5 py-3.5 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-base font-semibold text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-4 focus:ring-zinc-900/10 dark:focus:ring-zinc-100/10 focus:border-zinc-900 dark:focus:border-zinc-100 transition-all"
+                  />
+                </div>
 
-              <div className="flex gap-2 justify-end pt-2">
-                <Button type="button" variant="secondary" onClick={cancelForm}>Cancelar</Button>
-                <Button type="submit">{editingId ? 'Guardar cambios' : 'Crear servicio'}</Button>
-              </div>
-            </form>
+                <div>
+                  <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mb-2">Descripción</label>
+                  <input
+                    type="text"
+                    value={formDescription}
+                    onChange={(e) => setFormDescription(e.target.value)}
+                    placeholder="Descripción del servicio"
+                    className="w-full px-5 py-3.5 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-base font-semibold text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-4 focus:ring-zinc-900/10 dark:focus:ring-zinc-100/10 focus:border-zinc-900 dark:focus:border-zinc-100 transition-all"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mb-2">Duración</label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        value={formDuration}
+                        onChange={(e) => setFormDuration(Number(e.target.value))}
+                        min={15}
+                        step={15}
+                        className="w-full px-5 py-3.5 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-base font-semibold text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-4 focus:ring-zinc-900/10 dark:focus:ring-zinc-100/10 focus:border-zinc-900 dark:focus:border-zinc-100 transition-all pr-16"
+                      />
+                      <span className="absolute right-5 top-1/2 -translate-y-1/2 text-sm font-semibold text-zinc-400 dark:text-zinc-500 pointer-events-none">min</span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mb-2">Precio</label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        value={formPrice}
+                        onChange={(e) => setFormPrice(Number(e.target.value))}
+                        min={0}
+                        className="w-full px-5 py-3.5 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-base font-semibold text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-4 focus:ring-zinc-900/10 dark:focus:ring-zinc-100/10 focus:border-zinc-900 dark:focus:border-zinc-100 transition-all pr-14"
+                      />
+                      <span className="absolute right-5 top-1/2 -translate-y-1/2 text-sm font-semibold text-zinc-400 dark:text-zinc-500 pointer-events-none">ARS</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={cancelForm}
+                    className="px-6 py-3 rounded-2xl text-sm font-semibold text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 border-2 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors active:scale-[0.97]"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-8 py-3 rounded-2xl text-sm font-bold text-white bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 shadow-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all active:scale-[0.97]"
+                  >
+                    {editingId ? 'Guardar cambios' : 'Crear servicio'}
+                  </button>
+                </div>
+              </form>
+            </div>
           )}
         </>
       )}

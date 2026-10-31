@@ -503,24 +503,24 @@ export function DashboardAgenda() {
       {/* Slot conflict toast */}
       {slotConflict && (
         <div className="fixed top-4 right-4 z-[100] max-w-sm animate-in fade-in slide-in-from-top-2" style={{ animation: 'toastIn 0.3s ease-out' }}>
-          <div className="bg-white border border-red-200 rounded-xl shadow-lg p-4 flex gap-3">
-            <div className="flex-shrink-0 w-9 h-9 rounded-full bg-red-50 flex items-center justify-center mt-0.5">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2">
+          <div className="bg-white dark:bg-zinc-900 border border-red-200 dark:border-red-800/50 rounded-2xl shadow-xl shadow-red-500/5 dark:shadow-red-500/10 p-5 flex gap-4">
+            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-md shadow-red-500/20">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" />
-                <path d="M12 8v4M12 16h.01" strokeLinecap="round" />
+                <path d="M12 8v4M12 16h.01" />
               </svg>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-neutral-900">Horario ocupado</p>
-              <p className="text-xs text-neutral-500 mt-0.5">
-                Ya hay un turno para <strong>{slotConflict.occupied}</strong>{slotConflict.endAt ? ` hasta las ${formatTimeInTimezone(slotConflict.endAt, bizTimezone)}` : ''}. Elegí otro horario.
+              <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Horario ocupado</p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed">
+                Ya hay un turno para <strong className="text-zinc-900 dark:text-zinc-100">{slotConflict.occupied}</strong>{slotConflict.endAt ? ` hasta las ${formatTimeInTimezone(slotConflict.endAt, bizTimezone)}` : ''}. Elegí otro horario.
               </p>
             </div>
             <button
               onClick={() => setSlotConflict(null)}
-              className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded hover:bg-neutral-100 text-neutral-400"
+              className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-xl hover:bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 transition-colors"
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" />
               </svg>
             </button>
@@ -529,17 +529,28 @@ export function DashboardAgenda() {
       )}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-xl font-semibold text-neutral-900">Agenda</h1>
-          <p className="text-sm text-neutral-500 mt-0.5">Gestioná tus turnos</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-zinc-800 to-zinc-950 dark:from-zinc-100 dark:to-zinc-300 flex items-center justify-center shadow-lg shadow-zinc-300/30 dark:shadow-zinc-900/50">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" />
+              <path d="M16 2v4M8 2v4M3 10h18" />
+            </svg>
+          </div>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">Agenda</h1>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 font-medium">Gestioná tus turnos de forma organizada</p>
+          </div>
         </div>
-        <Button variant="primary" size="lg" onClick={openAddModal}>
+        <button
+          onClick={openAddModal}
+          className="inline-flex items-center justify-center gap-2.5 px-5 py-3 rounded-2xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-semibold shadow-lg shadow-zinc-300/20 dark:shadow-zinc-900/30 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all duration-200 active:scale-[0.98] bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-lg shadow-zinc-300/20 dark:shadow-zinc-900/30 dark:shadow-zinc-500/5 hover:shadow-xl hover:shadow-zinc-500/15 dark:hover:shadow-zinc-500/10 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+        >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <path d="M12 5v14M5 12h14" strokeLinecap="round" />
           </svg>
           Agregar turno
-        </Button>
+        </button>
       </div>
 
       <UpcomingHolidayNotice />
@@ -567,13 +578,13 @@ export function DashboardAgenda() {
         {/* Appointments list */}
         <div className="flex-1 min-w-0">
           {/* Date navigation */}
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex flex-wrap items-center gap-2 mb-5">
             <button
               onClick={() => navigateDate(-1)}
-              className="w-9 h-9 flex items-center justify-center rounded-lg border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-600 transition-colors"
+              className="flex items-center justify-center w-10 h-10 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 transition-all duration-200 hover:scale-105 active:scale-95"
               aria-label="Día anterior"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </button>
@@ -582,15 +593,15 @@ export function DashboardAgenda() {
               type="date"
               value={selectedDate}
               onChange={onDatePickerChange}
-              className="flex-1 border border-neutral-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-accent-500/40 min-w-0"
+              className="flex-1 min-w-[140px] border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-900/20 dark:focus:ring-zinc-100/20 focus:border-zinc-500/50 transition-all duration-200"
             />
 
             <button
               onClick={() => navigateDate(1)}
-              className="w-9 h-9 flex items-center justify-center rounded-lg border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-600 transition-colors"
+              className="flex items-center justify-center w-10 h-10 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 transition-all duration-200 hover:scale-105 active:scale-95"
               aria-label="Día siguiente"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M9 18l6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </button>
@@ -598,21 +609,21 @@ export function DashboardAgenda() {
             {selectedDate !== todayStr && (
               <button
                 onClick={goToday}
-                className="px-3 py-2 rounded-lg text-sm font-medium bg-accent-50 text-accent-700 hover:bg-accent-100 transition-colors whitespace-nowrap"
+                className="px-4 py-2.5 rounded-xl text-sm font-semibold bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105 active:scale-95 whitespace-nowrap"
               >
                 Hoy
               </button>
             )}
 
-            <span className="text-sm font-medium text-neutral-700 capitalize min-w-[140px]">
+            <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 capitalize min-w-[140px]">
               {formatDateLabel(selectedDate)}
             </span>
           </div>
 
           {/* Filters */}
-          <div className="flex flex-col sm:flex-row gap-3 mb-4">
-            <div className="relative flex-1 max-w-sm">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
+          <div className="flex flex-col gap-3 mb-5">
+            <div className="relative max-w-sm">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 dark:text-zinc-400/50">
                 <circle cx="11" cy="11" r="8" />
                 <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
               </svg>
@@ -620,7 +631,7 @@ export function DashboardAgenda() {
                 placeholder="Buscar cliente o servicio..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
+                className="pl-10 rounded-xl"
               />
             </div>
             <div className="flex gap-2 flex-wrap">
@@ -628,10 +639,10 @@ export function DashboardAgenda() {
                 <button
                   key={status}
                   onClick={() => setFilterStatus(status)}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95 ${
                     filterStatus === status
-                      ? 'bg-neutral-900 text-white'
-                      : 'bg-white border border-neutral-200 text-neutral-600 hover:bg-neutral-50'
+                      ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-md shadow-zinc-300/20 dark:shadow-zinc-900/30'
+                      : 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 hover:border-zinc-300 dark:border-zinc-700'
                   }`}
                 >
                   {status === 'all' ? 'Todos' : STATUS_LABELS[status as AppointmentStatusLower]}
@@ -649,7 +660,7 @@ export function DashboardAgenda() {
               description={searchQuery || filterStatus !== 'all' ? 'Probá con otros filtros.' : 'No tenés turnos programados para esta fecha.'}
             />
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {dayAppointments.map((apt) => (
                 <button
                   key={apt.id}
@@ -658,46 +669,62 @@ export function DashboardAgenda() {
                     service: apt.serviceNames.split(' + ')[0] || apt.serviceNames,
                     services: apt.serviceNames.split(' + '),
                   })}
-                  className={`w-full text-left bg-white border rounded-xl p-4 transition-all hover:shadow-sm group ${
+                  className={`w-full text-left bg-white dark:bg-zinc-900 border rounded-2xl p-5 transition-all duration-200 hover:shadow-lg group ${
                     selectedAppointment?.id === apt.id
-                      ? 'border-accent-500 ring-2 ring-accent-500/20'
-                      : 'border-neutral-200 hover:border-neutral-300'
+                      ? 'border-zinc-300 dark:border-zinc-700 shadow-lg shadow-zinc-200/40 dark:shadow-zinc-900/40 ring-1 ring-zinc-500/20'
+                      : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-600 hover:shadow-lg hover:shadow-zinc-500/5'
                   }`}
                 >
                   <div className="flex items-start gap-4">
                     {/* Time */}
                     <div className="text-right shrink-0 min-w-[60px]">
-                      <span className="block text-sm font-semibold text-neutral-900">{apt.time}</span>
-                      <span className="text-xs text-neutral-400">{apt.endTime}</span>
+                      <span className="block text-lg font-semibold text-zinc-900 dark:text-zinc-100">{apt.time}</span>
+                      <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{apt.endTime}</span>
                     </div>
 
                     {/* Divider */}
-                    <div className="w-px h-10 bg-neutral-200 self-center" />
+                    <div className="w-px h-12 bg-zinc-200 dark:bg-zinc-800 self-center" />
 
                     {/* Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <h3 className="text-sm font-medium text-neutral-900 group-hover:text-accent-600 transition-colors">
+                          <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors">
                             {apt.clientName}
                           </h3>
-                          <p className="text-xs text-neutral-500 mt-0.5">{apt.serviceNames}</p>
-                          <div className="flex items-center gap-2 mt-1 text-xs text-neutral-400">
-                            <span>{apt.time} - {apt.endTime}</span>
+                          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 line-clamp-1">{apt.serviceNames}</p>
+                          <div className="flex items-center gap-2 mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                            <span className="inline-flex items-center gap-1">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="12" cy="12" r="9" />
+                                <path d="M12 7v5l3 3" strokeLinecap="round" />
+                              </svg>
+                              {apt.time} - {apt.endTime}
+                            </span>
                             <span>·</span>
                             <span>{apt.totalDuration} min</span>
                             <span>·</span>
-                            <span className="font-medium text-neutral-600">${apt.totalPrice.toLocaleString('es-AR')}</span>
+                            <span className="font-semibold text-zinc-900 dark:text-zinc-100">${apt.totalPrice.toLocaleString('es-AR')}</span>
                           </div>
                         </div>
                         <Badge variant={apt.status === 'confirmed' ? 'success' : apt.status === 'completed' || apt.status === 'no_show' ? 'success' : apt.status === 'pending' ? 'warning' : 'default'}>
                           {STATUS_LABELS[apt.status] || apt.status}
                         </Badge>
                       </div>
-                      <div className="flex items-center gap-3 mt-2 text-xs text-neutral-400">
-                        <span>{apt.clientPhone}</span>
+                      <div className="flex items-center gap-3 mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500 dark:text-zinc-400">
+                        <span className="inline-flex items-center gap-1">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                          </svg>
+                          {apt.clientPhone}
+                        </span>
                         {apt.requiresDeposit && (
-                          <span className="text-warning-600 font-medium">Requiere seña</span>
+                          <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-semibold">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                            </svg>
+                            Requiere seña
+                          </span>
                         )}
                       </div>
                     </div>
@@ -712,16 +739,16 @@ export function DashboardAgenda() {
       {/* Appointment detail drawer */}
       {selectedAppointment && (
         <div className="fixed inset-0 z-50 flex justify-end" role="dialog">
-          <div className="absolute inset-0 bg-black/30" onClick={() => setSelectedAppointment(null)} />
-          <div className="relative w-full max-w-md bg-white shadow-xl overflow-y-auto">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setSelectedAppointment(null)} />
+          <div className="relative w-full max-w-md bg-white dark:bg-zinc-900 shadow-2xl overflow-y-auto border-l border-zinc-200 dark:border-zinc-800">
             {/* Header */}
-            <div className="sticky top-0 bg-white border-b border-neutral-200 px-6 py-4 flex items-center justify-between z-10">
-              <h2 className="text-base font-semibold text-neutral-900">Detalle del turno</h2>
+            <div className="sticky top-0 bg-white dark:bg-zinc-900/95 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 px-6 py-4 flex items-center justify-between z-10">
+              <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">Detalle del turno</h2>
               <button
                 onClick={() => setSelectedAppointment(null)}
-                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-neutral-100 text-neutral-400"
+                className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 transition-colors"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" />
                 </svg>
               </button>
@@ -730,15 +757,15 @@ export function DashboardAgenda() {
             {/* Content */}
             <div className="p-6 space-y-6">
               {/* Client info */}
-              <div>
-                <h3 className="text-sm font-medium text-neutral-500 mb-2">Cliente</h3>
+              <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-3">Cliente</h3>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-accent-500 flex items-center justify-center text-white font-semibold shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-zinc-600 to-zinc-800 dark:from-zinc-300 dark:to-zinc-500 flex items-center justify-center text-white font-semibold shrink-0 shadow-lg">
                     {selectedAppointment.clientName.charAt(0)}
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-neutral-900">{selectedAppointment.clientName}</p>
-                    <a href={`tel:${selectedAppointment.clientPhone}`} className="text-xs text-accent-600 hover:text-accent-700">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">{selectedAppointment.clientName}</p>
+                    <a href={`tel:${selectedAppointment.clientPhone}`} className="text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors">
                       {selectedAppointment.clientPhone}
                     </a>
                   </div>
@@ -746,114 +773,153 @@ export function DashboardAgenda() {
               </div>
 
               {/* Service info */}
-              <div>
-                <h3 className="text-sm font-medium text-neutral-500 mb-2">Servicios</h3>
+              <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-3">Servicios</h3>
                 {selectedAppointment.serviceDetails?.map((svc) => (
-                  <div key={svc.name} className="flex items-center justify-between py-1.5 text-sm">
-                    <span className="text-neutral-900">{svc.name}</span>
-                    <span className="font-medium text-neutral-900">${svc.price.toLocaleString('es-AR')}</span>
+                  <div key={svc.name} className="flex items-center justify-between py-2 text-sm">
+                    <span className="text-zinc-900 dark:text-zinc-100">{svc.name}</span>
+                    <span className="font-semibold text-zinc-900 dark:text-zinc-100">${svc.price.toLocaleString('es-AR')}</span>
                   </div>
                 ))}
-                <div className="flex items-center justify-between mt-3 pt-3 border-t border-neutral-200 text-sm">
-                  <span className="font-semibold text-neutral-900">Total</span>
-                  <span className="font-bold text-neutral-900">${selectedAppointment.totalPrice.toLocaleString('es-AR')}</span>
+                <div className="flex items-center justify-between mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-800 text-sm">
+                  <span className="font-semibold text-zinc-900 dark:text-zinc-100">Total</span>
+                  <span className="font-semibold text-lg text-zinc-900 dark:text-zinc-100">${selectedAppointment.totalPrice.toLocaleString('es-AR')}</span>
                 </div>
-                <div className="flex items-center gap-3 mt-1 text-xs text-neutral-500">
-                  <span>{selectedAppointment.totalDuration} min</span>
+                <div className="flex items-center gap-3 mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                  <span className="inline-flex items-center gap-1">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="9" />
+                      <path d="M12 7v5l3 3" strokeLinecap="round" />
+                    </svg>
+                    {selectedAppointment.totalDuration} min
+                  </span>
                 </div>
               </div>
 
               {/* Time info */}
-              <div>
-                <h3 className="text-sm font-medium text-neutral-500 mb-2">Horario</h3>
-                <div className="flex items-center gap-4 text-sm text-neutral-900">
-                  <span>{selectedAppointment.time}</span>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-neutral-300">
-                    <path d="M5 12h14" strokeLinecap="round" />
-                  </svg>
-                  <span>{selectedAppointment.endTime}</span>
+              <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-3">Horario</h3>
+                <div className="flex items-center justify-between">
+                  <div className="text-center">
+                    <p className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">{selectedAppointment.time}</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Inicio</p>
+                  </div>
+                  <div className="flex-1 flex items-center justify-center px-2">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[var(border-zinc-200 dark:border-zinc-800)]">
+                      <path d="M5 12h14" strokeLinecap="round" />
+                      <path d="M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">{selectedAppointment.endTime}</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Fin</p>
+                  </div>
                 </div>
               </div>
 
               {/* Status */}
-              <div>
-                <h3 className="text-sm font-medium text-neutral-500 mb-2">Estado</h3>
+              <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-3">Estado</h3>
                 <Badge variant={selectedAppointment.status === 'confirmed' ? 'success' : selectedAppointment.status === 'completed' || selectedAppointment.status === 'no_show' ? 'success' : selectedAppointment.status === 'pending' ? 'warning' : 'default'}>
                   {STATUS_LABELS[selectedAppointment.status]}
                 </Badge>
               </div>
 
               {/* Actions */}
-              <div className="space-y-2 pt-4 border-t border-neutral-100">
+              <div className="space-y-2 pt-2">
                 {(selectedAppointment.status === 'pending' || selectedAppointment.status === 'confirmed') && (
-                  <Button
-                    variant="secondary"
+                  <button
                     onClick={() => openRescheduleModal(selectedAppointment)}
-                    className="w-full btn-lg"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-100 dark:bg-zinc-800 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                   >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M1 4v6v6M23 20v-6V4" />
+                      <path d="M5.63 20.21a8 8 0 0 1 0-11.71" />
+                      <path d="M18.37 20.21a8 8 0 0 0 0-11.71" />
+                      <path d="M7.59 7.59A8 8 0 0 1 16.41 7.59" />
+                      <path d="M16.41 16.41A8 8 0 0 1 7.59 16.41" />
+                    </svg>
                     Reagendar turno
-                  </Button>
+                  </button>
                 )}
                 {(selectedAppointment.status === 'pending' || selectedAppointment.status === 'requires_deposit') && (
                   <>
-                    <Button
+                    <button
                       onClick={() => { updateStatus(selectedAppointment.id, 'confirmed'); setSelectedAppointment(null); }}
-                      className="w-full btn-lg"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-lg shadow-zinc-300/20 dark:shadow-zinc-900/30 hover:shadow-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                     >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <polyline points="20 6 9 17 4 12" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
                       Confirmar turno
-                    </Button>
-                    <Button
-                      variant="danger"
+                    </button>
+                    <button
                       onClick={() => { updateStatus(selectedAppointment.id, 'cancelled'); setSelectedAppointment(null); }}
-                      className="w-full btn-lg"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/50 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-950/50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                     >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M15 9l-6 6M9 9l6 6" strokeLinecap="round" />
+                      </svg>
                       Cancelar turno
-                    </Button>
+                    </button>
                   </>
                 )}
                 {selectedAppointment.status === 'confirmed' && (
                   <>
-                    <Button
-                      variant="secondary"
+                    <button
                       onClick={() => { updateStatus(selectedAppointment.id, 'completed'); setSelectedAppointment(null); }}
-                      className="w-full btn-lg"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-100 dark:bg-zinc-800 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                     >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <polyline points="20 6 9 17 4 12" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
                       Marcar como completado
-                    </Button>
-                    <Button
-                      variant="danger"
+                    </button>
+                    <button
                       onClick={() => { updateStatus(selectedAppointment.id, 'no_show'); setSelectedAppointment(null); }}
-                      className="w-full btn-lg"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/50 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-950/50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                     >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M15 9l-6 6M9 9l6 6" strokeLinecap="round" />
+                      </svg>
                       Marcar como no asistió
-                    </Button>
+                    </button>
                   </>
                 )}
                 {selectedAppointment.status === 'completed' && (
-                  <Button
-                    variant="danger"
+                  <button
                     onClick={() => { updateStatus(selectedAppointment.id, 'no_show'); setSelectedAppointment(null); }}
-                    className="w-full btn-lg"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/50 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-950/50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                   >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M15 9l-6 6M9 9l6 6" strokeLinecap="round" />
+                    </svg>
                     Marcar como no asistió
-                  </Button>
+                  </button>
                 )}
                 {selectedAppointment.status === 'no_show' && (
                   <>
-                    <Button
-                      variant="secondary"
+                    <button
                       onClick={() => { updateStatus(selectedAppointment.id, 'confirmed'); setSelectedAppointment(null); }}
-                      className="w-full btn-lg"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-100 dark:bg-zinc-800 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                     >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M1 4v6v6M23 20v-6V4" />
+                      </svg>
                       Revertir a confirmado
-                    </Button>
-                    <Button
-                      variant="secondary"
+                    </button>
+                    <button
                       onClick={() => { updateStatus(selectedAppointment.id, 'completed'); setSelectedAppointment(null); }}
-                      className="w-full btn-lg"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-100 dark:bg-zinc-800 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                     >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <polyline points="20 6 9 17 4 12" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
                       Marcar como completado
-                    </Button>
+                    </button>
                   </>
                 )}
               </div>
@@ -865,30 +931,30 @@ export function DashboardAgenda() {
       {/* Reschedule modal */}
       {showRescheduleModal && selectedAppointment && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog">
-          <div className="absolute inset-0 bg-black/30" onClick={closeRescheduleModal} />
-          <div className="relative w-full max-w-lg bg-white shadow-xl rounded-2xl overflow-hidden">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={closeRescheduleModal} />
+          <div className="relative w-full max-w-lg bg-white dark:bg-zinc-900 shadow-2xl rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800">
             {/* Header */}
-            <div className="px-6 py-4 border-b border-neutral-200 flex items-center justify-between">
-              <h2 className="text-base font-semibold text-neutral-900">Reagendar turno</h2>
+            <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+              <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">Reagendar turno</h2>
               <button
                 onClick={closeRescheduleModal}
-                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-neutral-100 text-neutral-400"
+                className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 transition-colors"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" />
                 </svg>
               </button>
             </div>
 
             {/* Current appointment info */}
-            <div className="px-6 py-3 bg-neutral-50 border-b border-neutral-200">
-              <p className="text-xs font-medium text-neutral-500 mb-1">Turno actual</p>
-              <div className="flex items-center gap-3 text-sm">
-                <span className="font-medium text-neutral-900">{selectedAppointment.clientName}</span>
-                <span className="text-neutral-500">·</span>
-                <span className="text-neutral-600">{selectedAppointment.serviceNames}</span>
-                <span className="text-neutral-500">·</span>
-                <span className="text-neutral-600">{selectedAppointment.date} a las {selectedAppointment.time}</span>
+            <div className="px-6 py-3 bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800">
+              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1">Turno actual</p>
+              <div className="flex items-center gap-2 text-sm flex-wrap">
+                <span className="font-semibold text-zinc-900 dark:text-zinc-100">{selectedAppointment.clientName}</span>
+                <span className="text-zinc-500 dark:text-zinc-400">·</span>
+                <span className="text-zinc-500 dark:text-zinc-400">{selectedAppointment.serviceNames}</span>
+                <span className="text-zinc-500 dark:text-zinc-400">·</span>
+                <span className="text-zinc-500 dark:text-zinc-400">{selectedAppointment.date} a las {selectedAppointment.time}</span>
               </div>
             </div>
 
@@ -896,34 +962,35 @@ export function DashboardAgenda() {
             <div className="p-6 space-y-4 max-h-[50vh] overflow-y-auto">
               {/* New date */}
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-1">Nueva fecha *</label>
+                <label className="block text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Nueva fecha *</label>
                 <Input
                   type="date"
                   value={rescheduleDate}
                   onChange={(e) => setRescheduleDate(e.target.value)}
                   min={getTodayInTimezone(bizTimezone)}
+                  className="rounded-xl"
                 />
               </div>
 
               {/* New time */}
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-1">Nuevo horario *</label>
+                <label className="block text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Nuevo horario *</label>
                 {rescheduleLoadingSlots ? (
-                  <p className="text-xs text-neutral-400 py-2">Cargando horarios...</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 py-2">Cargando horarios...</p>
                 ) : rescheduleSlots.length === 0 ? (
-                  <p className="text-xs text-neutral-400 py-2">No hay horarios disponibles para esta fecha.</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 py-2">No hay horarios disponibles para esta fecha.</p>
                 ) : (
                   <div className="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto">
                     {rescheduleSlots.map((slot) => (
                       <button
                         key={slot.time}
                         onClick={() => setRescheduleTime(slot.time)}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        className={`px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 hover:scale-105 active:scale-95 ${
                           rescheduleTime === slot.time
-                            ? 'bg-accent-600 text-white'
+                            ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-md'
                             : slot.available
-                            ? 'bg-white border border-neutral-200 text-neutral-700 hover:bg-neutral-50'
-                            : 'bg-neutral-50 border border-neutral-100 text-neutral-300 cursor-not-allowed'
+                            ? 'bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 hover:border-zinc-400 dark:hover:border-zinc-500'
+                            : 'bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400/40 cursor-not-allowed opacity-50'
                         }`}
                         disabled={!slot.available}
                       >
@@ -936,17 +1003,20 @@ export function DashboardAgenda() {
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-4 border-t border-neutral-100 flex justify-end gap-3">
-              <Button variant="secondary" onClick={closeRescheduleModal}>
+            <div className="px-6 py-4 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-3">
+              <button
+                onClick={closeRescheduleModal}
+                className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-100 dark:bg-zinc-800 transition-all duration-200"
+              >
                 Cancelar
-              </Button>
-              <Button
-                variant="primary"
+              </button>
+              <button
                 onClick={handleReschedule}
                 disabled={!rescheduleDate || !rescheduleTime || rescheduling}
+                className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-md"
               >
                 {rescheduling ? 'Reagendando...' : 'Confirmar reagendamiento'}
-              </Button>
+              </button>
             </div>
           </div>
         </div>
@@ -955,16 +1025,16 @@ export function DashboardAgenda() {
       {/* Add appointment modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog">
-          <div className="absolute inset-0 bg-black/30" onClick={closeAddModal} />
-          <div className="relative w-full max-w-lg bg-white shadow-xl rounded-2xl overflow-hidden">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={closeAddModal} />
+          <div className="relative w-full max-w-lg bg-white dark:bg-zinc-900 shadow-2xl rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800">
             {/* Header */}
-            <div className="px-6 py-4 border-b border-neutral-200 flex items-center justify-between">
-              <h2 className="text-base font-semibold text-neutral-900">Agregar turno</h2>
+            <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+              <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">Agregar turno</h2>
               <button
                 onClick={closeAddModal}
-                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-neutral-100 text-neutral-400"
+                className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 transition-colors"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" />
                 </svg>
               </button>
@@ -974,40 +1044,43 @@ export function DashboardAgenda() {
             <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
               {/* Client name */}
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-1">Nombre del cliente *</label>
+                <label className="block text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Nombre del cliente *</label>
                 <Input
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
                   placeholder="Ej: María García"
+                  className="rounded-xl"
                 />
               </div>
 
               {/* Phone */}
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-1">Teléfono *</label>
+                <label className="block text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Teléfono *</label>
                 <Input
                   value={formPhone}
                   onChange={(e) => setFormPhone(e.target.value)}
                   placeholder="Ej: 11 1234-5678"
+                  className="rounded-xl"
                 />
               </div>
 
               {/* Email */}
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-1">Email</label>
+                <label className="block text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Email</label>
                 <Input
                   type="email"
                   value={formEmail}
                   onChange={(e) => setFormEmail(e.target.value)}
                   placeholder="Ej: maria@email.com"
+                  className="rounded-xl"
                 />
               </div>
 
               {/* Service */}
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-1">Servicios *</label>
+                <label className="block text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Servicios *</label>
                 {services.length === 0 ? (
-                  <p className="text-xs text-neutral-400 py-2">Cargando servicios...</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 py-2">Cargando servicios...</p>
                 ) : (
                   <div className="space-y-2">
                     {services.map((s) => {
@@ -1016,27 +1089,27 @@ export function DashboardAgenda() {
                         <button
                           key={s.id}
                           onClick={() => toggleService(s.id)}
-                          className={`w-full text-left p-3 rounded-lg border transition-all flex items-center justify-between ${
+                          className={`w-full text-left p-3 rounded-xl border transition-all duration-200 flex items-center justify-between ${
                             isSelected
-                              ? 'border-accent-500 bg-accent-50 ring-1 ring-accent-500/20'
-                              : 'border-neutral-200 hover:bg-neutral-50'
+                              ? 'border-zinc-700 dark:border-zinc-300 bg-zinc-50 dark:bg-zinc-800/50 ring-1 ring-zinc-500/20 shadow-sm'
+                              : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-500 hover:bg-zinc-50 dark:bg-zinc-800/50'
                           }`}
                         >
                           <div className="flex items-center gap-3">
-                            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
-                              isSelected ? 'bg-accent-500 border-accent-500' : 'border-neutral-300'
+                            <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
+                              isSelected ? 'bg-zinc-900 dark:bg-zinc-100 border-zinc-900 dark:border-zinc-100' : 'border-zinc-200 dark:border-zinc-800'
                             }`}>
                               {isSelected && (
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={activeTheme === 'dark' ? 'white' : 'black'} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
                                   <polyline points="20 6 9 17 4 12" />
                                 </svg>
                               )}
                             </div>
-                            <span className="text-sm font-medium text-neutral-900">{s.name}</span>
+                            <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{s.name}</span>
                           </div>
                           <div className="text-right">
-                            <span className="text-sm font-semibold text-accent-600">${Number(s.price)?.toLocaleString('es-AR')}</span>
-                            <span className="block text-xs text-neutral-400">{s.duration_minutes} min</span>
+                            <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">${Number(s.price)?.toLocaleString('es-AR')}</span>
+                            <span className="block text-xs text-zinc-500 dark:text-zinc-400">{s.duration_minutes} min</span>
                           </div>
                         </button>
                       );
@@ -1046,12 +1119,12 @@ export function DashboardAgenda() {
               </div>
 
               {selectedServiceIds.length > 0 && (
-                <div className="p-3 bg-neutral-50 rounded-lg border border-neutral-200">
+                <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-neutral-600">{selectedServiceIds.length} {selectedServiceIds.length === 1 ? 'servicio' : 'servicios'}</span>
-                    <span className="font-semibold text-neutral-900">${totalPrice.toLocaleString('es-AR')}</span>
+                    <span className="text-zinc-500 dark:text-zinc-400">{selectedServiceIds.length} {selectedServiceIds.length === 1 ? 'servicio' : 'servicios'}</span>
+                    <span className="font-semibold text-zinc-900 dark:text-zinc-100">${totalPrice.toLocaleString('es-AR')}</span>
                   </div>
-                  <div className="flex items-center justify-between text-xs text-neutral-400 mt-1">
+                  <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 mt-1">
                     <span>Duración</span>
                     <span>{totalDuration} min</span>
                   </div>
@@ -1059,37 +1132,36 @@ export function DashboardAgenda() {
               )}
 
               {/* Date and Time */}
-              <div className="flex gap-3">
-                <div className="flex-1">
-                  <label className="block text-sm font-medium text-neutral-700 mb-1">Fecha *</label>
-                  <Input
-                    type="date"
-                    value={formDate}
-                    onChange={(e) => setFormDate(e.target.value)}
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Fecha *</label>
+                <Input
+                  type="date"
+                  value={formDate}
+                  onChange={(e) => setFormDate(e.target.value)}
+                  className="rounded-xl"
+                />
               </div>
 
               {/* Available time slots */}
               {selectedServiceIds.length > 0 && formDate && (
                 <div>
-                  <label className="block text-sm font-medium text-neutral-700 mb-1">Horarios disponibles</label>
+                  <label className="block text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Horarios disponibles</label>
                   {addLoadingSlots ? (
-                    <p className="text-xs text-neutral-400 py-2">Cargando horarios...</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 py-2">Cargando horarios...</p>
                   ) : addSlots.length === 0 ? (
-                    <p className="text-xs text-neutral-400 py-2">No hay horarios disponibles para esta fecha con los servicios seleccionados.</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 py-2">No hay horarios disponibles para esta fecha con los servicios seleccionados.</p>
                   ) : (
                     <div className="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto">
                       {addSlots.map((slot) => (
                         <button
                           key={slot.time}
                           onClick={() => { setFormTime(slot.time); setAddSlotError(null); }}
-                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          className={`px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 hover:scale-105 active:scale-95 ${
                             formTime === slot.time
-                              ? 'bg-accent-600 text-white'
+                              ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-md'
                               : slot.available
-                              ? 'bg-white border border-neutral-200 text-neutral-700 hover:bg-neutral-50'
-                              : 'bg-neutral-50 border border-neutral-100 text-neutral-300 cursor-not-allowed'
+                              ? 'bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 hover:border-zinc-400 dark:hover:border-zinc-500'
+                              : 'bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400/40 cursor-not-allowed opacity-50'
                           }`}
                           disabled={!slot.available}
                         >
@@ -1103,29 +1175,32 @@ export function DashboardAgenda() {
 
               {/* Notes */}
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-1">Notas</label>
+                <label className="block text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Notas</label>
                 <textarea
                   value={formNotes}
                   onChange={(e) => setFormNotes(e.target.value)}
                   placeholder="Observaciones..."
                   rows={3}
-                  className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500/40 resize-none"
+                  className="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 text-sm bg-zinc-50 dark:bg-zinc-800/50 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-900/20 dark:focus:ring-zinc-100/20 focus:border-zinc-500/50 transition-all resize-none"
                 />
               </div>
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-4 border-t border-neutral-100 flex justify-end gap-3">
-              <Button variant="secondary" onClick={closeAddModal}>
+            <div className="px-6 py-4 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-3">
+              <button
+                onClick={closeAddModal}
+                className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-100 dark:bg-zinc-800 transition-all duration-200"
+              >
                 Cancelar
-              </Button>
-              <Button
-                variant="primary"
+              </button>
+              <button
                 onClick={() => { setAddSlotError(null); handleAddAppointment(); }}
                 disabled={!formName.trim() || !formPhone.trim() || selectedServiceIds.length === 0 || !formDate || !formTime || savingAppointment}
+                className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-md"
               >
                 {savingAppointment ? 'Guardando...' : 'Agregar turno'}
-              </Button>
+              </button>
             </div>
           </div>
         </div>

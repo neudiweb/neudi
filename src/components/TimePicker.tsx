@@ -46,44 +46,44 @@ export function TimePicker({ value, onChange, disabled }: TimePickerProps) {
   };
 
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef} className="relative w-full">
       {/* Trigger button */}
       <button
         type="button"
         disabled={disabled}
         onClick={() => !disabled && setIsOpen(!isOpen)}
-        className={`flex items-center gap-2 sm:gap-2.5 h-10 sm:h-11 px-3 sm:px-4 rounded-lg border text-sm font-medium transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-500 focus-visible:outline-offset-2 ${
+        className={`flex items-center justify-center gap-0.5 h-7 sm:h-8 px-1.5 sm:px-2 rounded-md border text-[10px] sm:text-xs font-medium transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-zinc-900 focus-visible:outline-offset-2 w-full ${
           disabled
-            ? 'bg-[var(--color-bg-surface)] border-[var(--color-border-primary)] text-[var(--color-text-secondary)] cursor-not-allowed'
+            ? 'bg-zinc-50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700 text-zinc-400 dark:text-zinc-500 cursor-not-allowed'
             : isOpen
-              ? 'border-accent-500 ring-2 ring-accent-500/30 bg-[var(--color-bg-surface)]'
-              : 'border-[var(--color-border-primary)] bg-[var(--color-bg-surface)] hover:border-[var(--color-border-strong)] text-[var(--color-text-primary)]'
+              ? 'border-zinc-900 dark:border-zinc-100 ring-2 ring-zinc-900/20 dark:ring-zinc-100/20 bg-white dark:bg-zinc-900'
+              : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-600 text-zinc-900 dark:text-zinc-100'
         }`}
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={disabled ? 'text-[var(--color-text-secondary)]' : 'text-[var(--color-text-secondary)]'}>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-zinc-400 dark:text-zinc-500 shrink-0 hidden sm:block">
           <circle cx="12" cy="12" r="10" />
           <polyline points="12 6 12 12 16 14" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        <span className="min-w-[72px] sm:min-w-[100px]">{formatDisplay()}</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`transition-transform ${isOpen ? 'rotate-180' : ''} text-[var(--color-text-secondary)]`}>
+        <span className="min-w-[32px] text-center text-[10px] sm:text-xs">{formatDisplay()}</span>
+        <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`transition-transform shrink-0 text-zinc-400 dark:text-zinc-500 ${isOpen ? 'rotate-180' : ''}`}>
           <polyline points="6 9 12 15 18 9" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1.5 z-50 bg-[var(--color-bg-surface)] border border-[var(--color-border-primary)] rounded-xl shadow-xl p-4 w-80">
+        <div className="absolute top-full left-0 mt-1.5 z-50 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-xl p-3 w-60 sm:w-72">
           {/* Live preview */}
-          <div className="mb-3 text-center py-3 bg-gradient-to-br from-accent-500 to-accent-600 rounded-xl">
-            <span className="text-3xl font-bold text-white tracking-wider">{formatDisplay()}</span>
+          <div className="mb-3 text-center py-3 bg-gradient-to-br from-zinc-900 to-zinc-700 dark:from-zinc-100 dark:to-zinc-300 rounded-xl">
+            <span className="text-3xl font-bold text-white dark:text-zinc-900 tracking-wider">{formatDisplay()}</span>
           </div>
 
           {/* Two-column picker */}
           <div className="flex gap-3 mb-3">
             {/* Hours column */}
             <div className="flex-1">
-              <div className="text-xs font-semibold text-[var(--color-text-secondary)] mb-2 text-center uppercase tracking-wider">Hora</div>
-              <div className="h-40 overflow-y-auto rounded-lg border border-[var(--color-border-primary)] p-1 custom-scrollbar">
+              <div className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-2 text-center uppercase tracking-wider">Hora</div>
+              <div className="h-40 overflow-y-auto rounded-lg border border-zinc-200 dark:border-zinc-700 p-1 custom-scrollbar">
                 <div className="grid grid-cols-3 gap-1">
                   {hours.map((h) => {
                     const hNum = parseInt(h);
@@ -95,8 +95,8 @@ export function TimePicker({ value, onChange, disabled }: TimePickerProps) {
                         onClick={() => setTempHour(hNum)}
                         className={`h-9 rounded-lg text-sm font-medium transition-all ${
                           isSelected
-                            ? 'bg-[var(--color-text-primary)] text-[var(--color-text-inverse)] shadow-sm ring-2 ring-[var(--color-text-primary)]'
-                            : 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-surface-hover)]'
+                            ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-sm ring-2 ring-zinc-900 dark:ring-zinc-100'
+                            : 'text-zinc-900 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800'
                         }`}
                       >
                         {h}
@@ -108,12 +108,12 @@ export function TimePicker({ value, onChange, disabled }: TimePickerProps) {
             </div>
 
             {/* Divider */}
-            <div className="w-px bg-[var(--color-border-primary)] self-stretch" />
+            <div className="w-px bg-zinc-200 dark:bg-zinc-700 self-stretch" />
 
             {/* Minutes column */}
             <div className="flex-1">
-              <div className="text-xs font-semibold text-[var(--color-text-secondary)] mb-2 text-center uppercase tracking-wider">Minuto</div>
-              <div className="h-40 overflow-y-auto rounded-lg border border-[var(--color-border-primary)] p-1 custom-scrollbar">
+              <div className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-2 text-center uppercase tracking-wider">Minuto</div>
+              <div className="h-40 overflow-y-auto rounded-lg border border-zinc-200 dark:border-zinc-700 p-1 custom-scrollbar">
                 <div className="grid grid-cols-5 gap-1">
                   {minutes.map((m) => {
                     const mNum = parseInt(m);
@@ -125,8 +125,8 @@ export function TimePicker({ value, onChange, disabled }: TimePickerProps) {
                         onClick={() => setTempMinute(mNum)}
                         className={`h-9 rounded-lg text-sm font-medium transition-all ${
                           isSelected
-                            ? 'bg-[var(--color-text-primary)] text-[var(--color-text-inverse)] shadow-sm ring-2 ring-[var(--color-text-primary)]'
-                            : 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-surface-hover)]'
+                            ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-sm ring-2 ring-zinc-900 dark:ring-zinc-100'
+                            : 'text-zinc-900 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800'
                         }`}
                       >
                         {m}
@@ -140,14 +140,14 @@ export function TimePicker({ value, onChange, disabled }: TimePickerProps) {
 
           {/* Footer */}
           <div className="flex items-center justify-between">
-            <span className="text-xs text-[var(--color-text-secondary)]">Formato 24h</span>
+            <span className="text-xs text-zinc-500 dark:text-zinc-400">Formato 24h</span>
             <button
               type="button"
               onClick={() => {
                 onChange(`${String(tempHour).padStart(2, '0')}:${String(tempMinute).padStart(2, '0')}`);
                 setIsOpen(false);
               }}
-              className="text-xs font-semibold bg-[var(--color-text-primary)] text-[var(--color-text-inverse)] px-4 py-1.5 rounded-md hover:opacity-90 transition-colors"
+              className="text-xs font-semibold bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 px-4 py-1.5 rounded-md hover:opacity-90 transition-colors"
             >
               Listo
             </button>
