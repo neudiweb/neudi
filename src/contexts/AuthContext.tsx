@@ -1,12 +1,21 @@
 import * as React from 'react';
 import { supabase, type Profile, type BusinessMember } from '@/lib';
 
+export interface UserBusiness {
+  businessId: string;
+  name: string;
+  slug: string;
+  plan: 'FREE' | 'PRO';
+  role: 'OWNER' | 'ADMIN' | 'STAFF';
+}
+
 export interface User {
   email: string;
   businessName: string;
   businessSlug: string;
   hasProAccess: boolean;
   businessId: string;
+  businesses: UserBusiness[];
 }
 
 interface AuthState {
@@ -19,6 +28,7 @@ interface AuthContextValue extends AuthState {
   businessSlug: string;
   hasProAccess: boolean;
   businessId: string;
+  businesses: UserBusiness[];
   login: (email: string, password: string) => Promise<{ error?: string }>;
   register: (
     name: string,
@@ -27,6 +37,7 @@ interface AuthContextValue extends AuthState {
     businessName: string
   ) => Promise<{ error?: string }>;
   createBusiness: (businessName: string) => Promise<{ error?: string }>;
+  switchBusiness: (businessId: string) => Promise<{ error?: string }>;
   loginDemo: () => Promise<{ error?: string }>;
   logout: () => Promise<void>;
 }
@@ -43,13 +54,14 @@ function generateSlug(name: string): string {
     .slice(0, 40);
 }
 
-function mapProfileToUser(fullName: string | null, email: string, businessSlug: string, businessId: string, plan: 'FREE' | 'PRO'): User {
+function mapProfileToUser(fullName: string | null, email: string, businessSlug: string, businessId: string, plan: 'FREE' | 'PRO', businesses: UserBusiness[]): User {
   return {
     email,
     businessName: fullName ?? '',
     businessSlug,
     businessId,
     hasProAccess: plan === 'PRO',
+    businesses,
   };
 }
 
@@ -70,32 +82,49 @@ async function loadUserFromSession(): Promise<AuthState> {
       return { user: null, isLoading: false, onboardingRequired: false };
     }
 
-    const { data: members, error: memberError } = await supabase
-      .from('business_members')
-      .select('business_id')
-      .eq('user_id', session.user.id) as { data: BusinessMember[] | null; error: string | null };
+    // Usar la nueva RPC que devuelve TODOS los negocios del usuario
+    const { data: businessesData, error: bizError } = await supabase
+      .rpc('get_user_businesses') as { data: Array<{
+        business_id: string;
+        name: string;
+        slug: string;
+        plan: 'FREE' | 'PRO';
+        is_active: boolean;
+        role: 'OWNER' | 'ADMIN' | 'STAFF';
+      }> | null; error: unknown };
 
-    if (memberError) {
+    if (bizError) {
       return { user: null, isLoading: false, onboardingRequired: false };
     }
 
     // User has no businesses → show onboarding
-    if (!members || members.length === 0) {
+    if (!businessesData || businessesData.length === 0) {
       return { user: null, isLoading: false, onboardingRequired: true };
     }
 
-    const { data: businesses, error: bizError } = await supabase
-      .from('businesses')
-      .select('slug,id,plan')
-      .in('id', members.map((m) => m.business_id))
-      .limit(1) as { data: Array<{ slug: string; id: string; plan: 'FREE' | 'PRO' }>; error: string | null };
+    // Convertir al formato UserBusiness
+    const userBusinesses: UserBusiness[] = businessesData.map(b => ({
+      businessId: b.business_id,
+      name: b.name,
+      slug: b.slug,
+      plan: b.plan,
+      role: b.role,
+    }));
 
-    if (bizError || !businesses?.[0]) {
-      return { user: null, isLoading: false, onboardingRequired: false };
-    }
-
-    const biz = businesses[0];
-    const user = mapProfileToUser(profile.full_name, session.user.email ?? '', biz.slug, biz.id, biz.plan);
+    // Check if there's a saved business preference
+    const savedBusinessId = typeof window !== 'undefined' ? sessionStorage.getItem('selectedBusinessId') : null;
+    const primaryBiz = savedBusinessId 
+      ? (userBusinesses.find(b => b.businessId === savedBusinessId) || userBusinesses[0])
+      : userBusinesses[0];
+    
+    const user = mapProfileToUser(
+      profile.full_name,
+      session.user.email ?? '',
+      primaryBiz.slug,
+      primaryBiz.businessId,
+      primaryBiz.plan,
+      userBusinesses
+    );
     return { user, isLoading: false, onboardingRequired: false };
   } catch {
     return { user: null, isLoading: false, onboardingRequired: false };
@@ -223,7 +252,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         role: 'OWNER',
       } as any);
 
-      const user = mapProfileToUser(name, email, slug, businessData.id, businessData.plan);
+      // Cargar todos los negocios del usuario (puede tener más de uno)
+      const { data: businessesData } = await supabase
+        .rpc('get_user_businesses') as { data: Array<{
+          business_id: string;
+          name: string;
+          slug: string;
+          plan: 'FREE' | 'PRO';
+          is_active: boolean;
+          role: 'OWNER' | 'ADMIN' | 'STAFF';
+        }> | null; error: unknown };
+
+      const userBusinesses: UserBusiness[] = (businessesData || []).map(b => ({
+        businessId: b.business_id,
+        name: b.name,
+        slug: b.slug,
+        plan: b.plan,
+        role: b.role,
+      }));
+
+      const user = mapProfileToUser(name, email, slug, businessData.id, businessData.plan, userBusinesses);
       setState({ user, isLoading: false });
       return {};
     } catch (err) {
@@ -241,6 +289,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       businessSlug: 'peluqueria-juan',
       businessId: 'demo-business-id',
       hasProAccess: true,
+      businesses: [{
+        businessId: 'demo-business-id',
+        name: 'Peluquería Juan',
+        slug: 'peluqueria-juan',
+        plan: 'FREE',
+        role: 'OWNER',
+      }],
     };
     setState({ user: mockUser, isLoading: false });
     return {};
@@ -257,7 +312,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         p_slug: slug,
         p_timezone: 'America/Argentina/Buenos_Aires',
         p_currency: 'ARS',
-      } as any) as { data: Array<{ business_id: string }> | null; error: unknown };
+      } as any) as { data: string | null; error: unknown };
 
       if (rpcError) {
         setState((prev) => ({ ...prev, isLoading: false }));
@@ -267,6 +322,77 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // RPC returned business_id — reload session to pick up the new membership
       const loaded = await loadUserFromSession();
       setState(loaded);
+      return {};
+    } catch {
+      setState((prev) => ({ ...prev, isLoading: false }));
+      return { error: 'Error de red. Verificá tu conexión.' };
+    }
+  };
+
+  const switchBusiness = async (businessId: string) => {
+    setState((prev) => ({ ...prev, isLoading: true }));
+
+    try {
+      // Reload all businesses
+      const { data: businessesData, error: rpcError } = await supabase
+        .rpc('get_user_businesses') as { data: Array<{
+          business_id: string;
+          name: string;
+          slug: string;
+          plan: 'FREE' | 'PRO';
+          is_active: boolean;
+          role: 'OWNER' | 'ADMIN' | 'STAFF';
+        }> | null; error: unknown };
+
+      if (rpcError) {
+        setState((prev) => ({ ...prev, isLoading: false }));
+        return { error: 'No se pudo obtener la lista de negocios.' };
+      }
+
+      if (!businessesData || businessesData.length === 0) {
+        setState((prev) => ({ ...prev, isLoading: false }));
+        return { error: 'No tenés negocios asociados.' };
+      }
+
+      const userBusinesses: UserBusiness[] = businessesData.map(b => ({
+        businessId: b.business_id,
+        name: b.name,
+        slug: b.slug,
+        plan: b.plan,
+        role: b.role,
+      }));
+
+      const target = userBusinesses.find((b) => b.businessId === businessId);
+      if (!target) {
+        setState((prev) => ({ ...prev, isLoading: false }));
+        return { error: 'Negocio no encontrado.' };
+      }
+
+      // Get profile for full_name
+      const session = await supabase.auth.getSession();
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', session.data.session?.user.id ?? '')
+        .maybeSingle() as { data: { full_name: string } | null; error: unknown };
+
+      const user = mapProfileToUser(
+        profile?.full_name ?? '',
+        session.data.session?.user.email ?? '',
+        target.slug,
+        target.businessId,
+        target.plan,
+        userBusinesses
+      );
+      setState({ user, isLoading: false });
+      
+      // Save selected business preference
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('selectedBusinessId', businessId);
+      }
+      
+      // Force full reload to pick up the new business
+      window.location.reload();
       return {};
     } catch {
       setState((prev) => ({ ...prev, isLoading: false }));
@@ -284,9 +410,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     businessSlug: state.user?.businessSlug ?? '',
     hasProAccess: state.user?.hasProAccess ?? false,
     businessId: state.user?.businessId ?? '',
+    businesses: state.user?.businesses ?? [],
     login,
     register,
     createBusiness,
+    switchBusiness,
     loginDemo,
     logout,
   };

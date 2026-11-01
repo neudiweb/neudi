@@ -183,7 +183,7 @@ export function BookingPage() {
       case 1: return !!selectedServiceId;
       case 2: return !!selectedDate;
       case 3: return !!selectedTime;
-      case 4: return name.trim() && phone.trim() && email.trim();
+      case 4: return name.trim() && phone.trim();
       default: return false;
     }
   };
@@ -382,7 +382,7 @@ export function BookingPage() {
             <div className="space-y-4 max-w-md">
               <Field id="name" label="Nombre *" value={name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)} placeholder="Tu nombre completo" required />
               <Field id="phone" label="Teléfono *" type="tel" value={phone} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value)} placeholder="+54 9 11 1234-5678" required />
-              <Field id="email" label="Email *" type="email" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} placeholder="tu@email.com" required />
+              <Field id="email" label="Email" type="email" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} placeholder="tu@email.com" />
               <TextArea id="notes" label="Notas (opcional)" value={notes} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNotes(e.target.value)} placeholder="Me gustaría que me atienda Pepito si es posible." />
 
               <div className="pt-4">

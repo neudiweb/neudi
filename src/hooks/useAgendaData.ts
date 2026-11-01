@@ -67,7 +67,8 @@ function getMonthKey(year: number, month: number): string {
 export function useAgendaData(
   businessId: string | null,
   bizTimezone: string,
-  selectedDate: string
+  selectedDate: string,
+  _employeeId: string | null = null
 ): UseAgendaDataReturn {
   const [monthData, setMonthData] = React.useState<MonthData[]>([]);
   const [loading, setLoading] = React.useState(false);
@@ -100,7 +101,7 @@ export function useAgendaData(
           .select(
             `
             id, business_id, customer_name, customer_phone, customer_email, notes,
-            start_at, end_at, status, created_at, updated_at,
+            start_at, end_at, status, created_at, updated_at, assigned_employee_id,
             appointment_services:appointment_services(service_id, price, duration_minutes)
           `
           )

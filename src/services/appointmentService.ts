@@ -59,19 +59,19 @@ export async function getAvailableSlots(
     p_service_ids: serviceIds,
     p_date: date,
     p_exclude_appointment_id: excludeAppointments?.[0] || null,
-  } as any) as { data: { success: boolean; slots?: Array<{ time: string; available: boolean }> } | null; error: unknown };
+  } as any) as { data: Array<{ time: string; available: boolean }> | null; error: unknown };
 
   if (error) {
     console.error('Error fetching available slots:', error);
     return [];
   }
 
-  const slots = data?.slots || [];
+  const slots = data || [];
 
-  // Return only available slots with the Slot type
-  return slots.filter((s) => s.available).map((s) => ({
+  // Return ALL slots (both available and unavailable) so the UI can show disabled times
+  return slots.map((s) => ({
     time: s.time,
-    available: true,
+    available: s.available,
   }));
 }
 

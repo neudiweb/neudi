@@ -138,6 +138,7 @@ export interface Database {
           start_time: string;
           end_time: string;
           is_active: boolean;
+          max_appointments: number;
           created_at: string;
           updated_at: string;
         };
@@ -147,6 +148,7 @@ export interface Database {
           start_time: string;
           end_time: string;
           is_active: boolean;
+          max_appointments?: number;
         };
         Update: Partial<{
           business_id: string;
@@ -154,6 +156,8 @@ export interface Database {
           start_time: string;
           end_time: string;
           is_active: boolean;
+          max_appointments: number;
+          updated_at: string;
         }>;
       };
       appointments: {
@@ -320,6 +324,10 @@ export interface Database {
           p_currency: string;
         };
         Returns: { business_id: string }[];
+      };
+      get_user_businesses: {
+        Args: Record<string, never>;
+        Returns: Array<{ business_id: string; name: string; slug: string; plan: string; is_active: boolean; role: string }>;
       };
     };
   };

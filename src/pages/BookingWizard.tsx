@@ -7,12 +7,13 @@ import { LoadingSpinner } from '../components/common/States';
 import { ErrorModal } from '../components/ErrorModal';
 import { parseLocalDate, buildTimestampISO } from '../utils/helpers';
 
-type Step = 'service' | 'datetime' | 'details' | 'confirmation';
+type Step = 'service' | 'datetime' | 'employee' | 'details' | 'confirmation';
 
 interface BookingData {
   serviceIds: string[];
   date: string;
   time: string;
+  employeeId: string | null;
   name: string;
   phone: string;
   email?: string;
@@ -35,6 +36,12 @@ interface ServiceSummary {
   durationMinutes: number;
 }
 
+interface Employee {
+  id: string;
+  full_name: string;
+  role: string;
+}
+
 export function BookingWizard() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -43,6 +50,7 @@ export function BookingWizard() {
     serviceIds: [],
     date: '',
     time: '',
+    employeeId: null,
     name: '',
     phone: '',
     email: '',
@@ -56,6 +64,8 @@ export function BookingWizard() {
   const [businessHours, setBusinessHours] = React.useState<Record<number, TimeRange[]>>({});
   const [availableSlots, setAvailableSlots] = React.useState<Set<string>>(new Set());
   const [selectedServiceSummaries, setSelectedServiceSummaries] = React.useState<ServiceSummary[]>([]);
+  const [employees, setEmployees] = React.useState<Employee[]>([]);
+  const [loadingEmployees, setLoadingEmployees] = React.useState(false);
 
   React.useEffect(() => {
     if (!slug) return;
@@ -142,11 +152,55 @@ export function BookingWizard() {
     return () => { cancelled = true; };
   }, [businessId, booking.date, booking.serviceIds]);
 
+  React.useEffect(() => {
+    if (!businessId || !booking.date || !booking.time) {
+      setEmployees([]);
+      return;
+    }
+    let cancelled = false;
+    setLoadingEmployees(true);
+    (async () => {
+      try {
+        const serviceDurations = selectedServiceSummaries.map(s => s.durationMinutes);
+        const totalDur = serviceDurations.reduce((sum, d) => sum + d, 0);
+        const [slotHours, slotMinutes] = booking.time.split(':').map(Number);
+        const totalEndMinutes = slotHours * 60 + slotMinutes + totalDur;
+        const endTotalMinutes = totalEndMinutes >= 1440 
+          ? totalEndMinutes - Math.floor(totalEndMinutes / 1440) * 1440 
+          : totalEndMinutes;
+        const endHours = Math.floor(endTotalMinutes / 60);
+        const endMins = totalEndMinutes % 60;
+        const slotEndTime = `${String(endHours).padStart(2, '0')}:${String(endMins).padStart(2, '0')}`;
+
+        const { data, error } = await supabase.rpc('get_working_employees_for_date', {
+          p_business_id: businessId,
+          p_date: booking.date,
+          p_slot_start_time: booking.time,
+          p_slot_end_time: slotEndTime,
+        } as any) as { data: Employee[] | null; error: unknown };
+
+        if (!cancelled && !error && data) {
+          setEmployees(data);
+        } else {
+          setEmployees([]);
+        }
+      } catch (e) {
+        console.error('Error fetching employees:', e);
+        setEmployees([]);
+      } finally {
+        if (!cancelled) setLoadingEmployees(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [businessId, booking.date, booking.time, selectedServiceSummaries]);
+
   const generateTimeSlots = React.useCallback((): TimeSlot[] => {
     if (!booking.date) return [];
 
     const dateObj = parseLocalDate(booking.date, bizTimezone);
-    const dow = dateObj.getDay();
+    const jsDay = dateObj.getDay();
+    // Convert JavaScript day (0=Sun) to PostgreSQL isodow (1=Mon, 7=Sun)
+    const dow = jsDay === 0 ? 7 : jsDay;
 
     const dayRanges = businessHours[dow];
     if (!dayRanges || dayRanges.length === 0) return [];
@@ -181,6 +235,7 @@ export function BookingWizard() {
     switch (step) {
       case 'service': return booking.serviceIds.length > 0;
       case 'datetime': return !!booking.date && !!booking.time;
+      case 'employee': return true; // Employee selection is optional
       case 'details': return !!booking.name.trim() && !!booking.phone.trim();
       default: return false;
     }
@@ -188,7 +243,7 @@ export function BookingWizard() {
 
   const handleNext = () => {
     if (!canProceed()) return;
-    const steps: Step[] = ['service', 'datetime', 'details', 'confirmation'];
+    const steps: Step[] = ['service', 'datetime', 'employee', 'details', 'confirmation'];
     const idx = steps.indexOf(step);
     if (idx < steps.length - 1) setStep(steps[idx + 1]);
   };
@@ -247,15 +302,28 @@ export function BookingWizard() {
         p_customer_email: booking.email?.trim() || null,
         p_notes: null,
         p_exclude_appointment_id: null,
+        p_assigned_employee_id: booking.employeeId || null,
       } as any) as { data: { success: boolean; appointment_id?: string; message?: string; error?: string } | null; error: unknown };
 
       if (rpcError) {
         const errObj = rpcError as Record<string, unknown>;
-        if (errObj.code === '23P01' && errObj.message === 'TIME_SLOT_UNAVAILABLE') {
+        if (errObj.code === '23P01' && errObj.message === 'SLOT_UNAVAILABLE') {
           setSubmitError('Este horario ya está reservado. Elegí otro horario e intentá de nuevo.');
+        } else if (errObj.code === 'P0001' && typeof errObj.message === 'string') {
+          const msg = errObj.message as string;
+          if (msg === 'EMPLOYEE_SLOT_UNAVAILABLE') {
+            setSubmitError('Este empleado ya tiene un turno en este horario. Elegí otro o dejá sin asignar.');
+          } else if (msg === 'BUSINESS_CLOSED') {
+            setSubmitError('El negocio está cerrado en esta fecha.');
+          } else if (msg === 'OUTSIDE_HOURS') {
+            setSubmitError('El horario seleccionado está fuera del horario comercial.');
+          } else if (msg === 'SERVICE_NOT_FOUND') {
+            setSubmitError('Uno o más servicios no encontrados.');
+          } else {
+            setSubmitError('Error al crear la reserva. Intentá de nuevo.');
+          }
         } else {
-          const msg = typeof rpcError === 'object' && rpcError && 'message' in rpcError ? String((rpcError as any).message) : 'Error al crear la reserva. Intentá nuevamente.';
-          setSubmitError(msg);
+          setSubmitError('Error al crear la reserva. Intentá de nuevo.');
         }
         return;
       }
@@ -290,9 +358,9 @@ export function BookingWizard() {
             Volver
           </a>
           <div className="flex items-center gap-1.5">
-            {(['service', 'datetime', 'details'] as Step[]).map((s) => (
+            {(['service', 'datetime', 'employee', 'details'] as Step[]).map((s) => (
               <div key={s} className={`w-2 h-2 rounded-full ${
-                step === s ? 'bg-accent-500' : ['service', 'datetime', 'details'].indexOf(s) < ['service', 'datetime', 'details'].indexOf(step) ? 'bg-success-500' : 'bg-neutral-300'
+                step === s ? 'bg-accent-500' : ['service', 'datetime', 'employee', 'details'].indexOf(s) < ['service', 'datetime', 'employee', 'details'].indexOf(step) ? 'bg-success-500' : 'bg-neutral-300'
               }`} />
             ))}
           </div>
@@ -411,6 +479,86 @@ export function BookingWizard() {
           </div>
         )}
 
+        {step === 'employee' && (
+          <div>
+            <h1 className="text-xl font-semibold text-neutral-900 mb-1">Elegí un profesional</h1>
+            <p className="text-sm text-neutral-500 mb-1">{selectedNames}</p>
+            <p className="text-xs text-neutral-400 mb-6">
+              {booking.date} a las {booking.time} — {formattedDuration}
+            </p>
+
+            {!booking.date || !booking.time ? (
+              <p className="text-sm text-neutral-500 text-center py-8">Seleccioná fecha y hora primero.</p>
+            ) : loadingEmployees ? (
+              <div className="flex justify-center py-8">
+                <LoadingSpinner size="md" />
+              </div>
+            ) : employees.length === 0 ? (
+              <div className="card p-6 text-center bg-neutral-50">
+                <p className="text-sm text-neutral-500 mb-3">No hay profesionales disponibles en este horario.</p>
+                <p className="text-xs text-neutral-400">Se asignará automáticamente cuando confirmes.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <button
+                  onClick={() => setBooking({ ...booking, employeeId: null })}
+                  className={`w-full text-left card p-4 flex items-center justify-between transition-all ${
+                    !booking.employeeId ? 'border-accent-500 ring-2 ring-accent-500/20' : ''
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-full bg-neutral-200 flex items-center justify-center text-sm font-medium text-neutral-600`}>
+                      ?
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium text-neutral-900">Sin preferencia</h3>
+                      <p className="text-xs text-neutral-400">Dejo que el sistema asigne automáticamente</p>
+                    </div>
+                  </div>
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                    !booking.employeeId ? 'bg-accent-500 border-accent-500' : 'border-neutral-300'
+                  }`}>
+                    {!booking.employeeId && (
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
+                        <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                  </div>
+                </button>
+
+                {employees.map((emp) => (
+                  <button
+                    key={emp.id}
+                    onClick={() => setBooking({ ...booking, employeeId: emp.id })}
+                    className={`w-full text-left card p-4 flex items-center justify-between transition-all ${
+                      booking.employeeId === emp.id ? 'border-accent-500 ring-2 ring-accent-500/20' : ''
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-accent-500/10 flex items-center justify-center text-sm font-medium text-accent-600">
+                        {emp.full_name.charAt(0)}
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-neutral-900">{emp.full_name}</h3>
+                        <p className="text-xs text-neutral-400 capitalize">{emp.role.toLowerCase()}</p>
+                      </div>
+                    </div>
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                      booking.employeeId === emp.id ? 'bg-accent-500 border-accent-500' : 'border-neutral-300'
+                    }`}>
+                      {booking.employeeId === emp.id && (
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
+                          <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {step === 'details' && (
           <div>
             <h1 className="text-xl font-semibold text-neutral-900 mb-1">Tus datos</h1>
@@ -451,6 +599,11 @@ export function BookingWizard() {
                   </p>
                   <span className="text-xs text-neutral-500">{formattedDuration}</span>
                 </div>
+                {booking.employeeId && (
+                  <p className="text-xs text-neutral-400 mt-1">
+                    Profesional: {employees.find(e => e.id === booking.employeeId)?.full_name || 'Desconocido'}
+                  </p>
+                )}
                 <div className="border-t border-neutral-200 mt-2 pt-2 flex items-center justify-between">
                   <span className="text-sm font-semibold text-neutral-900">Total</span>
                   <span className="text-sm font-bold text-accent-600">${totalPrice.toLocaleString('es-AR')}</span>
@@ -478,6 +631,11 @@ export function BookingWizard() {
               <p className="text-xs text-neutral-400 mt-1">
                 {booking.date} a las {booking.time} — {formattedDuration}
               </p>
+              {booking.employeeId && (
+                <p className="text-xs text-neutral-400">
+                  Profesional: {employees.find(e => e.id === booking.employeeId)?.full_name || 'Desconocido'}
+                </p>
+              )}
               <div className="border-t border-neutral-200 mt-2 pt-2 flex items-center justify-between">
                 <span className="text-sm font-semibold text-neutral-900">Total</span>
                 <span className="text-sm font-bold text-accent-600">${totalPrice.toLocaleString('es-AR')}</span>
@@ -496,7 +654,7 @@ export function BookingWizard() {
           <div className="flex items-center justify-between mt-8 pt-6 border-t border-neutral-200">
             <button
               onClick={() => {
-                const steps: Step[] = ['service', 'datetime', 'details'];
+                const steps: Step[] = ['service', 'datetime', 'employee', 'details'];
                 const idx = steps.indexOf(step);
                 if (idx > 0) setStep(steps[idx - 1]);
               }}

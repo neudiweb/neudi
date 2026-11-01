@@ -27,6 +27,7 @@ interface TimeRangeState {
   startTime: string;
   endTime: string;
   isActive: boolean;
+  maxAppointments: number;
 }
 
 interface DayHoursState {
@@ -38,6 +39,7 @@ const DEFAULT_RANGE: TimeRangeState = {
   startTime: '09:00',
   endTime: '18:00',
   isActive: true,
+  maxAppointments: 1,
 };
 
 export function DashboardHours() {
@@ -90,6 +92,7 @@ export function DashboardHours() {
           startTime: h.start_time,
           endTime: h.end_time,
           isActive: h.is_active,
+          maxAppointments: h.max_appointments ?? 1,
         });
       }
 
@@ -223,19 +226,32 @@ export function DashboardHours() {
     }
 
     setSaving(true);
+    setSaveError(null);
 
     try {
+      console.log('[DashboardHours] Starting save for business:', businessId);
+      console.log('[DashboardHours] Current dayHours:', Array.from(dayHours.entries()).map(([k, v]) => ({ jsDay: k, ranges: v.ranges })));
+
       // Load existing records grouped by business day
-      const { data: existing } = await supabase
+      const { data: existing, error: fetchError } = await supabase
         .from('business_hours')
         .select('*')
         .eq('business_id', businessId) as { data: BusinessHour[] | null; error: string | null };
+
+      if (fetchError) {
+        console.error('[DashboardHours] Error fetching existing hours:', fetchError);
+        setSaveError('Error al cargar horarios existentes: ' + fetchError);
+        setSaving(false);
+        return;
+      }
 
       if (!existing) {
         setSaveError('No se pudieron cargar los horarios existentes.');
         setSaving(false);
         return;
       }
+
+      console.log('[DashboardHours] Existing hours from DB:', existing.length, 'records');
 
       // Build a map: jsDay (0-6) -> array of existing records with their DB id
       const existingByJsDay = new Map<number, BusinessHour[]>();
@@ -256,17 +272,31 @@ export function DashboardHours() {
         daysToUpsert.push({ jsDay, businessDay, ranges: dayData.ranges, oldIds });
       }
 
-      // For each modified day, delete old records first, then insert new ones
+      // Also track days that were turned OFF (exist in DB but not in dayHours)
+      const daysTurnedOff: Array<{ jsDay: number; businessDay: number; oldIds: string[] }> = [];
+      for (const [jsDay, records] of existingByJsDay) {
+        if (!dayHours.has(jsDay)) {
+          const businessDay = jsDayToBusinessDay(jsDay);
+          daysTurnedOff.push({ jsDay, businessDay, oldIds: records.map(r => r.id!) });
+        }
+      }
+
+      console.log('[DashboardHours] Days to upsert:', daysToUpsert.length, 'Days turned off:', daysTurnedOff.length);
+
+      // For each modified day (turned on), delete old records first, then insert new ones
       for (const dayInfo of daysToUpsert) {
+        console.log('[DashboardHours] Processing day', dayInfo.businessDay, 'with', dayInfo.ranges.length, 'ranges');
+        
         // Delete existing records for this day
         if (dayInfo.oldIds.length > 0) {
+          console.log('[DashboardHours] Deleting old IDs:', dayInfo.oldIds);
           const { error: deleteError } = await supabase
             .from('business_hours')
             .delete()
             .in('id', dayInfo.oldIds);
 
           if (deleteError) {
-            console.error('Error deleting old hours:', deleteError);
+            console.error('[DashboardHours] Error deleting old hours:', deleteError);
             setSaveError('No se pudieron guardar los horarios. Intentá de nuevo.');
             setSaving(false);
             return;
@@ -281,14 +311,16 @@ export function DashboardHours() {
             start_time: normalizeTime(r.startTime),
             end_time: normalizeTime(r.endTime),
             is_active: r.isActive,
+            max_appointments: r.maxAppointments,
           }));
 
+          console.log('[DashboardHours] Inserting records:', recordsToInsert);
           const { error: insertError } = await supabase
             .from('business_hours')
             .insert(recordsToInsert as any);
 
           if (insertError) {
-            console.error('Error inserting hours:', insertError);
+            console.error('[DashboardHours] Error inserting hours:', insertError);
             setSaveError('No se pudieron guardar los horarios. Intentá de nuevo.');
             setSaving(false);
             return;
@@ -296,10 +328,30 @@ export function DashboardHours() {
         }
       }
 
+      // For days that were turned OFF, delete all their records
+      for (const dayInfo of daysTurnedOff) {
+        console.log('[DashboardHours] Turning off day', dayInfo.businessDay, 'with IDs:', dayInfo.oldIds);
+        if (dayInfo.oldIds.length > 0) {
+          const { error: deleteError } = await supabase
+            .from('business_hours')
+            .delete()
+            .in('id', dayInfo.oldIds);
+
+          if (deleteError) {
+            console.error('[DashboardHours] Error deleting turned-off day hours:', deleteError);
+            setSaveError('No se pudieron guardar los horarios. Intentá de nuevo.');
+            setSaving(false);
+            return;
+          }
+        }
+      }
+
+      console.log('[DashboardHours] Save completed successfully');
+      
       // Reload from DB to reflect actual saved state
       await fetchHours(businessId);
     } catch (e) {
-      console.error('Error saving hours:', e);
+      console.error('[DashboardHours] Error saving hours:', e);
       setSaveError('No se pudieron guardar los horarios. Intentá de nuevo.');
     } finally {
       setSaving(false);
@@ -416,9 +468,9 @@ export function DashboardHours() {
                     {dayData.ranges.map((range, rangeIndex) => (
                       <div
                         key={rangeIndex}
-                        className={`rounded-xl transition-all duration-200 ${
+                        className={`rounded-xl transition-all duration-200 overflow-visible ${
                           range.isActive
-                            ? 'bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800'
+                            ? 'bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-sm'
                             : 'bg-zinc-50/50 dark:bg-zinc-800/30 border border-zinc-100 dark:border-zinc-800/50 opacity-60'
                         }`}
                       >
@@ -436,7 +488,7 @@ export function DashboardHours() {
                           >
                             <div className={`w-5 h-5 rounded flex items-center justify-center transition-all duration-200 ${
                               range.isActive
-                                ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-100'
+                                ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900'
                                 : 'bg-zinc-200 dark:bg-zinc-700'
                             }`}>
                               {range.isActive && (
@@ -462,11 +514,38 @@ export function DashboardHours() {
                           )}
                         </div>
 
+                        {/* Capacity selector */}
+                        <div className="px-2.5 pb-1">
+                          <label className="block text-[10px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-1">
+                            Turnos máx.
+                          </label>
+                          <select
+                            value={range.maxAppointments}
+                            onChange={(e) => {
+                              setDayHours((prev) => {
+                                const next = new Map(prev);
+                                const dayData = next.get(jsDay);
+                                if (!dayData) return prev;
+                                const newRanges = [...dayData.ranges];
+                                newRanges[rangeIndex] = { ...newRanges[rangeIndex], maxAppointments: parseInt(e.target.value) };
+                                next.set(jsDay, { ...dayData, ranges: newRanges });
+                                return next;
+                              });
+                            }}
+                            disabled={!range.isActive}
+                            className="w-full px-3 py-2 text-sm font-medium bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-900/30 dark:focus:ring-zinc-100/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+                              <option key={n} value={n}>{n} {n === 1 ? 'turno' : 'turnos'}</option>
+                            ))}
+                          </select>
+                        </div>
+
                         {/* Time inputs - 2-col grid on mobile, side-by-side on desktop */}
                         <div className="px-2.5 pb-2">
-                          <div className="grid grid-cols-2 gap-1.5 sm:flex sm:gap-2">
+                          <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-3">
                             <div>
-                              <label className="block text-[9px] font-medium uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1">
+                              <label className="block text-[10px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-1">
                                 Inicio
                               </label>
                               <TimePicker
@@ -476,7 +555,7 @@ export function DashboardHours() {
                               />
                             </div>
                             <div>
-                              <label className="block text-[9px] font-medium uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1">
+                              <label className="block text-[10px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-1">
                                 Fin
                               </label>
                               <TimePicker
@@ -493,7 +572,7 @@ export function DashboardHours() {
                     {/* Add range button */}
                     <button
                       onClick={() => addRange(jsDay)}
-                      className="w-full flex items-center justify-center gap-2 py-3 px-4 border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:border-zinc-400 dark:hover:border-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 hover:bg-zinc-50/80 dark:hover:bg-zinc-800/50 transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-zinc-900 focus-visible:outline-offset-2"
+                      className="w-full flex items-center justify-center gap-2 py-4 px-4 border-2 border-dashed border-zinc-300 dark:border-zinc-600 rounded-xl text-sm font-semibold text-zinc-600 dark:text-zinc-300 hover:border-zinc-500 dark:hover:border-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50/80 dark:hover:bg-zinc-800/50 transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-zinc-900 focus-visible:outline-offset-2"
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M12 5v14M5 12h14" strokeLinecap="round" />
@@ -535,11 +614,11 @@ export function DashboardHours() {
       </div>
 
       {/* Save button */}
-      <div className="flex justify-end mt-8">
+      <div className="flex justify-end mt-8 pb-8">
         <button
           onClick={handleSave}
           disabled={saving}
-          className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-semibold shadow-lg shadow-zinc-300/20 dark:shadow-zinc-900/30 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-bold shadow-lg shadow-zinc-300/20 dark:shadow-zinc-900/30 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {saving ? (
             <>

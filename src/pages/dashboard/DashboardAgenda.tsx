@@ -130,7 +130,7 @@ export function DashboardAgenda() {
     todayCount,
     weekCount,
     refetch: refetchAgenda,
-  } = useAgendaData(businessId, bizTimezone, selectedDate);
+  } = useAgendaData(businessId, bizTimezone, selectedDate, null);
 
   React.useEffect(() => {
     if (businessId && isInitialMount.current) {

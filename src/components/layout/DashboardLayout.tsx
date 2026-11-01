@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { BusinessSwitcher } from '../dashboard/BusinessSwitcher';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -136,6 +137,7 @@ export function DashboardLayout({ children, currentTab = 'agenda' }: DashboardLa
               <span className="font-bold text-lg tracking-tight text-zinc-900 dark:text-zinc-50">Neudi</span>
             )}
           </Link>
+          {sidebarOpen && <BusinessSwitcher />}
         </div>
 
         {/* Main navigation */}
@@ -245,8 +247,11 @@ export function DashboardLayout({ children, currentTab = 'agenda' }: DashboardLa
 
         {/* Top bar (desktop) */}
         <div className="hidden lg:flex items-center justify-between px-8 py-4 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shrink-0">
-          <div className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-            {new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+          <div className="flex items-center gap-4">
+            <BusinessSwitcher />
+            <div className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+              {new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            </div>
           </div>
           <ThemeToggle />
         </div>

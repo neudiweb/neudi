@@ -102,7 +102,6 @@ function App() {
               </PlanGuard>
             </AuthGuard>
           } />
-
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
