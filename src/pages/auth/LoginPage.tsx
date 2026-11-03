@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../lib/supabase';
 
 /* ===========================
    ANIMATED BACKGROUND COMPONENTS
@@ -227,13 +228,19 @@ export function LoginPage() {
     }
     setIsResetting(true);
     setResetError('');
-    const result = await resetPassword(resetEmail);
-    setIsResetting(false);
-    if (result.error) {
-      setResetError(result.error);
-    } else {
-      setResetSent(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) {
+        setResetError('No se pudo enviar el correo de recuperación.');
+      } else {
+        setResetSent(true);
+      }
+    } catch {
+      setResetError('Error de red. Verificá tu conexión.');
     }
+    setIsResetting(false);
   };
 
   return (
@@ -583,7 +590,7 @@ export function LoginPage() {
                   </div>
                 )}
 
-                <form onSubmit={handleReset} className="space-y-4">
+                <div className="space-y-4">
                   <div>
                     <label htmlFor="reset-email" className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-emerald-100/80' : 'text-zinc-700'}`}>
                       Email
@@ -594,25 +601,34 @@ export function LoginPage() {
                       value={resetEmail}
                       onChange={(e) => setResetEmail(e.target.value)}
                       placeholder="tu@email.com"
+                      onKeyDown={(e) => { if (e.key === 'Enter') handleReset(e as unknown as React.FormEvent); }}
                       autoFocus
                       className={`w-full rounded-xl border bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm px-4 py-3 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-secondary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 ${isDark ? 'border-emerald-500/20 hover:border-emerald-500/30' : 'border-emerald-200 hover:border-emerald-300'}`}
                     />
                   </div>
 
-                  <ShimmerButton disabled={isResetting} className="w-full">
-                    {isResetting ? (
-                      <span className="inline-flex items-center gap-2">
-                        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                        </svg>
-                        Enviando...
-                      </span>
-                    ) : (
-                      'Enviar enlace'
-                    )}
-                  </ShimmerButton>
-                </form>
+                  <button
+                    type="button"
+                    onClick={(e) => { e.preventDefault(); handleReset(e as unknown as React.FormEvent); }}
+                    disabled={isResetting}
+                    className={`group relative inline-flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-9 py-4 text-lg font-bold text-white shadow-2xl shadow-emerald-500/25 transition-all duration-500 hover:shadow-emerald-500/40 hover:scale-105 active:scale-100 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 w-full`}
+                  >
+                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
+                    <span className="relative z-10">
+                      {isResetting ? (
+                        <span className="inline-flex items-center gap-2">
+                          <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                          Enviando...
+                        </span>
+                      ) : (
+                        'Enviar enlace'
+                      )}
+                    </span>
+                  </button>
+                </div>
               </>
             )}
           </div>
