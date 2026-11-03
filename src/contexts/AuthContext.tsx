@@ -39,6 +39,7 @@ interface AuthContextValue extends AuthState {
   createBusiness: (businessName: string) => Promise<{ error?: string }>;
   switchBusiness: (businessId: string) => Promise<{ error?: string }>;
   loginDemo: () => Promise<{ error?: string }>;
+  resetPassword: (email: string) => Promise<{ error?: string }>;
   logout: () => Promise<void>;
 }
 
@@ -401,6 +402,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = async () => {
+    const resetPassword = async (email: string) => {
+      setState((prev) => ({ ...prev, isLoading: true }));
+
+      try {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+
+        if (error) {
+          setState((prev) => ({ ...prev, isLoading: false }));
+          return { error: 'No se pudo enviar el correo de recuperación.' };
+        }
+
+        setState((prev) => ({ ...prev, isLoading: false }));
+        return {};
+      } catch {
+        setState((prev) => ({ ...prev, isLoading: false }));
+        return { error: 'Error de red. Verificá tu conexión.' };
+      }
+    };
+
     await supabase.auth.signOut();
     setState({ user: null, isLoading: false });
   };
@@ -416,6 +438,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     createBusiness,
     switchBusiness,
     loginDemo,
+    resetPassword,
     logout,
   };
 

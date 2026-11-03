@@ -181,7 +181,12 @@ export function LoginPage() {
   const [error, setError] = React.useState('');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [loaded, setLoaded] = React.useState(false);
-  const { login, loginDemo } = useAuth();
+  const [showResetModal, setShowResetModal] = React.useState(false);
+  const [resetEmail, setResetEmail] = React.useState('');
+  const [resetSent, setResetSent] = React.useState(false);
+  const [resetError, setResetError] = React.useState('');
+  const [isResetting, setIsResetting] = React.useState(false);
+  const { login, loginDemo, resetPassword } = useAuth();
   const navigate = useNavigate();
   const { activeTheme } = useTheme();
   const isDark = activeTheme === 'dark';
@@ -212,6 +217,23 @@ export function LoginPage() {
     setIsSubmitting(false);
     if (result.error) setError(result.error);
     else navigate('/dashboard/agenda');
+  };
+
+  const handleReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetEmail.trim()) {
+      setResetError('Ingresá tu email.');
+      return;
+    }
+    setIsResetting(true);
+    setResetError('');
+    const result = await resetPassword(resetEmail);
+    setIsResetting(false);
+    if (result.error) {
+      setResetError(result.error);
+    } else {
+      setResetSent(true);
+    }
   };
 
   return (
@@ -277,18 +299,18 @@ export function LoginPage() {
                 {/* Error message */}
                 {error && (
                   <div
-                    className="flex items-center gap-2 text-sm text-red-500 bg-red-50/80 dark:bg-red-950/30 border border-red-200 dark:border-red-800/50 rounded-xl px-4 py-3 mb-5 backdrop-blur-sm"
+                    className="flex items-start gap-2.5 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 rounded-xl px-4 py-3 mb-5 backdrop-blur-sm"
                     style={{
                       opacity: loaded ? 1 : 0,
                       transition: 'all 0.5s ease 0.3s',
                     }}
                   >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 mt-0.5">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 mt-0.5">
                       <circle cx="12" cy="12" r="10" />
                       <path d="M12 8v4" strokeLinecap="round" />
                       <path d="M12 16h.01" strokeLinecap="round" />
                     </svg>
-                    {error}
+                    <span className="leading-relaxed">{error}</span>
                   </div>
                 )}
 
@@ -336,7 +358,16 @@ export function LoginPage() {
                       autoComplete="current-password"
                       className={`w-full rounded-xl border bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm px-4 py-3 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-secondary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 ${isDark ? 'border-emerald-500/20 hover:border-emerald-500/30' : 'border-emerald-200 hover:border-emerald-300'}`}
                     />
-                    <p className={`text-xs mt-1.5 ${isDark ? 'text-emerald-200/40' : 'text-zinc-400'}`}>Mínimo 6 caracteres</p>
+                    <div className="flex items-center justify-between mt-2">
+                      <p className={`text-xs ${isDark ? 'text-emerald-200/40' : 'text-zinc-400'}`}>Mínimo 6 caracteres</p>
+                      <button
+                        type="button"
+                        onClick={() => { setShowResetModal(true); setResetSent(false); setResetError(''); }}
+                        className={`text-xs font-medium transition-colors duration-200 ${isDark ? 'text-emerald-400 hover:text-emerald-300' : 'text-emerald-600 hover:text-emerald-700'}`}
+                      >
+                        ¿Olvidaste tu contraseña?
+                      </button>
+                    </div>
                   </div>
 
                   {/* Submit */}
@@ -469,6 +500,124 @@ export function LoginPage() {
           </div>
         </div>
       </div>
+
+      {/* Reset Password Modal */}
+      {showResetModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => { setShowResetModal(false); setResetSent(false); setResetError(''); }}
+          />
+          <div
+            className={`relative w-full max-w-sm rounded-2xl border p-6 sm:p-8 shadow-2xl transition-all duration-300 ${isDark ? 'border-emerald-500/20 bg-emerald-950/30 backdrop-blur-xl' : 'border-emerald-200 bg-white/95 backdrop-blur-xl'}`}
+            style={{
+              animation: 'modalIn 0.3s ease-out',
+            }}
+          >
+            <style>{`
+              @keyframes modalIn {
+                from { opacity: 0; transform: scale(0.95) translateY(10px); }
+                to { opacity: 1; transform: scale(1) translateY(0); }
+              }
+            `}</style>
+
+            {resetSent ? (
+              <div className="text-center">
+                <div className={`inline-flex items-center justify-center w-14 h-14 rounded-full mb-4 ${isDark ? 'bg-emerald-500/20' : 'bg-emerald-100'}`}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={` ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" strokeLinecap="round" />
+                    <path d="M22 4L12 14.01l-3-3" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+                <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-zinc-900'}`}>
+                  Email enviado
+                </h3>
+                <p className={`text-sm leading-relaxed mb-6 ${isDark ? 'text-emerald-200/60' : 'text-zinc-500'}`}>
+                  Te enviamos un enlace para recuperar tu contraseña a <strong className={`font-semibold ${isDark ? 'text-emerald-200' : 'text-zinc-700'}`}>{resetEmail}</strong>. Revisá tu bandeja de entrada.
+                </p>
+                <button
+                  onClick={() => { setShowResetModal(false); setResetSent(false); setResetError(''); }}
+                  className={`w-full rounded-xl border-2 px-6 py-3 text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] ${
+                    isDark
+                      ? 'border-emerald-500/20 bg-emerald-500/5 text-emerald-300 hover:border-emerald-500/40 hover:bg-emerald-500/10'
+                      : 'border-emerald-300 bg-emerald-50/50 text-emerald-700 hover:border-emerald-400 hover:bg-emerald-100/70'
+                  }`}
+                >
+                  Entendido
+                </button>
+              </div>
+            ) : (
+              <>
+                <button
+                  onClick={() => { setShowResetModal(false); setResetSent(false); setResetError(''); }}
+                  className={`absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-lg transition-colors duration-200 ${isDark ? 'text-emerald-200/40 hover:text-emerald-200/80 hover:bg-emerald-500/10' : 'text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100'}`}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+
+                <div className="mb-5">
+                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl mb-3 ${isDark ? 'bg-emerald-500/20' : 'bg-emerald-100'}`}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={`${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                  </div>
+                  <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-zinc-900'}`}>
+                    Recuperar contraseña
+                  </h3>
+                  <p className={`text-sm mt-1 ${isDark ? 'text-emerald-200/50' : 'text-zinc-500'}`}>
+                    Ingresá tu email y te enviaremos un enlace para crear una nueva contraseña.
+                  </p>
+                </div>
+
+                {resetError && (
+                  <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 rounded-xl px-4 py-3 mb-4">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M12 8v4" strokeLinecap="round" />
+                      <path d="M12 16h.01" strokeLinecap="round" />
+                    </svg>
+                    {resetError}
+                  </div>
+                )}
+
+                <form onSubmit={handleReset} className="space-y-4">
+                  <div>
+                    <label htmlFor="reset-email" className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-emerald-100/80' : 'text-zinc-700'}`}>
+                      Email
+                    </label>
+                    <input
+                      id="reset-email"
+                      type="email"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      placeholder="tu@email.com"
+                      autoFocus
+                      className={`w-full rounded-xl border bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm px-4 py-3 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-secondary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 ${isDark ? 'border-emerald-500/20 hover:border-emerald-500/30' : 'border-emerald-200 hover:border-emerald-300'}`}
+                    />
+                  </div>
+
+                  <ShimmerButton disabled={isResetting} className="w-full">
+                    {isResetting ? (
+                      <span className="inline-flex items-center gap-2">
+                        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        Enviando...
+                      </span>
+                    ) : (
+                      'Enviar enlace'
+                    )}
+                  </ShimmerButton>
+                </form>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
