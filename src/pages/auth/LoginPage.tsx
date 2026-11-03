@@ -152,22 +152,19 @@ function ThemeToggle() {
   return (
     <button
       onClick={() => setMode(isDark ? 'light' : 'dark')}
-      className="fixed top-4 right-4 z-50 flex items-center gap-2 rounded-full border border-zinc-300/50 dark:border-zinc-700/50 bg-white/90 dark:bg-zinc-900/90 px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 shadow-lg shadow-zinc-500/5 dark:shadow-zinc-500/10 backdrop-blur-sm transition-all duration-300 hover:scale-105 cursor-pointer"
+      className="fixed top-4 right-4 z-50 flex items-center justify-center rounded-full border border-zinc-300/50 dark:border-zinc-700/50 bg-white/90 dark:bg-zinc-900/90 w-10 h-10 shadow-lg shadow-zinc-500/5 dark:shadow-zinc-500/10 backdrop-blur-sm transition-all duration-300 hover:scale-105 cursor-pointer"
       aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
     >
-      <span className="flex h-5 w-5 items-center justify-center">
-        {isDark ? (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-400">
-            <circle cx="12" cy="12" r="4" />
-            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-          </svg>
-        ) : (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-600">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-          </svg>
-        )}
-      </span>
-      <span className="text-xs">{isDark ? '☀️ Claro' : '🌙 Oscuro'}</span>
+      {isDark ? (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-400">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+        </svg>
+      ) : (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-600">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+      )}
     </button>
   );
 }
@@ -187,7 +184,7 @@ export function LoginPage() {
   const [resetSent, setResetSent] = React.useState(false);
   const [resetError, setResetError] = React.useState('');
   const [isResetting, setIsResetting] = React.useState(false);
-  const { login, loginDemo, resetPassword } = useAuth();
+  const { login, resetPassword } = useAuth();
   const navigate = useNavigate();
   const { activeTheme } = useTheme();
   const isDark = activeTheme === 'dark';
@@ -205,19 +202,32 @@ export function LoginPage() {
     }
     setIsSubmitting(true);
     setError('');
-    const result = await login(email, password);
+    
+    // Direct Supabase call for immediate error feedback
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+    
     setIsSubmitting(false);
-    if (result.error) setError(result.error);
-    else navigate('/dashboard/agenda');
-  };
-
-  const handleDemo = async () => {
-    setIsSubmitting(true);
-    setError('');
-    const result = await loginDemo();
-    setIsSubmitting(false);
-    if (result.error) setError(result.error);
-    else navigate('/dashboard/agenda');
+    
+    if (authError) {
+      console.log('Login error:', authError);
+      let msg = 'Email o contraseña incorrectos. Verificá tus datos e intentá de nuevo.';
+      if (authError.code === 'invalid_credentials') {
+        msg = 'Email o contraseña incorrectos. Verificá tus datos e intentá de nuevo.';
+      } else if (authError.code === 'rate_limit') {
+        msg = 'Demasiados intentos. Esperá un momento e intentá de nuevo.';
+      } else if (authError.message?.includes('not found')) {
+        msg = 'No se encontró una cuenta con ese email.';
+      } else if (authError.message?.includes('Invalid')) {
+        msg = 'Email o contraseña incorrectos. Verificá tus datos e intentá de nuevo.';
+      }
+      setError(msg);
+      return;
+    }
+    
+    navigate('/dashboard/agenda');
   };
 
   const handleReset = async (e: React.FormEvent) => {
@@ -228,19 +238,45 @@ export function LoginPage() {
     }
     setIsResetting(true);
     setResetError('');
+
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
-        redirectTo: `${window.location.origin}/reset-password`,
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/check-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({ email: resetEmail.trim() }),
       });
-      if (error) {
-        setResetError('No se pudo enviar el correo de recuperación.');
-      } else {
-        setResetSent(true);
+
+      const data = await response.json();
+      setIsResetting(false);
+
+      if (!response.ok || data.error) {
+        setResetError('No se pudo verificar el email.');
+        return;
       }
+
+      if (!data.exists) {
+        setResetError('Ese email no está registrado en Neudi.');
+        return;
+      }
+
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(resetEmail.trim(), {
+        redirectTo: `${window.location.origin}/neudi/reset-password`,
+      });
+
+      if (resetError) {
+        setResetError('No se pudo enviar el correo de recuperación.');
+        return;
+      }
+
+      setResetSent(true);
     } catch {
+      setIsResetting(false);
       setResetError('Error de red. Verificá tu conexión.');
     }
-    setIsResetting(false);
   };
 
   return (
@@ -406,48 +442,6 @@ export function LoginPage() {
                   </div>
                 </form>
 
-                {/* Divider */}
-                <div
-                  className="flex items-center gap-3 my-6"
-                  style={{
-                    opacity: loaded ? 1 : 0,
-                    transition: 'opacity 0.6s ease 0.6s',
-                  }}
-                >
-                  <div className={`flex-1 h-px ${isDark ? 'bg-emerald-500/20' : 'bg-emerald-200'}`} />
-                  <span className={`text-xs uppercase tracking-wider ${isDark ? 'text-emerald-400/50' : 'text-emerald-600/50'}`}>o</span>
-                  <div className={`flex-1 h-px ${isDark ? 'bg-emerald-500/20' : 'bg-emerald-200'}`} />
-                </div>
-
-                {/* Demo button */}
-                <div
-                  style={{
-                    opacity: loaded ? 1 : 0,
-                    transform: loaded ? 'translateY(0)' : 'translateY(10px)',
-                    transition: 'all 0.6s ease 0.65s',
-                  }}
-                >
-                  <button
-                    type="button"
-                    onClick={handleDemo}
-                    disabled={isSubmitting}
-                    className={`w-full rounded-xl border-2 px-6 py-3.5 text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${
-                      isDark
-                        ? 'border-emerald-500/20 bg-emerald-500/5 text-emerald-300 hover:border-emerald-500/40 hover:bg-emerald-500/10'
-                        : 'border-emerald-300 bg-emerald-50/50 text-emerald-700 hover:border-emerald-400 hover:bg-emerald-100/70'
-                    }`}
-                  >
-                    <span className="inline-flex items-center gap-2">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-                        <path d="M10 17l5-5-5-5" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M3 8h4a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H3" />
-                      </svg>
-                      Probar demo
-                    </span>
-                  </button>
-                </div>
-
                 {/* Register link */}
                 <div
                   className="text-center mt-6"
@@ -510,8 +504,9 @@ export function LoginPage() {
 
       {/* Reset Password Modal */}
       {showResetModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" data-testid="reset-modal">
           <div
+            data-testid="reset-modal-backdrop"
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => { setShowResetModal(false); setResetSent(false); setResetError(''); }}
           />
@@ -556,6 +551,7 @@ export function LoginPage() {
             ) : (
               <>
                 <button
+                  data-testid="reset-modal-close"
                   onClick={() => { setShowResetModal(false); setResetSent(false); setResetError(''); }}
                   className={`absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-lg transition-colors duration-200 ${isDark ? 'text-emerald-200/40 hover:text-emerald-200/80 hover:bg-emerald-500/10' : 'text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100'}`}
                 >

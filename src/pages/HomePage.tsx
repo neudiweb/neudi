@@ -17,22 +17,19 @@ function ThemeToggle() {
   return (
     <button
       onClick={() => setMode(isDark ? 'light' : 'dark')}
-      className="fixed top-4 right-4 z-50 flex items-center gap-2 rounded-full border border-emerald-300/50 dark:border-emerald-700/50 bg-white/90 dark:bg-zinc-900/90 px-3 py-2 text-sm font-medium text-emerald-700 dark:text-emerald-300 shadow-lg shadow-emerald-500/5 dark:shadow-emerald-500/10 backdrop-blur-sm transition-all duration-300 hover:scale-105 cursor-pointer"
+      className="fixed top-4 right-4 z-50 flex items-center justify-center rounded-full border border-emerald-300/50 dark:border-emerald-700/50 bg-white/90 dark:bg-zinc-900/90 w-10 h-10 shadow-lg shadow-emerald-500/5 dark:shadow-emerald-500/10 backdrop-blur-sm transition-all duration-300 hover:scale-105 cursor-pointer"
       aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
     >
-      <span className="flex h-5 w-5 items-center justify-center">
-        {isDark ? (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400">
-            <circle cx="12" cy="12" r="4" />
-            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-          </svg>
-        ) : (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-800">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-          </svg>
-        )}
-      </span>
-      <span className="text-xs">{isDark ? '☀️ Claro' : '🌙 Oscuro'}</span>
+      {isDark ? (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+        </svg>
+      ) : (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-800">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+      )}
     </button>
   );
 }
@@ -608,13 +605,15 @@ function FloatingCTA() {
     >
       <Link
         to="/login"
-        className="group relative inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-3 text-sm font-bold text-white shadow-2xl shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-105 active:scale-100 transition-all duration-300"
+        className="group relative inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-3 text-sm font-bold text-white shadow-2xl shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-105 active:scale-100 transition-all duration-300 overflow-hidden"
       >
         <span className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
-        <span className="relative z-10">EMPEZAR</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="relative z-10 transition-transform duration-300 group-hover:translate-x-1">
-          <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        <span className="relative z-10 flex items-center gap-2">
+          EMPEZAR
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="relative z-10 transition-transform duration-300 group-hover:translate-x-1">
+            <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </span>
       </Link>
     </div>
   );
@@ -739,7 +738,7 @@ export function HomePage() {
 
             {/* CTA buttons */}
             <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-5">
-              <ShimmerButton href="/login">
+              <ShimmerButton href="/login" className="flex items-center gap-2.5">
                 EMPEZAR
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="relative z-10 transition-transform duration-500 group-hover:translate-x-1.5">
                   <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
@@ -847,10 +846,6 @@ export function HomePage() {
 
       {/* ===== CTA ===== */}
       <section className="relative py-28 sm:py-36">
-        <div className="absolute inset-0 pointer-events-none">
-          <GlowOrb className={`w-[500px] h-[500px] -top-24 right-1/4 bg-emerald-500/10 blur-3xl`} />
-          <GlowOrb className={`w-[400px] h-[400px] -bottom-24 left-1/4 bg-teal-500/10 blur-3xl`} />
-        </div>
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <TiltCard>
             <GlowingCard>
