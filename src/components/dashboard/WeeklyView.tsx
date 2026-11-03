@@ -7,6 +7,7 @@ import {
   addDaysToDate,
   getTodayInTimezone,
 } from '../../utils/helpers';
+import type { AppointmentStatusLower } from '../../types/index';
 
 const MONTH_NAMES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -150,8 +151,9 @@ interface WeeklyViewProps {
     endTime: string;
     totalDuration: number;
     totalPrice: number;
-    status: string;
+    status: AppointmentStatusLower;
     requiresDeposit: boolean;
+    serviceId?: string;
   } | null;
   setSelectedAppointment: (apt: {
     id: string;
@@ -165,8 +167,9 @@ interface WeeklyViewProps {
     endTime: string;
     totalDuration: number;
     totalPrice: number;
-    status: string;
+    status: AppointmentStatusLower;
     requiresDeposit: boolean;
+    serviceId?: string;
   } | null) => void;
   todayStr: string;
   formatMonthLabel: (dateStr: string) => string;
