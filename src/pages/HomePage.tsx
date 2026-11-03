@@ -699,7 +699,7 @@ export function HomePage() {
   ];
 
   return (
-    <div className={`min-h-screen overflow-hidden transition-colors duration-700 ${isDark ? 'bg-zinc-950' : 'bg-gradient-to-br from-emerald-300/50 via-zinc-200 to-teal-300/50'}`}>
+    <div className={`min-h-screen overflow-hidden transition-colors duration-700 ${isDark ? 'bg-zinc-950' : 'bg-gradient-to-br from-emerald-400/40 via-zinc-300 to-teal-400/40'}`}>
       <NoiseOverlay />
       <ThemeToggle />
       <FloatingCTA />
