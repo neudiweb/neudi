@@ -699,13 +699,13 @@ export function HomePage() {
   ];
 
   return (
-    <div className={`min-h-screen overflow-hidden transition-colors duration-700 ${isDark ? 'bg-zinc-950' : 'bg-gradient-to-br from-emerald-400/40 via-zinc-300 to-teal-400/40'}`}>
+    <div className={`min-h-screen overflow-hidden transition-colors duration-700 ${isDark ? 'bg-zinc-950' : 'bg-gradient-to-br from-emerald-100 via-white to-teal-100'}`}>
       <NoiseOverlay />
       <ThemeToggle />
       <FloatingCTA />
 
       {/* ===== HERO ===== */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-200/60 via-zinc-100 to-teal-200/60">
         <AuroraBackground />
         <div className={`absolute inset-0 opacity-[0.03] dark:opacity-[0.06] pointer-events-none`}
           style={{
