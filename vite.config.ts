@@ -44,6 +44,7 @@ export default defineConfig({
       manifestFilename: 'manifest.json',
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,txt,woff2}'],
+        cleanupOutdatedCaches: true,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/hvafniqbmwwdcrlxymir\.supabase\.co\/.*/i,
