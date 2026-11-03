@@ -183,7 +183,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (error) {
         setState((prev) => ({ ...prev, isLoading: false }));
-        return { error: getAuthErrorMessage(error.message) };
+        const message = error.message ?? '';
+        return { error: getAuthErrorMessage(message, error.code) };
       }
 
       const loaded = await loadUserFromSession();
@@ -213,7 +214,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (authError) {
         setState((prev) => ({ ...prev, isLoading: false }));
-        return { error: getAuthErrorMessage(authError.message) };
+        return { error: getAuthErrorMessage(authError.message, authError.code) };
       }
 
       if (!authData.user) {
@@ -449,21 +450,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-function getAuthErrorMessage(message: string): string {
-  if (message.includes('Invalid login credentials')) {
-    return 'Email o contraseña incorrectos.';
+function getAuthErrorMessage(message: string, code?: string): string {
+  if (code === 'invalid_credentials') {
+    return 'Email o contraseña incorrectos. Verificá tus datos e intentá de nuevo.';
   }
-  if (message.includes('email') && message.includes('already registered')) {
+  if (message.includes('Invalid login credentials') || message.includes('Credenciales de inicio de sesión no válidas')) {
+    return 'Email o contraseña incorrectos. Verificá tus datos e intentá de nuevo.';
+  }
+  if (message.includes('email') && message.includes('password')) {
+    return 'Email o contraseña incorrectos. Verificá tus datos e intentá de nuevo.';
+  }
+  if (message.includes('Invalid API key') || message.includes('API key')) {
+    return 'Error de configuración. Contactá al administrador.';
+  }
+  if (message.includes('email') && message.includes('already registered') || message.includes('already been used')) {
     return 'Ya existe una cuenta con ese email.';
   }
   if (
     message.includes('Password should be at least') ||
-    message.includes('weak')
+    message.includes('weak') ||
+    message.includes('Contraseña')
   ) {
     return 'La contraseña debe tener al menos 6 caracteres.';
   }
-  if (message.includes('rate limit')) {
+  if (message.includes('rate limit') || message.includes('Too many requests') || message.includes('demasiados')) {
     return 'Demasiados intentos. Esperá un momento e intentá de nuevo.';
+  }
+  if (message.includes('User not found') || message.includes('no user record') || message.includes('not found')) {
+    return 'No se encontró una cuenta con ese email.';
   }
   return 'Error inesperado. Intentá de nuevo.';
 }
