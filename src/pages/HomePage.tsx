@@ -161,10 +161,10 @@ function AnimatedHeroTitle() {
           <linearGradient id="titleGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
             <animate attributeName="x1" values="-100%;100%" dur="4s" repeatCount="indefinite" />
             <animate attributeName="x2" values="0%;200%" dur="4s" repeatCount="indefinite" />
-            <stop offset="0%" stopColor="#059669" />
-            <stop offset="33%" stopColor="#0d9488" />
-            <stop offset="66%" stopColor="#16a34a" />
-            <stop offset="100%" stopColor="#65a30d" />
+            <stop offset="0%" stopColor="#10b981" />
+            <stop offset="33%" stopColor="#14b8a6" />
+            <stop offset="66%" stopColor="#22c55e" />
+            <stop offset="100%" stopColor="#84cc16" />
           </linearGradient>
           {/* Glow filter for emphasized text */}
           <filter id="textGlow" x="-20%" y="-20%" width="140%" height="140%">
