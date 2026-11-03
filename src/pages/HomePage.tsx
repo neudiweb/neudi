@@ -700,7 +700,6 @@ export function HomePage() {
 
   return (
     <div className={`min-h-screen overflow-hidden transition-colors duration-700 ${isDark ? 'bg-zinc-950' : 'bg-gradient-to-br from-emerald-100 via-white to-teal-100'}`}>
-      <ScrollProgressBar />
       <NoiseOverlay />
       <ThemeToggle />
       <FloatingCTA />
@@ -842,9 +841,8 @@ export function HomePage() {
       {/* ===== CTA ===== */}
       <section className="relative py-28 sm:py-36">
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <TiltCard>
-            <GlowingCard>
-              <div className={`relative rounded-3xl border p-10 sm:p-16 text-center overflow-hidden transition-all duration-700 ${isDark ? 'border-emerald-500/20 bg-emerald-950/20' : 'border-emerald-300 bg-white/80'} backdrop-blur-sm`}>
+          <GlowingCard>
+            <div className={`relative rounded-3xl border p-10 sm:p-16 text-center overflow-hidden transition-all duration-700 ${isDark ? 'border-emerald-500/20 bg-emerald-950/20' : 'border-emerald-300 bg-white/80'} backdrop-blur-sm`}>
                 <div className="absolute inset-0 pointer-events-none">
                   <div className={`absolute top-0 right-0 w-96 h-96 ${isDark ? 'bg-emerald-500/10' : 'bg-emerald-200/50'} rounded-full blur-3xl -translate-y-1/2 translate-x-1/2`} />
                   <div className={`absolute bottom-0 left-0 w-96 h-96 ${isDark ? 'bg-teal-500/10' : 'bg-teal-200/50'} rounded-full blur-3xl translate-y-1/2 -translate-x-1/2`} />
@@ -875,9 +873,8 @@ export function HomePage() {
                 </div>
               </div>
             </GlowingCard>
-          </TiltCard>
-        </div>
-      </section>
+          </div>
+        </section>
 
       {/* ===== FOOTER ===== */}
       <footer className={`border-t py-12 transition-colors duration-700 ${isDark ? 'border-emerald-500/10' : 'border-emerald-200'}`}>
