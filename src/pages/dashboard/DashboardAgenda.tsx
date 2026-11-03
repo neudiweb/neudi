@@ -21,6 +21,8 @@ import {
 import { UpcomingHolidayNotice } from '../../components/dashboard/UpcomingHolidayNotice';
 import { MonthlyCalendar } from '../../components/dashboard/MonthlyCalendar';
 import { AgendaSummary } from '../../components/dashboard/AgendaSummary';
+import { TimelineView } from '../../components/dashboard/TimelineView';
+import { WeeklyView } from '../../components/dashboard/WeeklyView';
 import { useAgendaData } from '../../hooks/useAgendaData';
 import { updateAppointmentStatusLower, rescheduleAppointment, getAvailableSlots } from '../../services/appointmentService';
 
@@ -59,6 +61,8 @@ export function DashboardAgenda() {
   } | null>(null);
   const [filterStatus, setFilterStatus] = React.useState<string>('all');
   const [searchQuery, setSearchQuery] = React.useState('');
+  const [viewMode, setViewMode] = React.useState<'list' | 'timeline' | 'weekly'>('list');
+  const [showPastAppointments, setShowPastAppointments] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
 
   const todayStrRef = React.useRef(getTodayInTimezone(BUSINESS_TIMEZONE));
@@ -315,6 +319,11 @@ export function DashboardAgenda() {
     return d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
   };
 
+  const formatMonthLabel = (dateStr: string) => {
+    const d = parseLocalDate(dateStr, bizTimezone);
+    return d.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+  };
+
   // Default date/time for the add modal based on selected view date
   const openAddModal = () => {
     if (businessId) fetchServices(businessId);
@@ -542,15 +551,121 @@ export function DashboardAgenda() {
             <p className="text-sm text-zinc-500 dark:text-zinc-400 font-medium">Gestioná tus turnos de forma organizada</p>
           </div>
         </div>
-        <button
-          onClick={openAddModal}
-          className="inline-flex items-center justify-center gap-2.5 px-5 py-3 rounded-2xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-semibold shadow-lg shadow-zinc-300/20 dark:shadow-zinc-900/30 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all duration-200 active:scale-[0.98] bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-lg shadow-zinc-300/20 dark:shadow-zinc-900/30 dark:shadow-zinc-500/5 hover:shadow-xl hover:shadow-zinc-500/15 dark:hover:shadow-zinc-500/10 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="M12 5v14M5 12h14" strokeLinecap="round" />
-          </svg>
-          Agregar turno
-        </button>
+        <div className="flex items-center gap-3">
+          {/* View mode toggle */}
+          <div className={`
+            inline-flex items-center rounded-xl border p-1 transition-all duration-200
+            ${activeTheme === 'dark' ? 'bg-zinc-900 border-zinc-700' : 'bg-white border-zinc-200'}
+          `}>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`
+                flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200
+                ${viewMode === 'list'
+                  ? activeTheme === 'dark'
+                    ? 'bg-zinc-100 text-zinc-900 shadow-sm'
+                    : 'bg-zinc-900 text-white shadow-sm'
+                  : activeTheme === 'dark'
+                    ? 'text-zinc-400 hover:text-zinc-200'
+                    : 'text-zinc-500 hover:text-zinc-900'
+                }
+              `}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <line x1="8" y1="6" x2="21" y2="6" />
+                <line x1="8" y1="12" x2="21" y2="12" />
+                <line x1="8" y1="18" x2="21" y2="18" />
+                <line x1="3" y1="6" x2="3.01" y2="6" />
+                <line x1="3" y1="12" x2="3.01" y2="12" />
+                <line x1="3" y1="18" x2="3.01" y2="18" />
+              </svg>
+              Lista
+            </button>
+            <button
+              onClick={() => setViewMode('timeline')}
+              className={`
+                flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200
+                ${viewMode === 'timeline'
+                  ? activeTheme === 'dark'
+                    ? 'bg-zinc-100 text-zinc-900 shadow-sm'
+                    : 'bg-zinc-900 text-white shadow-sm'
+                  : activeTheme === 'dark'
+                    ? 'text-zinc-400 hover:text-zinc-200'
+                    : 'text-zinc-500 hover:text-zinc-900'
+                }
+              `}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <path d="M16 2v4M8 2v4M3 10h18" />
+                <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01" />
+              </svg>
+              Timeline
+            </button>
+            <button
+              onClick={() => setViewMode('weekly')}
+              className={`
+                flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200
+                ${viewMode === 'weekly'
+                  ? activeTheme === 'dark'
+                    ? 'bg-zinc-100 text-zinc-900 shadow-sm'
+                    : 'bg-zinc-900 text-white shadow-sm'
+                  : activeTheme === 'dark'
+                    ? 'text-zinc-400 hover:text-zinc-200'
+                    : 'text-zinc-500 hover:text-zinc-900'
+                }
+              `}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <path d="M16 2v4M8 2v4M3 10h18" />
+                <path d="M3 6h18M3 12h18M3 18h18" />
+              </svg>
+              Semanal
+            </button>
+          </div>
+          {/* Show past appointments toggle (weekly view only) */}
+          {viewMode === 'weekly' && (
+            <div className={`
+              inline-flex items-center gap-2 px-3 py-2 rounded-xl border transition-all duration-200
+              ${activeTheme === 'dark' ? 'bg-zinc-900 border-zinc-700' : 'bg-white border-zinc-200'}
+            `}>
+              <button
+                onClick={() => setShowPastAppointments(!showPastAppointments)}
+                className={`
+                  relative w-9 h-5 rounded-full transition-all duration-200
+                  ${showPastAppointments
+                    ? activeTheme === 'dark' ? 'bg-zinc-100' : 'bg-zinc-900'
+                    : activeTheme === 'dark' ? 'bg-zinc-700' : 'bg-zinc-300'
+                  }
+                `}
+              >
+                <span
+                  className={`
+                    absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-all duration-200 shadow-sm
+                    ${showPastAppointments ? 'translate-x-4' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+              <span className={`text-[11px] font-semibold whitespace-nowrap ${
+                showPastAppointments
+                  ? 'text-zinc-900 dark:text-zinc-100'
+                  : 'text-zinc-500 dark:text-zinc-400'
+              }`}>
+                {showPastAppointments ? 'Mostrar todos' : 'Solo futuros'}
+              </span>
+            </div>
+          )}
+          <button
+            onClick={openAddModal}
+            className="inline-flex items-center justify-center gap-2.5 px-5 py-3 rounded-2xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-semibold shadow-lg shadow-zinc-300/20 dark:shadow-zinc-900/30 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all duration-200 active:scale-[0.98] bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-lg shadow-zinc-300/20 dark:shadow-zinc-900/30 dark:shadow-zinc-500/5 hover:shadow-xl hover:shadow-zinc-500/15 dark:hover:shadow-zinc-500/10 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+            </svg>
+            Agregar turno
+          </button>
+        </div>
       </div>
 
       <UpcomingHolidayNotice />
@@ -562,179 +677,227 @@ export function DashboardAgenda() {
         pendingCount={totalPendingCount}
       />
 
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Calendar */}
-        <div className="lg:w-[35%] shrink-0">
-          <MonthlyCalendar
-            currentDate={selectedDate}
-            selectedDate={selectedDate}
-            appointmentCountByDate={calendarCountByDate}
-            pendingCountByDate={calendarPendingCountByDate}
-            onDateSelect={handleDateSelect}
-            onMonthChange={handleMonthChange}
-          />
-        </div>
-
-        {/* Appointments list */}
-        <div className="flex-1 min-w-0">
-          {/* Date navigation */}
-          <div className="flex flex-wrap items-center gap-2 mb-5">
-            <button
-              onClick={() => navigateDate(-1)}
-              className="flex items-center justify-center w-10 h-10 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 transition-all duration-200 hover:scale-105 active:scale-95"
-              aria-label="Día anterior"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={onDatePickerChange}
-              className="flex-1 min-w-[140px] border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-900/20 dark:focus:ring-zinc-100/20 focus:border-zinc-500/50 transition-all duration-200"
+      {/* Main content */}
+      {viewMode === 'timeline' ? (
+        <TimelineView
+          appointmentsByDate={appointmentsByDate}
+          calendarCountByDate={calendarCountByDate}
+          calendarPendingCountByDate={calendarPendingCountByDate}
+          selectedDate={selectedDate}
+          onDateSelect={handleDateSelect}
+          onMonthChange={handleMonthChange}
+          filterStatus={filterStatus}
+          searchQuery={searchQuery}
+          setFilterStatus={setFilterStatus}
+          setSearchQuery={setSearchQuery}
+          STATUS_LABELS={STATUS_LABELS}
+          bizTimezone={bizTimezone}
+          selectedAppointment={selectedAppointment}
+          setSelectedAppointment={setSelectedAppointment}
+          todayStr={todayStr}
+          formatMonthLabel={formatMonthLabel}
+          navigateDate={navigateDate}
+          goToday={goToday}
+          activeTheme={activeTheme}
+        />
+      ) : viewMode === 'weekly' ? (
+        <WeeklyView
+          appointmentsByDate={appointmentsByDate}
+          calendarCountByDate={calendarCountByDate}
+          calendarPendingCountByDate={calendarPendingCountByDate}
+          selectedDate={selectedDate}
+          onDateSelect={handleDateSelect}
+          onMonthChange={handleMonthChange}
+          filterStatus={filterStatus}
+          searchQuery={searchQuery}
+          setFilterStatus={setFilterStatus}
+          setSearchQuery={setSearchQuery}
+          STATUS_LABELS={STATUS_LABELS}
+          bizTimezone={bizTimezone}
+          selectedAppointment={selectedAppointment}
+          setSelectedAppointment={setSelectedAppointment}
+          todayStr={todayStr}
+          formatMonthLabel={formatMonthLabel}
+          navigateDate={navigateDate}
+          goToday={goToday}
+          activeTheme={activeTheme}
+          showPastAppointments={showPastAppointments}
+        />
+      ) : (
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Calendar */}
+          <div className="lg:w-[35%] shrink-0">
+            <MonthlyCalendar
+              currentDate={selectedDate}
+              selectedDate={selectedDate}
+              appointmentCountByDate={calendarCountByDate}
+              pendingCountByDate={calendarPendingCountByDate}
+              onDateSelect={handleDateSelect}
+              onMonthChange={handleMonthChange}
             />
+          </div>
 
-            <button
-              onClick={() => navigateDate(1)}
-              className="flex items-center justify-center w-10 h-10 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 transition-all duration-200 hover:scale-105 active:scale-95"
-              aria-label="Día siguiente"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M9 18l6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-
-            {selectedDate !== todayStr && (
+          {/* Appointments list */}
+          <div className="flex-1 min-w-0">
+            {/* Date navigation */}
+            <div className="flex flex-wrap items-center gap-2 mb-5">
               <button
-                onClick={goToday}
-                className="px-4 py-2.5 rounded-xl text-sm font-semibold bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105 active:scale-95 whitespace-nowrap"
+                onClick={() => navigateDate(-1)}
+                className="flex items-center justify-center w-10 h-10 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 transition-all duration-200 hover:scale-105 active:scale-95"
+                aria-label="Día anterior"
               >
-                Hoy
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
               </button>
-            )}
 
-            <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 capitalize min-w-[140px]">
-              {formatDateLabel(selectedDate)}
-            </span>
-          </div>
-
-          {/* Filters */}
-          <div className="flex flex-col gap-3 mb-5">
-            <div className="relative max-w-sm">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 dark:text-zinc-400/50">
-                <circle cx="11" cy="11" r="8" />
-                <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
-              </svg>
-              <Input
-                placeholder="Buscar cliente o servicio..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 rounded-xl"
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={onDatePickerChange}
+                className="flex-1 min-w-[140px] border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-900/20 dark:focus:ring-zinc-100/20 focus:border-zinc-500/50 transition-all duration-200"
               />
-            </div>
-            <div className="flex gap-2 flex-wrap">
-              {['all', 'pending', 'confirmed', 'completed', 'no_show', 'cancelled', 'expired', 'rejected'].map((status) => (
+
+              <button
+                onClick={() => navigateDate(1)}
+                className="flex items-center justify-center w-10 h-10 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 transition-all duration-200 hover:scale-105 active:scale-95"
+                aria-label="Día siguiente"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M9 18l6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+
+              {selectedDate !== todayStr && (
                 <button
-                  key={status}
-                  onClick={() => setFilterStatus(status)}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95 ${
-                    filterStatus === status
-                      ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-md shadow-zinc-300/20 dark:shadow-zinc-900/30'
-                      : 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 hover:border-zinc-300 dark:border-zinc-700'
-                  }`}
+                  onClick={goToday}
+                  className="px-4 py-2.5 rounded-xl text-sm font-semibold bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105 active:scale-95 whitespace-nowrap"
                 >
-                  {status === 'all' ? 'Todos' : STATUS_LABELS[status as AppointmentStatusLower]}
+                  Hoy
                 </button>
-              ))}
+              )}
+
+              <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 capitalize min-w-[140px]">
+                {formatDateLabel(selectedDate)}
+              </span>
             </div>
-          </div>
 
-          {/* Appointments */}
-          {loading ? (
-            <LoadingSpinner />
-          ) : dayAppointments.length === 0 ? (
-            <EmptyState
-              title="No hay turnos"
-              description={searchQuery || filterStatus !== 'all' ? 'Probá con otros filtros.' : 'No tenés turnos programados para esta fecha.'}
-            />
-          ) : (
-            <div className="space-y-3">
-              {dayAppointments.map((apt) => (
-                <button
-                  key={apt.id}
-                  onClick={() => setSelectedAppointment({
-                    ...apt,
-                    service: apt.serviceNames.split(' + ')[0] || apt.serviceNames,
-                    services: apt.serviceNames.split(' + '),
-                  })}
-                  className={`w-full text-left bg-white dark:bg-zinc-900 border rounded-2xl p-5 transition-all duration-200 hover:shadow-lg group ${
-                    selectedAppointment?.id === apt.id
-                      ? 'border-zinc-300 dark:border-zinc-700 shadow-lg shadow-zinc-200/40 dark:shadow-zinc-900/40 ring-1 ring-zinc-500/20'
-                      : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-600 hover:shadow-lg hover:shadow-zinc-500/5'
-                  }`}
-                >
-                  <div className="flex items-start gap-4">
-                    {/* Time */}
-                    <div className="text-right shrink-0 min-w-[60px]">
-                      <span className="block text-lg font-semibold text-zinc-900 dark:text-zinc-100">{apt.time}</span>
-                      <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{apt.endTime}</span>
-                    </div>
+            {/* Filters */}
+            <div className="flex flex-col gap-3 mb-5">
+              <div className="relative max-w-sm">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 dark:text-zinc-400/50">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
+                </svg>
+                <Input
+                  placeholder="Buscar cliente o servicio..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 rounded-xl"
+                />
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                {['all', 'pending', 'confirmed', 'completed', 'no_show', 'cancelled', 'expired', 'rejected'].map((status) => (
+                  <button
+                    key={status}
+                    onClick={() => setFilterStatus(status)}
+                    className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95 ${
+                      filterStatus === status
+                        ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-md shadow-zinc-300/20 dark:shadow-zinc-900/30'
+                        : 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 hover:border-zinc-300 dark:border-zinc-700'
+                    }`}
+                  >
+                    {status === 'all' ? 'Todos' : STATUS_LABELS[status as AppointmentStatusLower]}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-                    {/* Divider */}
-                    <div className="w-px h-12 bg-zinc-200 dark:bg-zinc-800 self-center" />
+            {/* Appointments */}
+            {loading ? (
+              <LoadingSpinner />
+            ) : dayAppointments.length === 0 ? (
+              <EmptyState
+                title="No hay turnos"
+                description={searchQuery || filterStatus !== 'all' ? 'Probá con otros filtros.' : 'No tenés turnos programados para esta fecha.'}
+              />
+            ) : (
+              <div className="space-y-3">
+                {dayAppointments.map((apt) => (
+                  <button
+                    key={apt.id}
+                    onClick={() => setSelectedAppointment({
+                      ...apt,
+                      service: apt.serviceNames.split(' + ')[0] || apt.serviceNames,
+                      services: apt.serviceNames.split(' + '),
+                    })}
+                    className={`w-full text-left bg-white dark:bg-zinc-900 border rounded-2xl p-5 transition-all duration-200 hover:shadow-lg group ${
+                      selectedAppointment?.id === apt.id
+                        ? 'border-zinc-300 dark:border-zinc-700 shadow-lg shadow-zinc-200/40 dark:shadow-zinc-900/40 ring-1 ring-zinc-500/20'
+                        : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-600 hover:shadow-lg hover:shadow-zinc-500/5'
+                    }`}
+                  >
+                    <div className="flex items-start gap-4">
+                      {/* Time */}
+                      <div className="text-right shrink-0 min-w-[60px]">
+                        <span className="block text-lg font-semibold text-zinc-900 dark:text-zinc-100">{apt.time}</span>
+                        <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{apt.endTime}</span>
+                      </div>
 
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors">
-                            {apt.clientName}
-                          </h3>
-                          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 line-clamp-1">{apt.serviceNames}</p>
-                          <div className="flex items-center gap-2 mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-                            <span className="inline-flex items-center gap-1">
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <circle cx="12" cy="12" r="9" />
-                                <path d="M12 7v5l3 3" strokeLinecap="round" />
-                              </svg>
-                              {apt.time} - {apt.endTime}
-                            </span>
-                            <span>·</span>
-                            <span>{apt.totalDuration} min</span>
-                            <span>·</span>
-                            <span className="font-semibold text-zinc-900 dark:text-zinc-100">${apt.totalPrice.toLocaleString('es-AR')}</span>
+                      {/* Divider */}
+                      <div className="w-px h-12 bg-zinc-200 dark:bg-zinc-800 self-center" />
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors">
+                              {apt.clientName}
+                            </h3>
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 line-clamp-1">{apt.serviceNames}</p>
+                            <div className="flex items-center gap-2 mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                              <span className="inline-flex items-center gap-1">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <circle cx="12" cy="12" r="9" />
+                                  <path d="M12 7v5l3 3" strokeLinecap="round" />
+                                </svg>
+                                {apt.time} - {apt.endTime}
+                              </span>
+                              <span>·</span>
+                              <span>{apt.totalDuration} min</span>
+                              <span>·</span>
+                              <span className="font-semibold text-zinc-900 dark:text-zinc-100">${apt.totalPrice.toLocaleString('es-AR')}</span>
+                            </div>
                           </div>
+                          <Badge variant={apt.status === 'confirmed' ? 'success' : apt.status === 'completed' || apt.status === 'no_show' ? 'success' : apt.status === 'pending' ? 'warning' : 'default'}>
+                            {STATUS_LABELS[apt.status] || apt.status}
+                          </Badge>
                         </div>
-                        <Badge variant={apt.status === 'confirmed' ? 'success' : apt.status === 'completed' || apt.status === 'no_show' ? 'success' : apt.status === 'pending' ? 'warning' : 'default'}>
-                          {STATUS_LABELS[apt.status] || apt.status}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-3 mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500 dark:text-zinc-400">
-                        <span className="inline-flex items-center gap-1">
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                          </svg>
-                          {apt.clientPhone}
-                        </span>
-                        {apt.requiresDeposit && (
-                          <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-semibold">
+                        <div className="flex items-center gap-3 mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500 dark:text-zinc-400">
+                          <span className="inline-flex items-center gap-1">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
                             </svg>
-                            Requiere seña
+                            {apt.clientPhone}
                           </span>
-                        )}
+                          {apt.requiresDeposit && (
+                            <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-semibold">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                              </svg>
+                              Requiere seña
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Appointment detail drawer */}
       {selectedAppointment && (
