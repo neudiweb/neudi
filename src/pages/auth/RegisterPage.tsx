@@ -20,22 +20,19 @@ function ThemeToggle() {
   return (
     <button
       onClick={() => setMode(isDark ? 'light' : 'dark')}
-      className="fixed top-4 right-4 z-50 flex items-center gap-2 rounded-full border border-zinc-300/50 dark:border-zinc-700/50 bg-white/90 dark:bg-zinc-900/90 px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 shadow-lg shadow-zinc-500/5 dark:shadow-zinc-500/10 backdrop-blur-sm transition-all duration-300 hover:scale-105 cursor-pointer"
+      className="fixed top-4 right-4 z-50 flex items-center justify-center rounded-full border border-zinc-300/50 dark:border-zinc-700/50 bg-white/90 dark:bg-zinc-900/90 w-10 h-10 shadow-lg shadow-zinc-500/5 dark:shadow-zinc-500/10 backdrop-blur-sm transition-all duration-300 hover:scale-105 cursor-pointer"
       aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
     >
-      <span className="flex h-5 w-5 items-center justify-center">
-        {isDark ? (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-400">
-            <circle cx="12" cy="12" r="4" />
-            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-          </svg>
-        ) : (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-600">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-          </svg>
-        )}
-      </span>
-      <span className="text-xs">{isDark ? '☀️ Claro' : '🌙 Oscuro'}</span>
+      {isDark ? (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-400">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+        </svg>
+      ) : (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-600">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+      )}
     </button>
   );
 }
@@ -144,6 +141,7 @@ export function RegisterPage() {
   const [error, setError] = React.useState('');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [acceptedTerms, setAcceptedTerms] = React.useState(false);
+  const [termsError, setTermsError] = React.useState(false);
   const [showTerms, setShowTerms] = React.useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -165,6 +163,7 @@ export function RegisterPage() {
     }
     if (!acceptedTerms) {
       setError('Debés aceptar los Términos y Condiciones y la Política de Privacidad para continuar.');
+      setTermsError(true);
       return;
     }
     setIsSubmitting(true);
@@ -319,7 +318,7 @@ export function RegisterPage() {
                               <input
                                 type="checkbox"
                                 checked={acceptedTerms}
-                                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                                onChange={(e) => { setAcceptedTerms(e.target.checked); setTermsError(false); }}
                                 className="mt-0.5 w-4 h-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500/30 cursor-pointer shrink-0"
                               />
                               <span className={`text-xs leading-relaxed ${isDark ? 'text-zinc-300' : 'text-zinc-600'}`}>
@@ -331,6 +330,17 @@ export function RegisterPage() {
                               </span>
                             </label>
                           </div>
+
+                          {termsError && (
+                            <p className="text-xs text-red-600 dark:text-red-400 font-medium flex items-center gap-1.5">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M12 8v4" strokeLinecap="round" />
+                                <path d="M12 16h.01" strokeLinecap="round" />
+                              </svg>
+                              Debés aceptar los Términos y Condiciones para continuar.
+                            </p>
+                          )}
 
                           <VisualButton type="submit" className="mt-6" disabled={isSubmitting || !acceptedTerms}>
                             {isSubmitting ? <LoadingSpinner size="sm" /> : (
