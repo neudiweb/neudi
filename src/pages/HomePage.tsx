@@ -738,12 +738,7 @@ export function HomePage() {
 
             {/* CTA buttons */}
             <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-5">
-              <ShimmerButton href="/login" className="flex items-center gap-2.5">
-                EMPEZAR
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="relative z-10 transition-transform duration-500 group-hover:translate-x-1.5">
-                  <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </ShimmerButton>
+              <ShimmerButton href="/login">EMPEZAR<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="relative z-10 transition-transform duration-500 group-hover:translate-x-1.5"><path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" /></svg></ShimmerButton>
               <a
                 href="#como-funciona"
                 className={`inline-flex items-center gap-2.5 rounded-2xl border px-9 py-4 text-lg font-medium transition-all duration-500 hover:scale-105 active:scale-100 ${isDark ? 'border-emerald-500/30 bg-emerald-950/30 text-emerald-200 hover:bg-emerald-900/40 hover:border-emerald-400/40' : 'border-emerald-300 bg-white/80 text-emerald-800 hover:bg-emerald-50 hover:border-emerald-400'}`}
