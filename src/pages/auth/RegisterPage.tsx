@@ -141,16 +141,16 @@ export function RegisterPage() {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [confirmPassword, setConfirmPassword] = React.useState('');
-  const [businessName, setBusinessName] = React.useState('');
   const [error, setError] = React.useState('');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [acceptedTerms, setAcceptedTerms] = React.useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
   const isDark = useTheme().activeTheme === 'dark';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !email.trim() || !password.trim() || !businessName.trim()) {
+    if (!name.trim() || !email.trim() || !password.trim()) {
       setError('Completá todos los campos.');
       return;
     }
@@ -162,9 +162,13 @@ export function RegisterPage() {
       setError('Las contraseñas no coinciden.');
       return;
     }
+    if (!acceptedTerms) {
+      setError('Debés aceptar los Términos y Condiciones y la Política de Privacidad para continuar.');
+      return;
+    }
     setIsSubmitting(true);
     setError('');
-    const result = await register(name, email, password, businessName);
+    const result = await register(name, email, password);
     setIsSubmitting(false);
     if (result.error) {
       setError(result.error);
@@ -262,21 +266,6 @@ export function RegisterPage() {
                           />
 
                           <VisualInput
-                            id="businessName"
-                            type="text"
-                            label="Nombre del negocio"
-                            placeholder="Peluquería Juan"
-                            value={businessName}
-                            onChange={(e) => setBusinessName(e.target.value)}
-                            icon={
-                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                                <polyline points="9 22 9 12 15 12 15 22" />
-                              </svg>
-                            }
-                          />
-
-                          <VisualInput
                             id="email"
                             type="email"
                             label="Email"
@@ -323,7 +312,60 @@ export function RegisterPage() {
                             }
                           />
 
-                          <VisualButton type="submit" className="mt-6" disabled={isSubmitting}>
+                          {/* Terms & Conditions */}
+                          <div className={`rounded-xl border p-4 ${isDark ? 'border-zinc-500/20 bg-zinc-900/30' : 'border-zinc-200 bg-zinc-50/80'}`}>
+                            <label className="flex items-start gap-3 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={acceptedTerms}
+                                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                                className="mt-0.5 w-4 h-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500/30 cursor-pointer shrink-0"
+                              />
+                              <span className={`text-xs leading-relaxed ${isDark ? 'text-zinc-300' : 'text-zinc-600'}`}>
+                                Al crear una cuenta, aceptás integralmente los{' '}
+                                <a href="#terminos" className="font-semibold text-emerald-600 dark:text-emerald-400 hover:underline">Términos y Condiciones de Servicio</a>
+                                {' '}y la{' '}
+                                <a href="#privacidad" className="font-semibold text-emerald-600 dark:text-emerald-400 hover:underline">Política de Privacidad y Tratamiento de Datos</a>
+                                {' '}de Neudi. Leé atentamente los siguientes términos:
+                              </span>
+                            </label>
+                          </div>
+
+                          {/* Términos y Condiciones */}
+                          <div id="terminos" className={`rounded-xl border p-4 ${isDark ? 'border-zinc-500/20 bg-zinc-900/20' : 'border-zinc-200 bg-zinc-50/50'}`}>
+                            <h4 className={`text-sm font-bold mb-2 ${isDark ? 'text-white' : 'text-zinc-900'}`}>Términos y Condiciones de Servicio</h4>
+                            <div className={`text-xs leading-relaxed space-y-2 ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>
+                              <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>1. Aceptación de los términos.</strong> Al registrarte y utilizar Neudi ("la Plataforma"), confirmás que tenés al menos 18 años de edad y aceptás de forma voluntaria, expresa e inequívoca todos los términos, condiciones y políticas aquí establecidas. Si no estás de acuerdo con cualquiera de estos términos, debés abstenerte de utilizar la Plataforma.</p>
+                              <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>2. Datos personales y responsabilidades del usuario.</strong> Vos garantizás que toda la información proporcionada durante el registro es veraz, correcta, completa y actualizada. Usted es el único responsable de la confidencialidad y resguardo de sus credenciales de acceso. Neudi se reserva el derecho de suspender o cancelar cualquier cuenta en la que se detecte información falsa, incompleta o que viole estos términos.</p>
+                              <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>3. Consentimiento para el tratamiento de datos.</strong> Al utilizar Neudi, usted consiente expresamente que Neudi y sus proveedores de servicios terceros (incluyendo, pero no limitándose a, proveedores de infraestructura en la nube, bases de datos, servicios de autenticación y plataformas de alojamiento) podrán recopilar, almacenar y procesar los datos proporcionados por usted y por sus clientes o usuarios finales, incluyendo pero no limitándose a: nombre, apellido, email, teléfono, dirección, horarios de atención, datos de reservas, historial de clientes y cualquier otra información que usted decida ingresar en la Plataforma. Este tratamiento de datos se realiza exclusivamente con el propósito de brindar el servicio de gestión de turnos y reservas que Neudi ofrece.</p>
+                              <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>4. Servicios de terceros y limitación de responsabilidad en materia de seguridad.</strong> Neudi utiliza infraestructura y servicios de terceros independientes (incluyendo, entre otros, Supabase, Google Firebase, AWS, y cualquier otra plataforma de base de datos, autenticación o alojamiento) para operar la Plataforma. Usted reconoce y acepta expresamente que: (a) Neudi no controla directamente los servidores, bases de datos o sistemas de seguridad de dichos terceros; (b) aunque los proveedores de servicios terziarios implementan medidas de seguridad razonables y estándares de la industria, ninguna transmisión de datos por Internet o sistema de almacenamiento electrónico es 100% seguro o infalible; (c) Neudi no garantiza ni ofrece ninguna representación de que los sistemas de terceros sean inmunes a accesos no autorizados, hackeos, brechas de seguridad, ataques cibernéticos, fallos técnicos, desastres naturales, o cualquier otro evento que pueda comprometer la confidencialidad, integridad o disponibilidad de los datos; (d) en caso de que ocurra una brecha de seguridad, incidente de ciberseguridad o acceso no autorizado a los sistemas de terceros, Neudi no será responsable directa ni indirectamente por daños, pérdidas, perjuicios, filtraciones de datos, daños punitivos, lucro cesante, daño emergente, daño moral, o cualquier otro tipo de daño que resulte directa o indirectamente de dicho incidente; (e) usted asume total y expresamente el riesgo asociado al almacenamiento y procesamiento de datos en infraestructura de terceros.</p>
+                              <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>5. Limitación de responsabilidad general.</strong> Neudi se provee la Plataforma "tal cual" y "según disponibilidad", sin ningún tipo de garantía, expresa o implícita. Neudi, sus desarrolladores, socios, empleados, proveedores de servicios y afiliados no serán bajo ninguna circunstancia responsables por: (a) daños directos, indirectos, incidentales, especiales, consecuentes, punitivos, emergentes, lucro cesante, pérdida de datos, pérdida de clientes, perjuicios comerciales o cualquier otro daño de cualquier naturaleza; (b) interrupciones, errores, omisiones, retrasos en el funcionamiento de la Plataforma; (c) pérdida o corrupción de datos almacenados en la Plataforma; (d) inaccesibilidad temporal o permanente a la Plataforma; (e) decisiones comerciales tomadas por usted basadas en información proporcionada por la Plataforma; (f) cualquier modificación, suspensión o terminación del servicio, temporal o permanente. Esta limitación de responsabilidad aplica sin importar la causa, teoría legal (contractual, extracontractual, negligencia, responsabilidad estricta, etc.), aunque se haya advertido de la posibilidad de dichos daños.</p>
+                              <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>6. Uso de datos de clientes y usuarios finales.</strong> Usted es el responsable exclusivo de: (a) obtener el consentimiento de sus clientes y usuarios finales para recopilar, almacenar y procesar sus datos personales a través de la Plataforma; (b) cumplir con todas las leyes, regulaciones y obligaciones de protección de datos aplicables en su jurisdicción en relación con el tratamiento de datos de terceros; (c) informar adecuadamente a sus clientes sobre el uso de sus datos; (d) responder ante cualquier reclamación, denuncia, acción legal o sanción que surja del tratamiento de datos de clientes o usuarios finales. Neudi actúa únicamente como proveedor de tecnología de la Plataforma y no como responsable del tratamiento de datos de sus clientes. Usted acepta indemnizar, defender y eximir de responsabilidad a Neudi ante cualquier reclamación derivada del tratamiento de datos de sus clientes.</p>
+                              <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>7. Propiedad intelectual.</strong> Todos los derechos de propiedad intelectual e industrial sobre la Plataforma, su código fuente, interfaz, diseño, logotipos, marcas, contenido y funcionalidades, pertenecen exclusivamente a Neudi y sus licenciantes. Se prohíbe la reproducción, distribución, modificación, creación de obras derivadas, ingeniería inversa o descompilación de la Plataforma sin autorización previa y por escrito de Neudi.</p>
+                              <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>8. Suspensión y terminación.</strong> Neudi se reserva el derecho, a su entera discreción, de suspender, restringir o terminar su acceso a la Plataforma en cualquier momento y por cualquier motivo, con o sin previo aviso, incluyendo pero no limitándose a: violación de estos términos, actividades ilegales, conducta abusiva, solicitud del usuario, o cambio, modificación o discontinuación de la Plataforma.</p>
+                              <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>9. Modificaciones.</strong> Neudi se reserva el derecho de modificar estos Términos y Condiciones, la Política de Privacidad y cualquier otra política en cualquier momento. Las modificaciones serán efectivas desde su publicación en la Plataforma. El uso continuado de la Plataforma después de las modificaciones constituye aceptación de los términos actualizados.</p>
+                              <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>10. Ley aplicable y jurisdicción.</strong> Estos términos se rigen por las leyes aplicables en la jurisdicción donde Neudi opera. Para cualquier controversia derivada de estos términos, las partes se someten a la jurisdicción de los tribunales competentes, renunciando expresamente a cualquier otro fuero que pudiera corresponderles.</p>
+                            </div>
+                          </div>
+
+                          {/* Política de Privacidad */}
+                          <div id="privacidad" className={`rounded-xl border p-4 ${isDark ? 'border-zinc-500/20 bg-zinc-900/20' : 'border-zinc-200 bg-zinc-50/50'}`}>
+                            <h4 className={`text-sm font-bold mb-2 ${isDark ? 'text-white' : 'text-zinc-900'}`}>Política de Privacidad y Tratamiento de Datos</h4>
+                            <div className={`text-xs leading-relaxed space-y-2 ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>
+                              <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>1. Responsable del tratamiento.</strong> Los datos personales recogidos a través de Neudi son tratados por Neudi como responsable del tratamiento de la Plataforma. Los datos se procesan utilizando infraestructura de terceros proveedores de servicios en la nube.</p>
+                              <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>2. Datos que recopilamos.</strong> Recopilamos los datos que usted proporciona voluntariamente al registrarse (nombre, email, contraseña) y los datos que usted ingrese al configurar su negocio y gestionar turnos (datos de clientes, horarios, servicios, reservas, etc.).</p>
+                              <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>3. Finalidad del tratamiento.</strong> Los datos se procesan exclusivamente para: brindar el servicio de gestión de turnos y reservas, mantener su cuenta activa, comunicarnos con usted en relación al servicio, y mejorar la funcionalidad de la Plataforma.</p>
+                              <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>4. Base legal.</strong> La base legal para el tratamiento de datos es su consentimiento expreso (al registrarse), la ejecución del contrato de servicios, y nuestro interés legítimo en mejorar la Plataforma.</p>
+                              <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>5. Transferencias internacionales y terceros.</strong> Sus datos pueden ser almacenados y procesados en servidores de terceros proveedores ubicados en diferentes jurisdicciones. Usted consiente expresamente estas transferencias internacionales de datos y reconoce que las leyes de protección de datos pueden variar según la jurisdicción del servidor.</p>
+                              <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>6. Seguridad.</strong> Implementamos medidas de seguridad técnicas y organizativas razonables para proteger sus datos. Sin embargo, usted reconoce que ninguna medida de seguridad es infalible y que los servicios de terceros operan bajo sus propios estándares de seguridad.</p>
+                              <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>7. Derechos del usuario.</strong> Usted tiene derecho a acceder, rectificar, suprimir, limitar el tratamiento de sus datos, portabilidad de datos, y oponerse al tratamiento. Para ejercer estos derechos, contacte a Neudi a través de los canales disponibles en la Plataforma.</p>
+                              <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>8. Conservación de datos.</strong> Los datos se conservarán mientras su cuenta esté activa y durante los plazos establecidos por la ley aplicable. Usted puede solicitar la eliminación de sus datos en cualquier momento.</p>
+                              <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>9. Cookies y tecnologías similares.</strong> La Plataforma puede utilizar cookies y tecnologías similares para mejorar la experiencia de usuario, analizar el uso de la Plataforma y personalizar el contenido.</p>
+                              <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>10. Menores de edad.</strong> La Plataforma no está dirigida a menores de 18 años. No recopilamos datos de menores de edad.</p>
+                            </div>
+                          </div>
+
+                          <VisualButton type="submit" className="mt-6" disabled={isSubmitting || !acceptedTerms}>
                             {isSubmitting ? <LoadingSpinner size="sm" /> : (
                               <>
                                 Crear cuenta
