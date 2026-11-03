@@ -12,6 +12,10 @@ const DAYS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', '
 
 function normalizeTime(value: string): string {
   const trimmed = value.trim();
+  if (/^\d{1,2}:\d{2}:\d{2}$/.test(trimmed)) {
+    const [h, m] = trimmed.split(':');
+    return `${String(h.padStart(2, '0'))}:${m}`;
+  }
   if (/^\d{1,2}:\d{2}$/.test(trimmed)) {
     const [h, m] = trimmed.split(':');
     return `${String(h.padStart(2, '0'))}:${m}`;
@@ -46,10 +50,16 @@ export function DashboardHours() {
   const { businessSlug } = useAuth();
   const [businessId, setBusinessId] = React.useState<string | null>(null);
   const [dayHours, setDayHours] = React.useState<Map<number, DayHoursState>>(new Map());
+  const dayHoursRef = React.useRef<Map<number, DayHoursState>>(new Map());
   const [loading, setLoading] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
   const [validationErrors, setValidationErrors] = React.useState<Record<number, string[]>>({});
   const [saveError, setSaveError] = React.useState<string | null>(null);
+  const [saveSuccess, setSaveSuccess] = React.useState(false);
+
+  React.useEffect(() => {
+    dayHoursRef.current = dayHours;
+  }, [dayHours]);
 
   // Fetch business_id from slug
   React.useEffect(() => {
@@ -81,7 +91,6 @@ export function DashboardHours() {
 
       const hoursMap = new Map<number, DayHoursState>();
       for (const h of (data || [])) {
-        // Convert DB day_of_week (1=Lun, ..., 7=Dom) to UI jsDay (0=Dom, 1=Lun, ..., 6=Sab)
         const jsDay = businessDayToJsDay(h.day_of_week);
         if (!hoursMap.has(jsDay)) {
           hoursMap.set(jsDay, { jsDay, ranges: [] });
@@ -89,8 +98,8 @@ export function DashboardHours() {
         const dayData = hoursMap.get(jsDay)!;
         dayData.ranges.push({
           id: h.id,
-          startTime: h.start_time,
-          endTime: h.end_time,
+          startTime: normalizeTime(h.start_time),
+          endTime: normalizeTime(h.end_time),
           isActive: h.is_active,
           maxAppointments: h.max_appointments ?? 1,
         });
@@ -167,16 +176,21 @@ export function DashboardHours() {
   };
 
   const updateRange = (jsDay: number, rangeIndex: number, field: 'startTime' | 'endTime', value: string) => {
+    const normalizedValue = normalizeTime(value);
+    
     setDayHours((prev) => {
       const next = new Map(prev);
       const dayData = next.get(jsDay);
       if (!dayData) return prev;
 
-      const normalizedValue = normalizeTime(value);
       const newRanges = [...dayData.ranges];
       newRanges[rangeIndex] = { ...newRanges[rangeIndex], [field]: normalizedValue };
       
       next.set(jsDay, { ...dayData, ranges: newRanges });
+      
+      // Also update the ref so handleAutoSave reads the latest value
+      dayHoursRef.current = next;
+      
       return next;
     });
 
@@ -201,12 +215,13 @@ export function DashboardHours() {
     });
   };
 
-  // Validate all days before save
-  const validateAll = (): boolean => {
+  // Validate all days before save — validates against provided hours, not stale state
+  const validateAll = (hoursToValidate?: Map<number, DayHoursState>): boolean => {
+    const hours = hoursToValidate ?? dayHours;
     const errors: Record<number, string[]> = {};
     let isValid = true;
 
-    for (const [jsDay, dayData] of dayHours) {
+    for (const [jsDay, dayData] of hours) {
       const rangeErrors = validateTimeRanges(dayData.ranges);
       if (rangeErrors.length > 0) {
         errors[jsDay] = rangeErrors;
@@ -218,145 +233,122 @@ export function DashboardHours() {
     return isValid;
   };
 
-  const handleSave = async () => {
-    if (!businessId) return;
+  const performSave = React.useCallback(async (bizId: string, currentDayHours: Map<number, DayHoursState>) => {
+    if (!bizId) return false;
     
-    if (!validateAll()) {
-      return;
+    if (!validateAll(currentDayHours)) {
+      return false;
     }
 
-    setSaving(true);
-    setSaveError(null);
-
     try {
-      console.log('[DashboardHours] Starting save for business:', businessId);
-      console.log('[DashboardHours] Current dayHours:', Array.from(dayHours.entries()).map(([k, v]) => ({ jsDay: k, ranges: v.ranges })));
+      // Build new records to insert
+      const recordsToInsert: Array<{
+        business_id: string;
+        day_of_week: number;
+        start_time: string;
+        end_time: string;
+        is_active: boolean;
+        max_appointments: number;
+      }> = [];
 
-      // Load existing records grouped by business day
-      const { data: existing, error: fetchError } = await supabase
-        .from('business_hours')
-        .select('*')
-        .eq('business_id', businessId) as { data: BusinessHour[] | null; error: string | null };
-
-      if (fetchError) {
-        console.error('[DashboardHours] Error fetching existing hours:', fetchError);
-        setSaveError('Error al cargar horarios existentes: ' + fetchError);
-        setSaving(false);
-        return;
-      }
-
-      if (!existing) {
-        setSaveError('No se pudieron cargar los horarios existentes.');
-        setSaving(false);
-        return;
-      }
-
-      console.log('[DashboardHours] Existing hours from DB:', existing.length, 'records');
-
-      // Build a map: jsDay (0-6) -> array of existing records with their DB id
-      const existingByJsDay = new Map<number, BusinessHour[]>();
-      for (const record of existing) {
-        const jsDay = businessDayToJsDay(record.day_of_week);
-        if (!existingByJsDay.has(jsDay)) {
-          existingByJsDay.set(jsDay, []);
-        }
-        existingByJsDay.get(jsDay)!.push(record);
-      }
-
-      // Determine which days have changed and what the new state should be
-      const daysToUpsert: Array<{ jsDay: number; businessDay: number; ranges: TimeRangeState[]; oldIds: string[] }> = [];
-
-      for (const [jsDay, dayData] of dayHours) {
+      for (const [jsDay, dayData] of currentDayHours) {
         const businessDay = jsDayToBusinessDay(jsDay);
-        const oldIds = (existingByJsDay.get(jsDay) || []).map(r => r.id!);
-        daysToUpsert.push({ jsDay, businessDay, ranges: dayData.ranges, oldIds });
-      }
-
-      // Also track days that were turned OFF (exist in DB but not in dayHours)
-      const daysTurnedOff: Array<{ jsDay: number; businessDay: number; oldIds: string[] }> = [];
-      for (const [jsDay, records] of existingByJsDay) {
-        if (!dayHours.has(jsDay)) {
-          const businessDay = jsDayToBusinessDay(jsDay);
-          daysTurnedOff.push({ jsDay, businessDay, oldIds: records.map(r => r.id!) });
+        for (const range of dayData.ranges) {
+          recordsToInsert.push({
+            business_id: bizId,
+            day_of_week: businessDay,
+            start_time: normalizeTime(range.startTime),
+            end_time: normalizeTime(range.endTime),
+            is_active: range.isActive,
+            max_appointments: range.maxAppointments,
+          });
         }
       }
 
-      console.log('[DashboardHours] Days to upsert:', daysToUpsert.length, 'Days turned off:', daysTurnedOff.length);
+      // Delete ALL existing records for this business first (avoids exclusion constraint conflicts)
+      const { error: deleteAllError } = await supabase
+        .from('business_hours')
+        .delete()
+        .eq('business_id', bizId);
 
-      // For each modified day (turned on), delete old records first, then insert new ones
-      for (const dayInfo of daysToUpsert) {
-        console.log('[DashboardHours] Processing day', dayInfo.businessDay, 'with', dayInfo.ranges.length, 'ranges');
-        
-        // Delete existing records for this day
-        if (dayInfo.oldIds.length > 0) {
-          console.log('[DashboardHours] Deleting old IDs:', dayInfo.oldIds);
-          const { error: deleteError } = await supabase
-            .from('business_hours')
-            .delete()
-            .in('id', dayInfo.oldIds);
+      if (deleteAllError) {
+        console.error('[DashboardHours] Delete all error:', deleteAllError);
+        setSaveError('No se pudieron guardar los horarios. Intentá de nuevo.');
+        return false;
+      }
 
-          if (deleteError) {
-            console.error('[DashboardHours] Error deleting old hours:', deleteError);
-            setSaveError('No se pudieron guardar los horarios. Intentá de nuevo.');
-            setSaving(false);
-            return;
-          }
-        }
+      // Insert all new records in one batch
+      if (recordsToInsert.length > 0) {
+        const { error: insertError } = await supabase
+          .from('business_hours')
+          .insert(recordsToInsert as any);
 
-        // Insert new ranges for this day
-        if (dayInfo.ranges.length > 0) {
-          const recordsToInsert = dayInfo.ranges.map(r => ({
-            business_id: businessId,
-            day_of_week: dayInfo.businessDay,
-            start_time: normalizeTime(r.startTime),
-            end_time: normalizeTime(r.endTime),
-            is_active: r.isActive,
-            max_appointments: r.maxAppointments,
-          }));
-
-          console.log('[DashboardHours] Inserting records:', recordsToInsert);
-          const { error: insertError } = await supabase
-            .from('business_hours')
-            .insert(recordsToInsert as any);
-
-          if (insertError) {
-            console.error('[DashboardHours] Error inserting hours:', insertError);
-            setSaveError('No se pudieron guardar los horarios. Intentá de nuevo.');
-            setSaving(false);
-            return;
-          }
+        if (insertError) {
+          console.error('[DashboardHours] Insert error:', insertError);
+          setSaveError('No se pudieron guardar los horarios. Intentá de nuevo.');
+          return false;
         }
       }
 
-      // For days that were turned OFF, delete all their records
-      for (const dayInfo of daysTurnedOff) {
-        console.log('[DashboardHours] Turning off day', dayInfo.businessDay, 'with IDs:', dayInfo.oldIds);
-        if (dayInfo.oldIds.length > 0) {
-          const { error: deleteError } = await supabase
-            .from('business_hours')
-            .delete()
-            .in('id', dayInfo.oldIds);
-
-          if (deleteError) {
-            console.error('[DashboardHours] Error deleting turned-off day hours:', deleteError);
-            setSaveError('No se pudieron guardar los horarios. Intentá de nuevo.');
-            setSaving(false);
-            return;
-          }
-        }
-      }
-
-      console.log('[DashboardHours] Save completed successfully');
-      
-      // Reload from DB to reflect actual saved state
-      await fetchHours(businessId);
+      return true;
     } catch (e) {
       console.error('[DashboardHours] Error saving hours:', e);
       setSaveError('No se pudieron guardar los horarios. Intentá de nuevo.');
-    } finally {
-      setSaving(false);
+      return false;
     }
+  }, []);
+
+  const handleSave = async () => {
+    if (!businessId) return;
+
+    setSaving(true);
+    setSaveError(null);
+    setSaveSuccess(false);
+
+    const currentDayHours = dayHoursRef.current;
+    const success = await performSave(businessId, currentDayHours);
+    
+    if (success) {
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+      await fetchHours(businessId);
+    }
+    
+    setSaving(false);
   };
+
+  const handleAutoSave = React.useCallback(async (newStartTime: string, newEndTime: string, editJsDay: number, editRangeIndex: number) => {
+    if (!businessId || saving) return;
+    
+    setSaving(true);
+    setSaveError(null);
+
+    // Apply the new times to the current state before saving
+    const updatedDayHours = new Map(dayHoursRef.current);
+    const dayData = updatedDayHours.get(editJsDay);
+    if (dayData) {
+      const newRanges = [...dayData.ranges];
+      newRanges[editRangeIndex] = {
+        ...newRanges[editRangeIndex],
+        startTime: newStartTime,
+        endTime: newEndTime,
+      };
+      updatedDayHours.set(editJsDay, { ...dayData, ranges: newRanges });
+    }
+    
+    // Update the ref with the applied changes
+    dayHoursRef.current = updatedDayHours;
+
+    const success = await performSave(businessId, updatedDayHours);
+    
+    if (success) {
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+      await fetchHours(businessId);
+    }
+    
+    setSaving(false);
+  }, [businessId, saving, performSave, fetchHours]);
 
   if (loading) {
     return (
@@ -541,30 +533,30 @@ export function DashboardHours() {
                           </select>
                         </div>
 
-                        {/* Time inputs - 2-col grid on mobile, side-by-side on desktop */}
+                        {/* Time inputs */}
                         <div className="px-2.5 pb-2">
                           <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-3">
                             <div>
                               <label className="block text-[10px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-1">
                                 Inicio
                               </label>
-                              <TimePicker
-                                value={range.startTime}
-                                onChange={(v) => updateRange(jsDay, rangeIndex, 'startTime', v)}
-                                disabled={!range.isActive}
-                              />
                             </div>
                             <div>
                               <label className="block text-[10px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-1">
                                 Fin
                               </label>
-                              <TimePicker
-                                value={range.endTime}
-                                onChange={(v) => updateRange(jsDay, rangeIndex, 'endTime', v)}
-                                disabled={!range.isActive}
-                              />
                             </div>
                           </div>
+                          <TimePicker
+                            startTime={range.startTime}
+                            endTime={range.endTime}
+                            onStartChange={(v) => updateRange(jsDay, rangeIndex, 'startTime', v)}
+                            onEndChange={(v) => updateRange(jsDay, rangeIndex, 'endTime', v)}
+                            onSave={handleAutoSave}
+                            jsDay={jsDay}
+                            rangeIndex={rangeIndex}
+                            disabled={!range.isActive}
+                          />
                         </div>
                       </div>
                     ))}
@@ -613,28 +605,31 @@ export function DashboardHours() {
         })}
       </div>
 
-      {/* Save button */}
-      <div className="flex justify-end mt-8 pb-8">
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-bold shadow-lg shadow-zinc-300/20 dark:shadow-zinc-900/30 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {saving ? (
-            <>
-              <LoadingSpinner size="sm" />
-              Guardando...
-            </>
-          ) : (
-            <>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
-                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-                <path d="M17 21v-8H7v8M7 3v5h8" />
-              </svg>
-              Guardar cambios
-            </>
-          )}
-        </button>
+      {/* Success toast */}
+      {saveSuccess && (
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-5 py-3 bg-emerald-600 text-white rounded-xl shadow-lg shadow-emerald-900/30 text-sm font-semibold animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Cambios guardados correctamente
+        </div>
+      )}
+
+      {/* Save button - always visible */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-lg border-t border-zinc-200 dark:border-zinc-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-end">
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-3.5 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-bold shadow-lg shadow-zinc-300/20 dark:shadow-zinc-900/30 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed min-w-[200px]"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+              <path d="M17 21v-8H7v8M7 3v5h8" />
+            </svg>
+            {saving ? 'Guardando...' : 'Guardar cambios'}
+          </button>
+        </div>
       </div>
 
       {saveError && <ErrorModal message={saveError} onClose={() => setSaveError(null)} />}

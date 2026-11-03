@@ -441,12 +441,12 @@ export function TimelineView({
   return (
     <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col items-start sm:flex-row sm:items-start sm:justify-between gap-3 mb-5">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <button
             onClick={() => navigateMonth(-1)}
             className={`
-              flex items-center justify-center w-9 h-9 rounded-xl border transition-all duration-200 hover:scale-105 active:scale-95
+              flex items-center justify-center w-9 h-9 rounded-xl border transition-all duration-200 hover:scale-105 active:scale-95 shrink-0
               ${isDark
                 ? 'border-zinc-700 bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
                 : 'border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50'
@@ -459,14 +459,14 @@ export function TimelineView({
             </svg>
           </button>
 
-          <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-100 min-w-[140px] text-center">
+          <h2 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 min-w-[120px] text-center flex-1 sm:flex-none">
             {formatMonthLabel(selectedDate)}
           </h2>
 
           <button
             onClick={() => navigateMonth(1)}
             className={`
-              flex items-center justify-center w-9 h-9 rounded-xl border transition-all duration-200 hover:scale-105 active:scale-95
+              flex items-center justify-center w-9 h-9 rounded-xl border transition-all duration-200 hover:scale-105 active:scale-95 shrink-0
               ${isDark
                 ? 'border-zinc-700 bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
                 : 'border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50'
@@ -483,7 +483,7 @@ export function TimelineView({
             <button
               onClick={goToday}
               className={`
-                px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95 whitespace-nowrap
+                px-3 py-1.5 rounded-xl text-[11px] font-semibold transition-all duration-200 hover:scale-105 active:scale-95 shrink-0 whitespace-nowrap
                 ${isDark
                   ? 'bg-zinc-100 text-zinc-900 shadow-sm'
                   : 'bg-zinc-900 text-white shadow-sm'
@@ -496,7 +496,7 @@ export function TimelineView({
         </div>
 
         {/* Date label */}
-        <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 capitalize">
+        <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 capitalize whitespace-normal break-words">
           {selectedDate ? new Date(selectedDate + 'T00:00:00').toLocaleDateString('es-AR', {
             weekday: 'long',
             day: 'numeric',

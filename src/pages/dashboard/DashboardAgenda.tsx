@@ -538,9 +538,9 @@ export function DashboardAgenda() {
       )}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-zinc-800 to-zinc-950 dark:from-zinc-100 dark:to-zinc-300 flex items-center justify-center shadow-lg shadow-zinc-300/30 dark:shadow-zinc-900/50">
+      <div className="flex flex-col items-start sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
+        <div className="flex items-center gap-4 w-full sm:w-auto">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-zinc-800 to-zinc-950 dark:from-zinc-100 dark:to-zinc-300 flex items-center justify-center shadow-lg shadow-zinc-300/30 dark:shadow-zinc-900/50 shrink-0">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="4" width="18" height="18" rx="2" />
               <path d="M16 2v4M8 2v4M3 10h18" />
@@ -551,16 +551,16 @@ export function DashboardAgenda() {
             <p className="text-sm text-zinc-500 dark:text-zinc-400 font-medium">Gestioná tus turnos de forma organizada</p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-center sm:items-center gap-3 w-full sm:w-auto">
           {/* View mode toggle */}
           <div className={`
-            inline-flex items-center rounded-xl border p-1 transition-all duration-200
+            sm:w-auto mx-auto inline-flex items-center rounded-xl border p-1 transition-all duration-200
             ${activeTheme === 'dark' ? 'bg-zinc-900 border-zinc-700' : 'bg-white border-zinc-200'}
           `}>
             <button
               onClick={() => setViewMode('list')}
               className={`
-                flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200
+                flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 flex-1 sm:flex-none justify-center
                 ${viewMode === 'list'
                   ? activeTheme === 'dark'
                     ? 'bg-zinc-100 text-zinc-900 shadow-sm'
@@ -584,7 +584,7 @@ export function DashboardAgenda() {
             <button
               onClick={() => setViewMode('timeline')}
               className={`
-                flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200
+                flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 flex-1 sm:flex-none justify-center
                 ${viewMode === 'timeline'
                   ? activeTheme === 'dark'
                     ? 'bg-zinc-100 text-zinc-900 shadow-sm'
@@ -605,7 +605,7 @@ export function DashboardAgenda() {
             <button
               onClick={() => setViewMode('weekly')}
               className={`
-                flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200
+                flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 flex-1 sm:flex-none justify-center
                 ${viewMode === 'weekly'
                   ? activeTheme === 'dark'
                     ? 'bg-zinc-100 text-zinc-900 shadow-sm'
@@ -627,13 +627,13 @@ export function DashboardAgenda() {
           {/* Show past appointments toggle (weekly view only) */}
           {viewMode === 'weekly' && (
             <div className={`
-              inline-flex items-center gap-2 px-3 py-2 rounded-xl border transition-all duration-200
+              sm:w-auto mx-auto inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl border transition-all duration-200
               ${activeTheme === 'dark' ? 'bg-zinc-900 border-zinc-700' : 'bg-white border-zinc-200'}
             `}>
               <button
                 onClick={() => setShowPastAppointments(!showPastAppointments)}
                 className={`
-                  relative w-9 h-5 rounded-full transition-all duration-200
+                  relative w-9 h-5 rounded-full transition-all duration-200 shrink-0
                   ${showPastAppointments
                     ? activeTheme === 'dark' ? 'bg-zinc-100' : 'bg-zinc-900'
                     : activeTheme === 'dark' ? 'bg-zinc-700' : 'bg-zinc-300'
@@ -658,7 +658,7 @@ export function DashboardAgenda() {
           )}
           <button
             onClick={openAddModal}
-            className="inline-flex items-center justify-center gap-2.5 px-5 py-3 rounded-2xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-semibold shadow-lg shadow-zinc-300/20 dark:shadow-zinc-900/30 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all duration-200 active:scale-[0.98] bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-lg shadow-zinc-300/20 dark:shadow-zinc-900/30 dark:shadow-zinc-500/5 hover:shadow-xl hover:shadow-zinc-500/15 dark:hover:shadow-zinc-500/10 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+            className="sm:w-auto mx-auto shrink-0 inline-flex items-center justify-center gap-2.5 px-5 py-3 rounded-2xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-semibold shadow-lg shadow-zinc-300/20 dark:shadow-zinc-900/30 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all duration-200 active:scale-[0.98]"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M12 5v14M5 12h14" strokeLinecap="round" />

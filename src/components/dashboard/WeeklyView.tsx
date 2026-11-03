@@ -322,12 +322,12 @@ export function WeeklyView({
   return (
     <div className="flex flex-col flex-1 min-h-0">
       {/* ── Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col items-start sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
+        <div className="flex items-center gap-3 w-full sm:w-auto">
           <button
             onClick={() => navigateWeek(-1)}
             className={`
-              flex items-center justify-center w-10 h-10 rounded-xl border-2 transition-all duration-200 hover:scale-105 active:scale-95
+              flex items-center justify-center w-10 h-10 rounded-xl border-2 transition-all duration-200 hover:scale-105 active:scale-95 shrink-0
               ${isDark
                 ? 'border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:border-zinc-600'
                 : 'border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50 hover:border-zinc-300'
@@ -340,11 +340,11 @@ export function WeeklyView({
             </svg>
           </button>
 
-          <div className="text-center min-w-[140px]">
-            <h2 className="text-lg font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+          <div className="text-center min-w-[120px] flex-1 sm:flex-none">
+            <h2 className="text-base font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
               {weekLabel}
             </h2>
-            <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mt-0.5">
+            <p className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400 mt-0.5">
               Vista semanal
             </p>
           </div>
@@ -352,7 +352,7 @@ export function WeeklyView({
           <button
             onClick={() => navigateWeek(1)}
             className={`
-              flex items-center justify-center w-10 h-10 rounded-xl border-2 transition-all duration-200 hover:scale-105 active:scale-95
+              flex items-center justify-center w-10 h-10 rounded-xl border-2 transition-all duration-200 hover:scale-105 active:scale-95 shrink-0
               ${isDark
                 ? 'border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:border-zinc-600'
                 : 'border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50 hover:border-zinc-300'
@@ -369,7 +369,7 @@ export function WeeklyView({
             <button
               onClick={goToday}
               className={`
-                px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 hover:scale-105 active:scale-95 whitespace-nowrap
+                px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95 shrink-0 whitespace-nowrap
                 ${isDark
                   ? 'bg-zinc-100 text-zinc-900 shadow-sm hover:bg-zinc-200'
                   : 'bg-zinc-900 text-white shadow-sm hover:bg-zinc-800'
@@ -382,14 +382,14 @@ export function WeeklyView({
         </div>
 
         {/* Search */}
-        <div className="relative max-w-xs">
+        <div className="relative w-full sm:max-w-xs">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400">
             <circle cx="11" cy="11" r="8" />
             <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
           </svg>
           <input
             type="text"
-            placeholder="Buscar cliente o servicio..."
+            placeholder="Buscar..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className={`
