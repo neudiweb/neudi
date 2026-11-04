@@ -492,7 +492,7 @@ export function LoginPage() {
               transition: 'opacity 0.6s ease 0.95s',
             }}
           >
-            {['Sin tarjeta de crédito', 'Configuración en 5 min', '100% online'].map((item, i) => (
+            {['Sin complicaciones', 'Configuración en 5 min', '100% online'].map((item, i) => (
               <span key={i} className="flex items-center gap-1.5">
                 <PulseDot />
                 {item}

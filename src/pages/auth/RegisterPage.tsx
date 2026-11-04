@@ -96,7 +96,7 @@ function AnimatedHeroTitle() {
               filter="url(#regTextGlow)"
               style={{ opacity: 1, transform: 'translateY(0)', transition: 'all 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.2s' }}
             >
-              gratis en segundos
+              en segundos
             </text>
           </>
         )}
@@ -125,7 +125,7 @@ function RegSubtitle() {
         transition: 'all 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.5s',
       }}
     >
-      Sin tarjeta de crédito, sin compromisos.
+      Sin complicaciones.
       <br />
       Empezá a gestionar tus turnos online ahora.
     </p>
@@ -369,9 +369,9 @@ export function RegisterPage() {
               {/* Trust indicators */}
               <div className={`mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-sm ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>
                 {[
-                  { text: 'Sin tarjeta de crédito', icon: '💳' },
-                  { text: 'Configuración en 5 min', icon: '⚡' },
-                  { text: '100% gratis', icon: '🎉' },
+                  { text: 'Sin complicaciones', icon: '⚡' },
+                  { text: 'Configuración en 5 min', icon: '🚀' },
+                  { text: 'Soporte incluido', icon: '💬' },
                 ].map((item, i) => (
                   <span key={i} className="flex items-center gap-2">
                     <span>{item.icon}</span>

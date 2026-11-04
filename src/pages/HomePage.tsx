@@ -309,7 +309,7 @@ function HowItWorks() {
     {
       step: '01',
       title: 'Creá tu cuenta',
-      desc: 'Registrate gratis en menos de 30 segundos. Sin tarjeta de crédito.',
+      desc: 'Configurá tu negocio en menos de 30 segundos.',
       icon: (
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-white">
           <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
@@ -749,7 +749,7 @@ export function HomePage() {
             {/* Trust indicators */}
             <div className={`mt-14 flex flex-wrap items-center justify-center gap-x-10 gap-y-3 text-sm ${isDark ? 'text-emerald-200/50' : 'text-zinc-500'} transition-colors duration-700`}>
               {[
-                { text: 'Sin tarjeta de crédito' },
+                { text: 'Sin complicaciones' },
                 { text: 'Configuración en 5 min' },
                 { text: '100% online' },
               ].map((item, i) => (
@@ -819,7 +819,7 @@ export function HomePage() {
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
-              { value: 100, suffix: '%', label: 'Gratis para empezar' },
+              { value: 100, suffix: '%', label: 'Sin costos ocultos' },
               { value: 24, suffix: '/7', label: 'Turnos automáticos' },
               { value: 5, suffix: ' min', label: 'Configuración rápida' },
               { value: 0, label: 'Llamadas perdidas' },
@@ -862,7 +862,7 @@ export function HomePage() {
                   </h2>
                   <p className={`text-lg ${isDark ? 'text-emerald-200/60' : 'text-zinc-500'} max-w-md mx-auto mb-12 leading-relaxed font-light transition-colors duration-700`}
                     style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
-                    Creá tu cuenta gratis y empezá a recibir turnos online en minutos.
+                    Creá tu cuenta y empezá a recibir turnos online en minutos.
                   </p>
                   <ShimmerButton href="/register">
                     Crear mi cuenta gratuita
