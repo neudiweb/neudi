@@ -342,7 +342,7 @@ export function RegisterPage() {
                             </p>
                           )}
 
-                          <VisualButton type="submit" className="mt-6" disabled={isSubmitting || !acceptedTerms}>
+                          <VisualButton type="submit" className="mt-6" disabled={isSubmitting}>
                             {isSubmitting ? <LoadingSpinner size="sm" /> : (
                               <>
                                 Crear cuenta
