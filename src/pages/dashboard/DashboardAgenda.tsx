@@ -848,40 +848,40 @@ export function DashboardAgenda() {
                       <div className="w-px h-12 bg-zinc-200 dark:bg-zinc-800 self-center" />
 
                       {/* Info */}
-                      <div className="flex-1 min-w-0">
+                      <div className="flex-1 min-w-0 overflow-hidden">
                         <div className="flex items-start justify-between gap-2">
-                          <div>
+                          <div className="min-w-0 flex-1">
                             <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors">
                               {apt.clientName}
                             </h3>
                             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 line-clamp-1">{apt.serviceNames}</p>
-                            <div className="flex items-center gap-2 mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-                              <span className="inline-flex items-center gap-1">
+                            <div className="flex flex-wrap items-center gap-1.5 mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                              <span className="inline-flex items-center gap-1 shrink-0">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                   <circle cx="12" cy="12" r="9" />
                                   <path d="M12 7v5l3 3" strokeLinecap="round" />
                                 </svg>
                                 {apt.time} - {apt.endTime}
                               </span>
-                              <span>·</span>
-                              <span>{apt.totalDuration} min</span>
-                              <span>·</span>
-                              <span className="font-semibold text-zinc-900 dark:text-zinc-100">${apt.totalPrice.toLocaleString('es-AR')}</span>
+                              <span className="shrink-0">·</span>
+                              <span className="shrink-0">{apt.totalDuration} min</span>
+                              <span className="shrink-0">·</span>
+                              <span className="font-semibold text-zinc-900 dark:text-zinc-100 shrink-0">${apt.totalPrice.toLocaleString('es-AR')}</span>
                             </div>
                           </div>
                           <Badge variant={apt.status === 'confirmed' ? 'success' : apt.status === 'completed' || apt.status === 'no_show' ? 'success' : apt.status === 'pending' ? 'warning' : 'default'}>
                             {STATUS_LABELS[apt.status] || apt.status}
                           </Badge>
                         </div>
-                        <div className="flex items-center gap-3 mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500 dark:text-zinc-400">
-                          <span className="inline-flex items-center gap-1">
+                        <div className="flex flex-wrap items-center gap-3 mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500 dark:text-zinc-400">
+                          <span className="inline-flex items-center gap-1 shrink-0">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                               <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
                             </svg>
                             {apt.clientPhone}
                           </span>
                           {apt.requiresDeposit && (
-                            <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-semibold">
+                            <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-semibold shrink-0">
                               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                               </svg>
