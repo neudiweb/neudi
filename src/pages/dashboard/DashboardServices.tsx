@@ -277,8 +277,8 @@ export function DashboardServices() {
           >
             <span className={`absolute top-1 left-1 w-5 h-5 rounded-full transition-transform duration-300 flex items-center justify-center border-2 ${
               service.is_active
-                ? 'translate-x-5 bg-zinc-900 dark:bg-zinc-100 border-zinc-900 dark:border-zinc-100 text-white dark:text-zinc-900'
-                : 'bg-zinc-300 dark:bg-zinc-500 border-zinc-300 dark:border-zinc-500 text-white'
+                ? 'translate-x-5 bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-zinc-100'
+                : 'bg-zinc-400 dark:bg-zinc-400 border-zinc-400 dark:border-zinc-400 text-white'
             }`}>
               {service.is_active && (
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
@@ -419,8 +419,8 @@ export function DashboardServices() {
               >
                 <span className={`absolute top-1 left-1 w-5 h-5 rounded-full transition-transform duration-300 flex items-center justify-center border-2 ${
                   service.is_active
-                    ? 'translate-x-5 bg-zinc-900 dark:bg-zinc-100 border-zinc-900 dark:border-zinc-100 text-white dark:text-zinc-900'
-                    : 'bg-zinc-300 dark:bg-zinc-500 border-zinc-300 dark:border-zinc-500 text-white'
+                    ? 'translate-x-5 bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-zinc-100'
+                    : 'bg-zinc-400 dark:bg-zinc-400 border-zinc-400 dark:border-zinc-400 text-white'
                 }`}>
                   {service.is_active && (
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
@@ -525,8 +525,8 @@ export function DashboardServices() {
           >
             <span className={`absolute top-1 left-1 w-5 h-5 rounded-full transition-transform duration-300 flex items-center justify-center border-2 ${
               service.is_active
-                ? 'translate-x-5 bg-zinc-900 dark:bg-zinc-100 border-zinc-900 dark:border-zinc-100 text-white dark:text-zinc-900'
-                : 'bg-zinc-300 dark:bg-zinc-500 border-zinc-300 dark:border-zinc-500 text-white'
+                ? 'translate-x-5 bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-zinc-100'
+                : 'bg-zinc-400 dark:bg-zinc-400 border-zinc-400 dark:border-zinc-400 text-white'
             }`}>
               {service.is_active && (
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
