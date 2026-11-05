@@ -17,47 +17,47 @@ const MONTH_NAMES = [
 const DAY_NAMES_SHORT = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 const DAY_NAMES_FULL = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 
-// Professional color palette: saturated backgrounds with guaranteed white text (WCAG AA compliant)
+// Professional color palette: softer backgrounds with white text for contrast
 const STATUS_COLORS: Record<string, { bg: string; text: string; ring: string }> = {
   confirmed: {
-    bg: 'bg-indigo-500',
-    text: 'text-white',
-    ring: 'ring-indigo-300',
+    bg: 'bg-indigo-200 dark:bg-indigo-900',
+    text: 'text-indigo-900 dark:text-indigo-100',
+    ring: 'ring-indigo-200 dark:ring-indigo-800',
   },
   completed: {
-    bg: 'bg-emerald-500',
-    text: 'text-white',
-    ring: 'ring-emerald-300',
+    bg: 'bg-emerald-200 dark:bg-emerald-900',
+    text: 'text-emerald-900 dark:text-emerald-100',
+    ring: 'ring-emerald-200 dark:ring-emerald-800',
   },
   pending: {
-    bg: 'bg-amber-500',
-    text: 'text-white',
-    ring: 'ring-amber-300',
+    bg: 'bg-amber-200 dark:bg-amber-900',
+    text: 'text-amber-900 dark:text-amber-100',
+    ring: 'ring-amber-200 dark:ring-amber-800',
   },
   requires_deposit: {
-    bg: 'bg-zinc-500',
-    text: 'text-white',
-    ring: 'ring-zinc-300',
+    bg: 'bg-zinc-200 dark:bg-zinc-800',
+    text: 'text-zinc-900 dark:text-zinc-100',
+    ring: 'ring-zinc-200 dark:ring-zinc-700',
   },
   cancelled: {
-    bg: 'bg-zinc-400',
-    text: 'text-white',
-    ring: 'ring-zinc-300',
+    bg: 'bg-zinc-200 dark:bg-zinc-800',
+    text: 'text-zinc-900 dark:text-zinc-100',
+    ring: 'ring-zinc-200 dark:ring-zinc-700',
   },
   rejected: {
-    bg: 'bg-zinc-500',
-    text: 'text-white',
-    ring: 'ring-zinc-300',
+    bg: 'bg-zinc-200 dark:bg-zinc-800',
+    text: 'text-zinc-900 dark:text-zinc-100',
+    ring: 'ring-zinc-200 dark:ring-zinc-700',
   },
   no_show: {
-    bg: 'bg-zinc-600',
-    text: 'text-white',
-    ring: 'ring-zinc-400',
+    bg: 'bg-zinc-200 dark:bg-zinc-800',
+    text: 'text-zinc-900 dark:text-zinc-100',
+    ring: 'ring-zinc-200 dark:ring-zinc-700',
   },
   expired: {
-    bg: 'bg-slate-400',
-    text: 'text-white',
-    ring: 'ring-slate-300',
+    bg: 'bg-slate-200 dark:bg-slate-800',
+    text: 'text-slate-900 dark:text-slate-100',
+    ring: 'ring-slate-200 dark:ring-slate-700',
   },
 };
 
