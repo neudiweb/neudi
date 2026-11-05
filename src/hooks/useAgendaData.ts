@@ -102,7 +102,7 @@ export function useAgendaData(
             `
             id, business_id, customer_name, customer_phone, customer_email, notes,
             start_at, end_at, status, created_at, updated_at, assigned_employee_id,
-            appointment_services:appointment_services(service_id, price, duration_minutes)
+            appointment_services:appointment_services(service_id, service_name, price, duration_minutes)
           `
           )
           .eq('business_id', businessId)
@@ -112,27 +112,7 @@ export function useAgendaData(
 
         if (err) throw err;
 
-        // Collect all service IDs to fetch names in batch
-        const allServiceIds = new Set<string>();
-        const aptWithServices = (data || []).map((apt: any) => {
-          if (apt.appointment_services) {
-            apt.appointment_services.forEach((aps: any) => allServiceIds.add(aps.service_id));
-          }
-          return apt;
-        });
-
-        // Fetch all service names
-        let serviceMap: Record<string, string> = {};
-        if (allServiceIds.size > 0) {
-          const { data: svcData } = await supabase
-            .from('services')
-            .select('id, name')
-            .in('id', Array.from(allServiceIds)) as { data: Array<{ id: string; name: string }> | null; error: unknown };
-
-          if (svcData) {
-            svcData.forEach(s => { serviceMap[s.id] = s.name; });
-          }
-        }
+        const aptWithServices = (data || []).map((apt: any) => apt);
 
         const mapped: AgendaAppointment[] = aptWithServices.map(
           (apt: any) => {
@@ -143,7 +123,7 @@ export function useAgendaData(
 
             if (apt.appointment_services && apt.appointment_services.length > 0) {
               for (const aps of apt.appointment_services) {
-                const svcName = serviceMap[aps.service_id] || 'Servicio eliminado';
+                const svcName = aps.service_name || 'Servicio eliminado';
                 serviceNames.push(svcName);
                 serviceDetails.push({
                   name: svcName,

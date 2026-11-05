@@ -52,13 +52,15 @@ export async function getAvailableSlots(
   businessSlug: string,
   serviceIds: string[],
   date: string,
-  excludeAppointments?: string[]
+  excludeAppointments?: string[],
+  totalDuration?: number
 ): Promise<Slot[]> {
   const { data, error } = await supabase.rpc('get_available_slots', {
     p_business_slug: businessSlug,
     p_service_ids: serviceIds,
     p_date: date,
     p_exclude_appointment_id: excludeAppointments?.[0] || null,
+    p_total_duration: totalDuration || null,
   } as any) as { data: Array<{ time: string; available: boolean }> | null; error: unknown };
 
   if (error) {
@@ -85,7 +87,9 @@ export async function createAppointment(input: CreateAppointmentInput): Promise<
     const { data: services, error: svcError } = await supabase
       .from('services')
       .select('duration_minutes, business_id')
-      .in('id', input.serviceIds) as { data: Array<{ duration_minutes: number; business_id: string }> | null; error: unknown };
+      .in('id', input.serviceIds)
+      .eq('is_active', true)
+      .eq('is_deleted', false) as { data: Array<{ duration_minutes: number; business_id: string }> | null; error: unknown };
 
     if (svcError || !services || services.length === 0) {
       return { success: false, error: 'Servicio no encontrado' };
@@ -240,7 +244,7 @@ export async function getBusinessAppointments(
     .from('appointments')
     .select(`
       *,
-      services(name, duration_minutes)
+      appointment_services:appointment_services(service_name, duration_minutes, price)
     `)
     .eq('business_id', businessId)
     .order('start_at', { ascending: true });
@@ -265,7 +269,7 @@ export async function getCustomerAppointments(phone: string): Promise<any[]> {
     .from('appointments')
     .select(`
       *,
-      services(name, duration_minutes)
+      appointment_services:appointment_services(service_name, duration_minutes, price)
     `)
     .eq('customer_phone', phone)
     .order('start_at', { ascending: false }) as { data: any[] | null; error: string | null };

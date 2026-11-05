@@ -59,6 +59,7 @@ export function DashboardServices() {
         .from('services')
         .select('*')
         .eq('business_id', bizId)
+        .eq('is_deleted', false)
         .order('name', { ascending: true }) as { data: Service[] | null; error: string | null };
 
       if (error) throw error;
@@ -142,9 +143,16 @@ export function DashboardServices() {
 
     try {
       if (editingId) {
-        const { error: updateError } = await ((supabase as any).from('services').update(serviceData).eq('id', editingId));
-        if (updateError) {
-          console.error('Error saving service:', updateError);
+        // Mark old service as deleted and create new version
+        const { error: deleteOldError } = await ((supabase as any).from('services').update({ is_deleted: true }).eq('id', editingId));
+        if (deleteOldError) {
+          console.error('Error deactivating old service:', deleteOldError);
+          setSaveError('No se pudo guardar el servicio. Intentá de nuevo.');
+          return;
+        }
+        const { error: insertError } = await ((supabase as any).from('services').insert({ ...serviceData, business_id: businessId }));
+        if (insertError) {
+          console.error('Error saving service:', insertError);
           setSaveError('No se pudo guardar el servicio. Intentá de nuevo.');
           return;
         }
@@ -175,7 +183,7 @@ export function DashboardServices() {
   const confirmDelete = async () => {
     if (!deleteConfirmId) return;
     try {
-      const { error: deleteError } = await supabase.from('services').delete().eq('id', deleteConfirmId);
+      const { error: deleteError } = await ((supabase as any).from('services').update({ is_deleted: true }).eq('id', deleteConfirmId));
       if (deleteError) {
         console.error('Error deleting service:', deleteError);
         setDeleteError('No se pudo eliminar el servicio. Intentá de nuevo.');
@@ -418,7 +426,7 @@ export function DashboardServices() {
                         type="submit"
                         className="px-6 py-2.5 rounded-2xl text-xs font-bold text-white bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 shadow-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all active:scale-[0.97]"
                       >
-                        {editingId ? 'Guardar cambios' : 'Crear servicio'}
+                        {editingId ? 'Crear nueva versión' : 'Crear servicio'}
                       </button>
                     </div>
                   </form>
@@ -447,7 +455,7 @@ export function DashboardServices() {
                 </svg>
               </div>
               <div>
-                <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Servicio creado con éxito</p>
+                <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Servicio guardado con éxito</p>
               </div>
             </div>
           </div>
@@ -466,8 +474,8 @@ export function DashboardServices() {
                     <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V7h14z" strokeLinecap="round" />
                   </svg>
                 </div>
-                <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 mb-2">¿Eliminar servicio?</h3>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Esta acción no se puede deshacer.</p>
+                <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 mb-2">¿Ocultar servicio?</h3>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">El servicio dejará de aparecer en la lista de servicios disponibles, pero se mantendrá visible en turnos anteriores.</p>
                 <div className="flex gap-3">
                   <button
                     type="button"
@@ -481,7 +489,7 @@ export function DashboardServices() {
                     onClick={confirmDelete}
                     className="flex-1 px-4 py-2.5 rounded-2xl text-sm font-bold text-white bg-red-600 hover:bg-red-700 transition-colors active:scale-[0.97]"
                   >
-                    Eliminar
+                    Ocultar
                   </button>
                 </div>
               </div>

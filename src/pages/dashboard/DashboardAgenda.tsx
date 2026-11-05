@@ -217,11 +217,11 @@ export function DashboardAgenda() {
     setRescheduleLoadingSlots(false);
   };
 
-  const fetchRescheduleSlots = React.useCallback(async (date: string, serviceIds: string[], excludeId?: string) => {
+  const fetchRescheduleSlots = React.useCallback(async (date: string, serviceIds: string[], excludeId?: string, totalDuration?: number) => {
     if (!businessSlug || serviceIds.length === 0 || !date) return;
     setRescheduleLoadingSlots(true);
     try {
-      const slots = await getAvailableSlots(businessSlug, serviceIds ?? [], date, excludeId ? [excludeId] : undefined);
+      const slots = await getAvailableSlots(businessSlug, serviceIds ?? [], date, excludeId ? [excludeId] : undefined, totalDuration);
       setRescheduleSlots(slots);
     } catch (e) {
       console.error('Error fetching reschedule slots:', e);
@@ -265,15 +265,17 @@ export function DashboardAgenda() {
         try {
           const { data: aptData } = await supabase
             .from('appointments')
-            .select('appointment_services:appointment_services(service_id)')
+            .select('appointment_services:appointment_services(service_id, duration_minutes)')
             .eq('id', selectedAppointment.id)
-            .single() as { data: { appointment_services?: Array<{ service_id: string }> } | null; error: unknown };
+            .single() as { data: { appointment_services?: Array<{ service_id: string; duration_minutes: number }> } | null; error: unknown };
 
           const serviceIds = aptData?.appointment_services?.map(s => s.service_id) || [];
+          const totalDuration = aptData?.appointment_services?.reduce((sum, s) => sum + (s.duration_minutes || 0), 0) || 30;
+          
           if (serviceIds.length > 0) {
-            fetchRescheduleSlots(rescheduleDate, serviceIds, selectedAppointment.id);
+            fetchRescheduleSlots(rescheduleDate, serviceIds, selectedAppointment.id, totalDuration);
           } else {
-            fetchRescheduleSlots(rescheduleDate, [], selectedAppointment.id);
+            fetchRescheduleSlots(rescheduleDate, [], undefined, totalDuration);
           }
         } catch (e) {
           console.error('Error fetching reschedule services:', e);
@@ -396,6 +398,7 @@ export function DashboardAgenda() {
         .select('*')
         .eq('business_id', bizId)
         .eq('is_active', true)
+        .eq('is_deleted', false)
         .order('name') as { data: Service[] | null; error: string | null };
 
       if (error) throw error;

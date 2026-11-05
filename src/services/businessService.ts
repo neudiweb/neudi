@@ -32,6 +32,7 @@ export async function getBusiness(slug: string): Promise<BusinessData | null> {
       .from('services')
       .select('*')
       .eq('business_id', biz.id)
+      .eq('is_deleted', false)
       .order('name', { ascending: true }) as any,
     supabase
       .from('business_hours')

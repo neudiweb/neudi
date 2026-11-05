@@ -44,6 +44,7 @@ export function BusinessPage() {
         .select('*')
         .eq('business_id', bizData.id)
         .eq('is_active', true)
+        .eq('is_deleted', false)
         .order('created_at', { ascending: true });
 
       setBusiness({ ...bizData, services: servicesData || [] });
