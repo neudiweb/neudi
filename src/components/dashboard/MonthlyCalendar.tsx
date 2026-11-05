@@ -195,6 +195,10 @@ export function MonthlyCalendar({
 
           if (dayInfo.isDisabled) {
             cellClass += isDark ? 'text-zinc-600 cursor-default ' : 'text-zinc-300 cursor-default ';
+          } else if (dayInfo.isSelected) {
+            cellClass += isDark
+              ? 'bg-blue-500/10 text-blue-400 border border-blue-500/60 shadow-sm shadow-blue-500/20 '
+              : 'bg-blue-50 text-blue-700 border border-blue-400/70 shadow-sm shadow-blue-500/15 ';
           } else {
             cellClass += isDark
               ? 'bg-zinc-800 text-zinc-50 border border-transparent hover:bg-zinc-700 hover:scale-105 '
@@ -210,12 +214,15 @@ export function MonthlyCalendar({
               className={cellClass}
               aria-label={`${dayInfo.day} de ${MONTH_NAMES[viewMonth]}${dayInfo.isDisabled ? ', deshabilitado' : ''}`}
             >
-              <span className={isDark ? 'text-zinc-50' : 'text-black'}>{dayInfo.day}</span>
+              <span className={dayInfo.isSelected
+                ? 'font-bold'
+                : isDark ? 'text-zinc-50' : 'text-black'
+              }>{dayInfo.day}</span>
               {count > 0 && !dayInfo.isDisabled && (
                 <span
                   className={`absolute bottom-0.5 text-[8px] font-bold ${
                     dayInfo.isSelected
-                      ? 'text-red-300'
+                      ? 'text-blue-500 dark:text-blue-400'
                       : 'text-red-500 dark:text-red-400'
                   }`}
                 >
@@ -225,7 +232,7 @@ export function MonthlyCalendar({
               {pending > 0 && !dayInfo.isDisabled && (
                 <span
                   className={`absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full ${
-                    dayInfo.isSelected ? 'bg-red-300' : 'bg-red-500 dark:bg-red-400'
+                    dayInfo.isSelected ? 'bg-blue-500 dark:bg-blue-400' : 'bg-red-500 dark:bg-red-400'
                   }`}
                 />
               )}
