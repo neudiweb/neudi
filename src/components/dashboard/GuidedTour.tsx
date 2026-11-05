@@ -1,4 +1,4 @@
-import * as React from 'react';
+﻿import * as React from 'react';
 
 export interface TourStep {
   target: string;
@@ -22,7 +22,7 @@ export function GuidedTour({ steps, isOpen, onClose, currentStep: externalStep, 
   const [highlightRect, setHighlightRect] = React.useState<DOMRect | null>(null);
   const [offset, setOffset] = React.useState({ x: 0, y: 0 });
 
-  const step = steps[currentStep];
+  const stepData = steps[step];
 
   React.useEffect(() => {
     if (!isOpen) {
@@ -30,7 +30,7 @@ export function GuidedTour({ steps, isOpen, onClose, currentStep: externalStep, 
       return;
     }
     const timer = setTimeout(() => {
-      const el = document.querySelector(step.target);
+      const el = document.querySelector(stepData.target);
       if (el) {
         const rect = el.getBoundingClientRect();
         setHighlightRect(rect);
@@ -38,7 +38,7 @@ export function GuidedTour({ steps, isOpen, onClose, currentStep: externalStep, 
       }
     }, 100);
     return () => clearTimeout(timer);
-  }, [isOpen, step, step?.target]);
+  }, [isOpen, step]);
 
   React.useEffect(() => {
     onStepChange?.(step);
@@ -63,9 +63,9 @@ export function GuidedTour({ steps, isOpen, onClose, currentStep: externalStep, 
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, step, steps.length, onClose, onStepChange]);
 
-  if (!isOpen || !step) return null;
+  if (!isOpen || !stepData) return null;
 
-  const isCenter = step.placement === 'center';
+  const isCenter = stepData.placement === 'center';
 
   return (
     <>
@@ -123,10 +123,10 @@ export function GuidedTour({ steps, isOpen, onClose, currentStep: externalStep, 
             ) : (
               <>
                 <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-50 mb-2 tracking-tight">
-                  {step.title}
+                  {stepData.title}
                 </h3>
                 <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                  {step.description}
+                  {stepData.description}
                 </p>
               </>
             )}
