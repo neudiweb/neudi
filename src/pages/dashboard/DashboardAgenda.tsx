@@ -505,7 +505,7 @@ export function DashboardAgenda() {
       setTimeout(() => {
         setShowSuccess(false);
         closeAddModal();
-      }, 2500);
+      }, 1500);
     } catch (e) {
       console.error('Error creating appointment:', e);
       alert(e instanceof Error ? e.message : 'Error al crear el turno');
