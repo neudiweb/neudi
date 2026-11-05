@@ -6,7 +6,7 @@ import { LoadingSpinner } from '../../components/common/States';
 import { timeToMinutes, validateTimeRanges, jsDayToBusinessDay, businessDayToJsDay } from '../../utils/dateTime';
 import { ErrorModal } from '../../components/ErrorModal';
 import { TimePicker } from '../../components/TimePicker';
-import { UpcomingHolidayNotice } from '../../components/dashboard/UpcomingHolidayNotice';
+import { HolidaysNotice } from '../../components/dashboard/HolidaysNotice';
 
 const DAYS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
@@ -378,7 +378,7 @@ export function DashboardHours() {
         </div>
       </div>
 
-      <UpcomingHolidayNotice />
+      <HolidaysNotice />
 
       {/* Days grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

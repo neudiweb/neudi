@@ -33,12 +33,10 @@ interface AuthContextValue extends AuthState {
   register: (
     name: string,
     email: string,
-    password: string,
-    businessName: string
+    password: string
   ) => Promise<{ error?: string }>;
   createBusiness: (businessName: string) => Promise<{ error?: string }>;
   switchBusiness: (businessId: string) => Promise<{ error?: string }>;
-  loginDemo: () => Promise<{ error?: string }>;
   resetPassword: (email: string) => Promise<{ error?: string }>;
   logout: () => Promise<void>;
 }
@@ -184,7 +182,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) {
         setState((prev) => ({ ...prev, isLoading: false }));
         const message = error.message ?? '';
-        return { error: getAuthErrorMessage(message, error.code) };
+        const code = error.code;
+        console.log('Supabase auth error:', { message, code });
+        const mapped = getAuthErrorMessage(message, code);
+        console.log('Mapped error:', mapped);
+        return { error: mapped };
       }
 
       const loaded = await loadUserFromSession();
@@ -199,13 +201,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (
     name: string,
     email: string,
-    password: string,
-    businessName: string
+    password: string
   ) => {
     setState((prev) => ({ ...prev, isLoading: true }));
 
     try {
-      // Step 1: Create Supabase auth user
       const { data: authData, error: authError } =
         await supabase.auth.signUp({
           email,
@@ -222,85 +222,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { error: 'No se pudo crear la cuenta.' };
       }
 
-      // Step 2: Create business (profile created automatically by handle_new_user trigger)
-      const slug = generateSlug(businessName);
-
-      const { data: businessData, error: bizError } = await supabase
-        .from('businesses')
-        .insert({
-          name: businessName,
-          slug,
-          timezone: 'America/Argentina/Buenos_Aires',
-          currency: 'ARS',
-          plan: 'FREE',
-        } as any)
-        .select('id,plan')
-        .single() as { data: { id: string; plan: 'FREE' | 'PRO' } | null; error: unknown };
-
-      if (bizError) {
-        setState((prev) => ({ ...prev, isLoading: false }));
-        return { error: 'No se pudo crear el negocio.' };
-      }
-
-      if (!businessData) {
-        setState((prev) => ({ ...prev, isLoading: false }));
-        return { error: 'No se pudo crear el negocio.' };
-      }
-
-      // Step 4: Create business_members link
-      await supabase.from('business_members').insert({
-        user_id: authData.user.id,
-        business_id: businessData.id,
-        role: 'OWNER',
-      } as any);
-
-      // Cargar todos los negocios del usuario (puede tener más de uno)
-      const { data: businessesData } = await supabase
-        .rpc('get_user_businesses') as { data: Array<{
-          business_id: string;
-          name: string;
-          slug: string;
-          plan: 'FREE' | 'PRO';
-          is_active: boolean;
-          role: 'OWNER' | 'ADMIN' | 'STAFF';
-        }> | null; error: unknown };
-
-      const userBusinesses: UserBusiness[] = (businessesData || []).map(b => ({
-        businessId: b.business_id,
-        name: b.name,
-        slug: b.slug,
-        plan: b.plan,
-        role: b.role,
-      }));
-
-      const user = mapProfileToUser(name, email, slug, businessData.id, businessData.plan, userBusinesses);
-      setState({ user, isLoading: false });
+      // Profile created automatically by handle_new_user trigger
+      setState({ user: null, isLoading: false });
       return {};
-    } catch (err) {
+    } catch {
       setState((prev) => ({ ...prev, isLoading: false }));
       return { error: 'Error de red. Verificá tu conexión.' };
     }
-  };
-
-  const loginDemo = async () => {
-    setState((prev) => ({ ...prev, isLoading: true }));
-    // Fallback to mock session - works without Supabase
-    const mockUser: User = {
-      email: 'demo@neudi.test',
-      businessName: 'Peluquería Juan',
-      businessSlug: 'peluqueria-juan',
-      businessId: 'demo-business-id',
-      hasProAccess: true,
-      businesses: [{
-        businessId: 'demo-business-id',
-        name: 'Peluquería Juan',
-        slug: 'peluqueria-juan',
-        plan: 'FREE',
-        role: 'OWNER',
-      }],
-    };
-    setState({ user: mockUser, isLoading: false });
-    return {};
   };
 
   const createBusiness = async (businessName: string) => {
@@ -407,7 +335,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `${window.location.origin}/neudi/reset-password`,
       });
 
       if (error) {
@@ -438,7 +366,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     register,
     createBusiness,
     switchBusiness,
-    loginDemo,
     resetPassword,
     logout,
   };

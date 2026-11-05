@@ -206,7 +206,7 @@ export function DashboardLayout({ children, currentTab = 'agenda' }: DashboardLa
                 </div>
                 <button
                   onClick={async () => { await logout(); }}
-                  className="text-zinc-400 dark:text-zinc-600 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                  className="flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-500 dark:bg-zinc-400 text-white dark:text-zinc-900 hover:text-red-500 dark:hover:text-red-600 hover:bg-zinc-600 dark:hover:bg-zinc-500 transition-colors"
                   title="Cerrar sesión"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

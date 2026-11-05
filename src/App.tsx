@@ -8,7 +8,8 @@ import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
 import { OnboardingPage } from './pages/OnboardingPage';
 import { BusinessPage } from './pages/BusinessPage';
-import { BookingWizard } from './pages/BookingWizard';
+import { BusinessNotFoundPage } from './pages/BusinessNotFoundPage';
+import { ResetPasswordPage } from './pages/auth/ResetPasswordPage';
 import { DashboardAgenda } from './pages/dashboard/DashboardAgenda';
 import { DashboardServices } from './pages/dashboard/DashboardServices';
 import { DashboardClients } from './pages/dashboard/DashboardClients';
@@ -56,8 +57,9 @@ function App() {
               <OnboardingPage />
             </OnboardingGuard>
           } />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/:slug/not-found" element={<BusinessNotFoundPage />} />
           <Route path="/:slug" element={<BusinessPage />} />
-          <Route path="/book/:slug" element={<BookingWizard />} />
 
           {/* Dashboard routes */}
           <Route path="/dashboard" element={

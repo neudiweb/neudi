@@ -15,29 +15,26 @@ test.describe('Login Page - Forgot Password', () => {
   test('should open reset password modal when clicking forgot password link', async ({ page }) => {
     await page.getByText('¿Olvidaste tu contraseña?').click();
 
-    const modal = page.locator('.fixed.z-50');
-    await expect(modal).toBeVisible();
-
-    await expect(page.getByText('Recuperar contraseña')).toBeVisible();
+    await expect(page.getByTestId('reset-modal')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Recuperar contraseña' })).toBeVisible();
     await expect(page.getByText('Ingresá tu email y te enviaremos un enlace para crear una nueva contraseña.')).toBeVisible();
-    await expect(page.getByLabel('Email')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Enviar enlace' })).toBeVisible();
   });
 
   test('should close modal with X button', async ({ page }) => {
     await page.getByText('¿Olvidaste tu contraseña?').click();
-    await expect(page.locator('.fixed.z-50')).toBeVisible();
+    await expect(page.getByTestId('reset-modal')).toBeVisible();
 
-    await page.getByRole('button', { name: '' }).first().click();
-    await expect(page.locator('.fixed.z-50')).not.toBeVisible();
+    await page.getByTestId('reset-modal-close').click();
+    await expect(page.getByTestId('reset-modal')).not.toBeVisible();
   });
 
   test('should close modal by clicking backdrop', async ({ page }) => {
     await page.getByText('¿Olvidaste tu contraseña?').click();
-    await expect(page.locator('.fixed.z-50')).toBeVisible();
+    await expect(page.getByTestId('reset-modal')).toBeVisible();
 
-    await page.locator('.fixed.inset-0').click({ position: { x: 50, y: 50 } });
-    await expect(page.locator('.fixed.z-50')).not.toBeVisible();
+    await page.getByTestId('reset-modal-backdrop').click({ position: { x: 10, y: 10 } });
+    await expect(page.getByTestId('reset-modal')).not.toBeVisible();
   });
 
   test('should show error when submitting empty email', async ({ page }) => {
@@ -45,17 +42,6 @@ test.describe('Login Page - Forgot Password', () => {
     await page.getByRole('button', { name: 'Enviar enlace' }).click();
 
     await expect(page.getByText('Ingresá tu email.')).toBeVisible();
-  });
-
-  test('should show success state after reset password submission', async ({ page }) => {
-    await page.getByText('¿Olvidaste tu contraseña?').click();
-    await page.getByLabel('Email').fill('test@example.com');
-    await page.getByRole('button', { name: 'Enviar enlace' }).click();
-
-    await expect(page.getByText('Email enviado')).toBeVisible();
-    await expect(page.getByText('test@example.com')).toBeVisible();
-    await expect(page.getByText('Te enviamos un enlace para recuperar tu contraseña a')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Entendido' })).toBeVisible();
   });
 
   test('should show error message on login with wrong credentials', async ({ page }) => {

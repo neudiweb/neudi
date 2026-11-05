@@ -27,44 +27,40 @@ function isHolidayToday(dateStr: string): boolean {
   );
 }
 
-function findNextHoliday(holidays: Holiday[]): UpcomingHoliday | null {
+function findUpcomingHolidays(holidays: Holiday[], count: number): UpcomingHoliday[] {
   const todayStr = getTodayInTimezone(BUSINESS_TIMEZONE);
   const todayDate = parseLocalDate(todayStr, BUSINESS_TIMEZONE);
+  const results: UpcomingHoliday[] = [];
 
   for (const holiday of holidays) {
-    if (isHolidayToday(holiday.date)) {
-      return {
-        date: holiday.date,
-        name: holiday.name,
-        dateObj: parseLocalDate(holiday.date, BUSINESS_TIMEZONE),
-      };
-    }
+    if (results.length >= count) break;
     const holidayDate = parseLocalDate(holiday.date, BUSINESS_TIMEZONE);
-    if (
+    const isToday = isHolidayToday(holiday.date);
+    if (isToday || (
       holidayDate.getFullYear() > todayDate.getFullYear() ||
       (holidayDate.getFullYear() === todayDate.getFullYear() &&
         holidayDate.getMonth() > todayDate.getMonth()) ||
       (holidayDate.getFullYear() === todayDate.getFullYear() &&
         holidayDate.getMonth() === todayDate.getMonth() &&
         holidayDate.getDate() >= todayDate.getDate())
-    ) {
-      return {
+    )) {
+      results.push({
         date: holiday.date,
         name: holiday.name,
         dateObj: parseLocalDate(holiday.date, BUSINESS_TIMEZONE),
-      };
+      });
     }
   }
 
-  return null;
+  return results;
 }
 
 export function useUpcomingHoliday(): {
-  holiday: UpcomingHoliday | null;
+  holidays: UpcomingHoliday[];
   loading: boolean;
   error: boolean;
 } {
-  const [holiday, setHoliday] = React.useState<UpcomingHoliday | null>(null);
+  const [holidays, setHolidays] = React.useState<UpcomingHoliday[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(false);
 
@@ -72,20 +68,21 @@ export function useUpcomingHoliday(): {
     let cancelled = false;
 
     getUpcomingHolidays()
-      .then((holidays) => {
+      .then((holidaysList) => {
         if (cancelled) return;
-        const next = findNextHoliday(holidays);
-        if (next) {
-          setHoliday(next);
+        const upcoming = findUpcomingHolidays(holidaysList, 3);
+        if (upcoming.length > 0) {
+          setHolidays(upcoming);
         } else {
-          // Fallback: show a default holiday if none found
           const now = new Date();
           const nextYear = now.getFullYear() + (now.getMonth() > 10 ? 1 : 0);
-          setHoliday({
-            date: `${nextYear}-12-25`,
-            name: 'Navidad',
-            dateObj: new Date(nextYear, 11, 25),
-          });
+          setHolidays([
+            {
+              date: `${nextYear}-12-25`,
+              name: 'Navidad',
+              dateObj: new Date(nextYear, 11, 25),
+            },
+          ]);
         }
         setLoading(false);
       })
@@ -100,5 +97,5 @@ export function useUpcomingHoliday(): {
     };
   }, []);
 
-  return { holiday, loading, error };
+  return { holidays, loading, error };
 }

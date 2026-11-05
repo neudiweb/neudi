@@ -1,6 +1,15 @@
 import * as React from 'react';
 import { parseLocalDate, BUSINESS_TIMEZONE } from '../../utils/helpers';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useUpcomingHoliday } from '../../hooks/useUpcomingHoliday';
+
+const HOLIDAY_DAY_NAMES = [
+  'Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado',
+];
+const HOLIDAY_MONTH_NAMES = [
+  'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+  'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+];
 
 const MONTH_NAMES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -27,6 +36,7 @@ export function MonthlyCalendar({
   onMonthChange,
 }: MonthlyCalendarProps) {
   const { activeTheme } = useTheme();
+  const { holidays } = useUpcomingHoliday();
   const isDark = activeTheme === 'dark';
   const [viewYear, setViewYear] = React.useState(() => {
     return new Date(currentDate + 'T00:00:00').getFullYear();
@@ -223,6 +233,31 @@ export function MonthlyCalendar({
           );
         })}
       </div>
+
+      {holidays.length > 0 && (() => {
+        const display = holidays.slice(0, 2);
+        return (
+          <div className="px-4 pb-4 pt-2">
+            <hr className="border-[var(--color-border-primary)] mb-2" />
+            <p className="text-[11px] font-medium text-blue-700 dark:text-blue-400 truncate text-center">
+              <span className="sm:hidden">Feriados:</span>
+              <span className="hidden sm:inline">Próximos feriados:</span>
+              {' '}{display.map((holiday, idx) => {
+                const date = parseLocalDate(holiday.date, BUSINESS_TIMEZONE);
+                const dayName = HOLIDAY_DAY_NAMES[date.getDay()].slice(0, 3);
+                const day = date.getDate();
+                const month = HOLIDAY_MONTH_NAMES[date.getMonth()].slice(0, 3);
+                return (
+                  <span key={idx}>
+                    {idx > 0 ? (idx === display.length - 1 ? ' y ' : ' · ') : ''}
+                    {dayName} {day} {month}
+                  </span>
+                );
+              })}
+            </p>
+          </div>
+        );
+      })()}
     </div>
   );
 }
