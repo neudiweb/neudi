@@ -17,46 +17,46 @@ const MONTH_NAMES = [
 const DAY_NAMES_SHORT = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 const DAY_NAMES_FULL = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 
-// Professional color palette: softer backgrounds with white text for contrast
+// Professional color palette: solid vibrant backgrounds with white text
 const STATUS_COLORS: Record<string, { bg: string; text: string; ring: string }> = {
   confirmed: {
-    bg: 'bg-indigo-300 dark:bg-indigo-900',
-    text: 'text-indigo-900 dark:text-indigo-100',
-    ring: 'ring-indigo-300 dark:ring-indigo-800',
+    bg: 'bg-blue-500 dark:bg-indigo-900',
+    text: 'text-white dark:text-indigo-100',
+    ring: 'ring-blue-300 dark:ring-indigo-800',
   },
   completed: {
-    bg: 'bg-emerald-300 dark:bg-emerald-900',
-    text: 'text-emerald-900 dark:text-emerald-100',
+    bg: 'bg-emerald-500 dark:bg-emerald-900',
+    text: 'text-white dark:text-emerald-100',
     ring: 'ring-emerald-300 dark:ring-emerald-800',
   },
   pending: {
-    bg: 'bg-amber-300 dark:bg-amber-900',
-    text: 'text-amber-900 dark:text-amber-100',
+    bg: 'bg-amber-500 dark:bg-amber-900',
+    text: 'text-white dark:text-amber-100',
     ring: 'ring-amber-300 dark:ring-amber-800',
   },
   requires_deposit: {
-    bg: 'bg-zinc-300 dark:bg-zinc-800',
-    text: 'text-zinc-900 dark:text-zinc-100',
+    bg: 'bg-zinc-500 dark:bg-zinc-800',
+    text: 'text-white dark:text-zinc-100',
     ring: 'ring-zinc-300 dark:ring-zinc-700',
   },
   cancelled: {
-    bg: 'bg-zinc-300 dark:bg-zinc-800',
-    text: 'text-zinc-900 dark:text-zinc-100',
+    bg: 'bg-zinc-500 dark:bg-zinc-800',
+    text: 'text-white dark:text-zinc-100',
     ring: 'ring-zinc-300 dark:ring-zinc-700',
   },
   rejected: {
-    bg: 'bg-zinc-300 dark:bg-zinc-800',
-    text: 'text-zinc-900 dark:text-zinc-100',
+    bg: 'bg-zinc-500 dark:bg-zinc-800',
+    text: 'text-white dark:text-zinc-100',
     ring: 'ring-zinc-300 dark:ring-zinc-700',
   },
   no_show: {
-    bg: 'bg-zinc-300 dark:bg-zinc-800',
-    text: 'text-zinc-900 dark:text-zinc-100',
+    bg: 'bg-zinc-500 dark:bg-zinc-800',
+    text: 'text-white dark:text-zinc-100',
     ring: 'ring-zinc-300 dark:ring-zinc-700',
   },
   expired: {
-    bg: 'bg-slate-300 dark:bg-slate-800',
-    text: 'text-slate-900 dark:text-slate-100',
+    bg: 'bg-slate-500 dark:bg-slate-800',
+    text: 'text-white dark:text-slate-100',
     ring: 'ring-slate-300 dark:ring-slate-700',
   },
 };
