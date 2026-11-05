@@ -130,8 +130,8 @@ export function DashboardLayout({ children, currentTab = 'agenda' }: DashboardLa
             </svg>
           </button>
           <Link to="/" className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-zinc-800 to-zinc-950 dark:from-zinc-100 dark:to-zinc-300 flex items-center justify-center shrink-0 shadow-md shadow-zinc-300/30 dark:shadow-zinc-900/50">
-              <span className="text-white dark:text-zinc-900 text-sm font-extrabold">N</span>
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-zinc-100 to-zinc-300 dark:from-zinc-800 dark:to-zinc-950 flex items-center justify-center shrink-0 shadow-md shadow-zinc-300/30 dark:shadow-zinc-900/50">
+              <span className="text-zinc-900 dark:text-white text-sm font-extrabold">N</span>
             </div>
             {sidebarOpen && (
               <span className="font-bold text-lg tracking-tight text-zinc-900 dark:text-zinc-50">Neudi</span>
