@@ -355,7 +355,114 @@ export function DashboardServices() {
         : 'border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 opacity-60'
     }`}>
       <div className="p-4 sm:p-5">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+        {/* Mobile: 2 rows — top = info | bottom = price+duration+toggle + actions */}
+        <div className="flex flex-col gap-3 sm:hidden">
+          {/* Row 1: Icon + Name */}
+          <div className="flex items-center gap-3.5">
+            <div className={`w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center ${
+              service.is_active
+                ? 'bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400'
+                : 'bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-400 dark:text-zinc-600'
+            }`}>
+              {serviceIcons[0]}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <h3 className={`text-sm font-semibold truncate ${
+                  service.is_active ? 'text-zinc-900 dark:text-zinc-50' : 'text-zinc-400 dark:text-zinc-600'
+                }`}>{service.name}</h3>
+                {!service.is_active && (
+                  <span className="flex-shrink-0 text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+                    Desactivado
+                  </span>
+                )}
+              </div>
+              {service.description && (
+                <p className={`text-xs truncate mt-0.5 ${
+                  service.is_active ? 'text-zinc-500 dark:text-zinc-400' : 'text-zinc-400 dark:text-zinc-600'
+                }`}>{service.description}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Row 2: Price + Duration + Toggle + Actions */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <p className={`text-lg font-black ${
+                service.is_active ? 'text-zinc-900 dark:text-zinc-50' : 'text-zinc-400 dark:text-zinc-600'
+              }`}>{formatPrice(service.price)}</p>
+              <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-semibold ${
+                service.is_active
+                  ? 'bg-zinc-50 dark:bg-zinc-800 border-zinc-100 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300'
+                  : 'bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-400 dark:text-zinc-600'
+              }`}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 7v5l3 3" strokeLinecap="round" />
+                </svg>
+                {service.durationMinutes} min
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {/* Toggle */}
+              <button
+                onClick={() => toggleService(service.id, service.is_active)}
+                className={`relative flex-shrink-0 w-12 h-7 rounded-full transition-all duration-300 ${
+                  service.is_active
+                    ? 'bg-zinc-900 dark:bg-zinc-100'
+                    : 'bg-zinc-200 dark:bg-zinc-700'
+                }`}
+                aria-label={service.is_active ? 'Desactivar servicio' : 'Activar servicio'}
+                role="switch"
+                aria-checked={service.is_active}
+              >
+                <span className={`absolute top-1 left-1 w-5 h-5 rounded-full transition-transform duration-300 flex items-center justify-center border-2 ${
+                  service.is_active
+                    ? 'translate-x-5 bg-zinc-900 dark:bg-zinc-100 border-zinc-900 dark:border-zinc-100 text-white dark:text-zinc-900'
+                    : 'bg-zinc-300 dark:bg-zinc-500 border-zinc-300 dark:border-zinc-500 text-white'
+                }`}>
+                  {service.is_active && (
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                      <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </span>
+              </button>
+
+              {/* Actions */}
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => openEdit(service)}
+                  disabled={!service.is_active}
+                  className={`inline-flex items-center justify-center w-9 h-9 rounded-lg transition-colors active:scale-95 ${
+                    service.is_active
+                      ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'
+                      : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-600 cursor-not-allowed'
+                  }`}
+                  title="Editar"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => handleDelete(service.id)}
+                  className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors active:scale-95"
+                  title="Eliminar"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V7h14z" strokeLinecap="round" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop: single row */}
+        <div className="hidden sm:flex sm:items-center sm:gap-4">
           {/* Icon + Info */}
           <div className="flex items-center gap-3.5 flex-1 min-w-0">
             <div className={`w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center ${
@@ -385,7 +492,7 @@ export function DashboardServices() {
           </div>
 
           {/* Price + Duration */}
-          <div className="flex items-center gap-4 sm:gap-6 flex-shrink-0">
+          <div className="flex items-center gap-4 flex-shrink-0">
             <div className="text-right">
               <p className={`text-lg font-black ${
                 service.is_active ? 'text-zinc-900 dark:text-zinc-50' : 'text-zinc-400 dark:text-zinc-600'
