@@ -506,10 +506,9 @@ export function WeeklyView({
                             }
                           }}
                           className={`
-                            w-full text-left rounded-xl p-2.5 border-2 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-zinc-500
+                            w-full text-left rounded-xl p-2.5 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-zinc-500
                             ${colors.bg} ${colors.text}
                             hover:opacity-90 hover:scale-[1.02]
-                            ${isGrouped ? 'ring-2 ' + colors.ring : ''}
                           `}
                         >
                           <div className="flex items-start justify-between gap-2">
@@ -686,12 +685,10 @@ export function WeeklyView({
                             role="button"
                             tabIndex={0}
                             className={`
-                              absolute rounded-xl px-2 py-1.5 text-xs border-2 transition-all duration-200
+                              absolute rounded-xl px-2 py-1.5 text-xs transition-all duration-200
                               cursor-pointer focus:outline-none focus:ring-2 focus:ring-zinc-500
                               ${colors.bg} ${colors.text}
-                              ${isSelected ? 'ring-2 ring-offset-1 ' + colors.ring : ''}
                               hover:opacity-90 hover:scale-[1.02]
-                              ${isGrouped ? 'ring-2 ' + colors.ring : ''}
                               z-10 pointer-events-auto
                             `}
                             style={{

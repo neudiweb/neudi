@@ -18,51 +18,51 @@ const DAY_NAMES_SHORT = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 const STATUS_COLORS: Record<string, { light: string; dark: string; bg: string; darkBg: string }> = {
   confirmed: {
     light: 'text-blue-700',
-    dark: 'text-blue-300',
+    dark: 'text-blue-100',
     bg: 'bg-blue-100',
-    darkBg: 'bg-blue-950',
+    darkBg: 'bg-blue-800',
   },
   completed: {
     light: 'text-emerald-700',
-    dark: 'text-emerald-300',
+    dark: 'text-emerald-100',
     bg: 'bg-emerald-100',
-    darkBg: 'bg-emerald-950',
+    darkBg: 'bg-emerald-800',
   },
   pending: {
     light: 'text-amber-700',
-    dark: 'text-amber-300',
+    dark: 'text-amber-100',
     bg: 'bg-amber-100',
-    darkBg: 'bg-amber-950',
+    darkBg: 'bg-amber-800',
   },
   requires_deposit: {
     light: 'text-zinc-700',
-    dark: 'text-zinc-400',
+    dark: 'text-zinc-100',
     bg: 'bg-zinc-100',
-    darkBg: 'bg-zinc-900',
+    darkBg: 'bg-zinc-700',
   },
   cancelled: {
     light: 'text-red-700',
-    dark: 'text-red-400',
+    dark: 'text-red-100',
     bg: 'bg-red-100',
-    darkBg: 'bg-red-950',
+    darkBg: 'bg-red-800',
   },
   rejected: {
     light: 'text-red-700',
-    dark: 'text-red-400',
+    dark: 'text-red-100',
     bg: 'bg-red-100',
-    darkBg: 'bg-red-950',
+    darkBg: 'bg-red-800',
   },
   no_show: {
     light: 'text-zinc-700',
-    dark: 'text-zinc-400',
+    dark: 'text-zinc-100',
     bg: 'bg-zinc-100',
-    darkBg: 'bg-zinc-900',
+    darkBg: 'bg-zinc-700',
   },
   expired: {
     light: 'text-zinc-700',
-    dark: 'text-zinc-400',
+    dark: 'text-zinc-100',
     bg: 'bg-zinc-100',
-    darkBg: 'bg-zinc-900',
+    darkBg: 'bg-zinc-700',
   },
 };
 
@@ -367,8 +367,8 @@ export function TimelineView({
                       handleAppointmentClick(apts[0]);
                     }}
                     className={`
-                      w-full rounded-lg px-1.5 py-0.5 text-center border transition-all duration-200 hover:opacity-90 hover:scale-[1.02]
-                      ${colors.darkBg} ${isDark ? colors.dark : colors.light}
+                      w-full rounded-lg px-1.5 py-0.5 text-center transition-all duration-200 hover:opacity-90 hover:scale-[1.02]
+                      ${isDark ? colors.darkBg : colors.bg} ${isDark ? colors.dark : colors.light}
                     `}
                   >
                     <span className="text-sm leading-none font-mono font-bold">{apts.length}</span>
