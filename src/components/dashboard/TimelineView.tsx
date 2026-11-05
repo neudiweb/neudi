@@ -307,7 +307,7 @@ export function TimelineView({
         onClick={() => handleDayClick(dayInfo.date)}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleDayClick(dayInfo.date); } }}
         className={`
-          relative flex flex-col rounded-xl p-1.5 transition-all duration-200 min-h-[56px] border cursor-pointer focus:outline-none focus:ring-2 focus:ring-zinc-500
+          relative flex flex-col rounded-xl p-1.5 transition-all duration-200 h-full border cursor-pointer focus:outline-none focus:ring-2 focus:ring-zinc-500
           ${isSelected
             ? isDark
               ? 'bg-zinc-700/50 border-zinc-500 shadow-md shadow-zinc-500/10'
@@ -355,7 +355,7 @@ export function TimelineView({
           if (entries.length === 0) return null;
 
           return (
-            <div className="flex flex-col gap-0.5">
+            <div className="flex flex-col gap-0.5 flex-1 justify-center">
               {entries.map(([statusKey, apts]) => {
                 const colors = getAppointmentColor(statusKey);
                 return (
@@ -519,7 +519,7 @@ export function TimelineView({
           </div>
 
           {/* Calendar grid */}
-          <div className="grid grid-cols-7 gap-2">
+          <div className="grid grid-cols-7 gap-2" style={{ gridAutoRows: '110px' }}>
             {monthDays.map(renderDayCell)}
           </div>
         </div>
