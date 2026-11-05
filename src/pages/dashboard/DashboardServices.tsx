@@ -13,6 +13,7 @@ interface ServiceItem {
   description: string;
   durationMinutes: number;
   price: number;
+  is_active: boolean;
 }
 
 const serviceIcons = [
@@ -70,6 +71,7 @@ export function DashboardServices() {
         description: s.description ?? '',
         durationMinutes: s.duration_minutes,
         price: s.price,
+        is_active: s.is_active ?? true,
       })));
     } catch (e) {
       console.error('Error fetching services:', e);
@@ -104,6 +106,20 @@ export function DashboardServices() {
   const refreshServices = async () => {
     if (businessId) {
       await fetchServices(businessId);
+    }
+  };
+
+  const toggleService = async (id: string, currentActive: boolean) => {
+    if (!businessId) return;
+    try {
+      const { error } = await ((supabase as any).from('services').update({ is_active: !currentActive }).eq('id', id));
+      if (error) {
+        console.error('Error toggling service:', error);
+        return;
+      }
+      await refreshServices();
+    } catch (e) {
+      console.error('Error toggling service:', e);
     }
   };
 
@@ -264,40 +280,95 @@ export function DashboardServices() {
         <>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {services.map((service) => (
-              <div key={service.id} className="group rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-xl hover:shadow-zinc-200/40 dark:hover:shadow-zinc-900/40 transition-all duration-300 overflow-hidden">
+              <div key={service.id} className={`group rounded-3xl border transition-all duration-300 overflow-hidden ${
+                service.is_active
+                  ? 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-xl hover:shadow-zinc-200/40 dark:hover:shadow-zinc-900/40'
+                  : 'border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 opacity-60'
+              }`}>
                 {/* Top accent bar */}
-                <div className="h-1.5 bg-gradient-to-r from-zinc-800 via-zinc-500 to-zinc-300 dark:from-zinc-100 dark:via-zinc-300 dark:to-zinc-500" />
+                <div className={`h-1.5 ${
+                  service.is_active
+                    ? 'bg-gradient-to-r from-zinc-800 via-zinc-500 to-zinc-300 dark:from-zinc-100 dark:via-zinc-300 dark:to-zinc-500'
+                    : 'bg-zinc-200 dark:bg-zinc-800'
+                }`} />
                 
                 <div className="p-6">
-                  {/* Icon + Name */}
+                  {/* Icon + Name + Toggle */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3.5">
-                      <div className="w-12 h-12 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-400 group-hover:bg-zinc-100 dark:group-hover:bg-zinc-700 group-hover:border-zinc-200 dark:group-hover:border-zinc-600 transition-all duration-200">
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200 ${
+                        service.is_active
+                          ? 'bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 group-hover:bg-zinc-100 dark:group-hover:bg-zinc-700 group-hover:border-zinc-200 dark:group-hover:border-zinc-600'
+                          : 'bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-400 dark:text-zinc-600'
+                      }`}>
                         {serviceIcons[0]}
                       </div>
                       <div>
-                        <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-50 leading-tight tracking-tight">{service.name}</h3>
+                        <h3 className={`text-base font-semibold leading-tight tracking-tight ${
+                          service.is_active ? 'text-zinc-900 dark:text-zinc-50' : 'text-zinc-400 dark:text-zinc-600'
+                        }`}>{service.name}</h3>
+                        {!service.is_active && (
+                          <span className="inline-block mt-1 text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+                            Desactivado
+                          </span>
+                        )}
                       </div>
                     </div>
+                    {/* Toggle switch */}
+                    <button
+                      onClick={() => toggleService(service.id, service.is_active)}
+                      className={`relative flex-shrink-0 w-12 h-7 rounded-full transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-zinc-900 focus-visible:outline-offset-2 ${
+                        service.is_active
+                          ? 'bg-zinc-900 dark:bg-zinc-100 shadow-sm shadow-zinc-300/30 dark:shadow-zinc-900/50'
+                          : 'bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600'
+                      }`}
+                      aria-label={service.is_active ? 'Desactivar servicio' : 'Activar servicio'}
+                      role="switch"
+                      aria-checked={service.is_active}
+                    >
+                      <span className={`absolute top-1 left-1 w-5 h-5 rounded-full transition-transform duration-300 flex items-center justify-center border-2 ${
+                        service.is_active
+                          ? 'translate-x-5 bg-zinc-900 dark:bg-zinc-100 border-zinc-900 dark:border-zinc-100 text-white dark:text-zinc-900'
+                          : 'bg-zinc-300 dark:bg-zinc-500 border-zinc-300 dark:border-zinc-500 text-white'
+                      }`}>
+                        {service.is_active && (
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                            <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        )}
+                      </span>
+                    </button>
                   </div>
                   
                   {/* Description */}
                   {service.description && (
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-5 line-clamp-2 leading-relaxed">{service.description}</p>
+                    <p className={`text-sm mb-5 line-clamp-2 leading-relaxed ${
+                      service.is_active ? 'text-zinc-500 dark:text-zinc-400' : 'text-zinc-400 dark:text-zinc-600'
+                    }`}>{service.description}</p>
                   )}
                   
                   {/* Price + Duration */}
                   <div className="flex items-end justify-between mb-5">
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1">Precio</p>
-                      <p className="text-2xl font-black text-zinc-900 dark:text-zinc-50 tracking-tight">{formatPrice(service.price)}</p>
+                      <p className={`text-2xl font-black tracking-tight ${
+                        service.is_active ? 'text-zinc-900 dark:text-zinc-50' : 'text-zinc-400 dark:text-zinc-600'
+                      }`}>{formatPrice(service.price)}</p>
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-zinc-400 dark:text-zinc-500">
+                    <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border ${
+                      service.is_active
+                        ? 'bg-zinc-50 dark:bg-zinc-800 border-zinc-100 dark:border-zinc-700'
+                        : 'bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800'
+                    }`}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={
+                        service.is_active ? 'text-zinc-400 dark:text-zinc-500' : 'text-zinc-400 dark:text-zinc-600'
+                      }>
                         <circle cx="12" cy="12" r="9" />
                         <path d="M12 7v5l3 3" strokeLinecap="round" />
                       </svg>
-                      <span className="text-sm font-semibold text-zinc-600 dark:text-zinc-300">{service.durationMinutes} min</span>
+                      <span className={`text-sm font-semibold ${
+                        service.is_active ? 'text-zinc-600 dark:text-zinc-300' : 'text-zinc-400 dark:text-zinc-600'
+                      }`}>{service.durationMinutes} min</span>
                     </div>
                   </div>
                   
@@ -305,7 +376,12 @@ export function DashboardServices() {
                   <div className="flex items-center gap-2 pt-4 border-t border-zinc-100 dark:border-zinc-800">
                     <button
                       onClick={() => openEdit(service)}
-                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-sm font-bold hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors active:scale-[0.97]"
+                      className={`flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors active:scale-[0.97] ${
+                        service.is_active
+                          ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'
+                          : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-600 cursor-not-allowed'
+                      }`}
+                      disabled={!service.is_active}
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -426,7 +502,7 @@ export function DashboardServices() {
                         type="submit"
                         className="px-6 py-2.5 rounded-2xl text-xs font-bold text-white bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 shadow-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all active:scale-[0.97]"
                       >
-                        {editingId ? 'Crear nueva versión' : 'Crear servicio'}
+                        {editingId ? 'Guardar cambios' : 'Crear servicio'}
                       </button>
                     </div>
                   </form>
@@ -474,8 +550,8 @@ export function DashboardServices() {
                     <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V7h14z" strokeLinecap="round" />
                   </svg>
                 </div>
-                <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 mb-2">¿Ocultar servicio?</h3>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">El servicio dejará de aparecer en la lista de servicios disponibles, pero se mantendrá visible en turnos anteriores.</p>
+                <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 mb-2">¿Eliminar servicio?</h3>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Este servicio dejará de estar disponible para nuevos turnos. Los clientes que ya tengan turnos agendados con este servicio los conservarán con el mismo nombre y precio.</p>
                 <div className="flex gap-3">
                   <button
                     type="button"
@@ -489,7 +565,7 @@ export function DashboardServices() {
                     onClick={confirmDelete}
                     className="flex-1 px-4 py-2.5 rounded-2xl text-sm font-bold text-white bg-red-600 hover:bg-red-700 transition-colors active:scale-[0.97]"
                   >
-                    Ocultar
+                    Eliminar
                   </button>
                 </div>
               </div>

@@ -12,7 +12,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: 'http://localhost:5173/neudi',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
@@ -30,9 +30,8 @@ export default defineConfig({
 
   webServer: {
     command: 'npm run dev',
-    url: 'http://localhost:5173',
+    port: 5173,
     reuseExistingServer: true,
-    stdout: 'ignore',
-    stderr: 'pipe',
+    stdout: 'pipe',
   },
 });

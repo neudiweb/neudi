@@ -1,6 +1,8 @@
 import { Workbox } from 'workbox-window'
 
 export function registerPWA (): void {
+  if (import.meta.env.DEV) return
+
   if ('serviceWorker' in navigator) {
     const wb = new Workbox('/neudi/service-worker.js')
 

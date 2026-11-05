@@ -283,14 +283,7 @@ export interface Database {
           p_service_ids?: string[];
           p_date: string;
           p_exclude_appointment_id?: string;
-        };
-        Returns: Array<{ time: string; available: boolean }>;
-      };
-      get_available_slots_for_date: {
-        Args: {
-          p_business_id: string;
-          p_date: string;
-          p_service_ids?: string[] | null;
+          p_total_duration?: number | null;
         };
         Returns: Array<{ time: string; available: boolean }>;
       };
