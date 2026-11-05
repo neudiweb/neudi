@@ -6,6 +6,7 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { EmptyState, LoadingSpinner } from '../../components/common/States';
 import { ErrorModal } from '../../components/ErrorModal';
+import { GuidedTour } from '../../components/dashboard/GuidedTour';
 
 interface ServiceItem {
   id: string;
@@ -36,6 +37,52 @@ export function DashboardServices() {
   const [formDescription, setFormDescription] = React.useState('');
   const [formDuration, setFormDuration] = React.useState(30);
   const [formPrice, setFormPrice] = React.useState(0);
+
+  const [tourOpen, setTourOpen] = React.useState(false);
+  const [tourStep, setTourStep] = React.useState(0);
+  const tourSteps = React.useMemo(() => [
+    {
+      target: '[data-tour="services-header"]',
+      title: 'Bienvenido a Servicios',
+      description: 'Acá gestionás todos los servicios de tu negocio. Podés crear, editar, desactivar o eliminar servicios. Los servicios desactivados no aparecen para que los clientes agenden turnos.',
+    },
+    {
+      target: '[data-tour="new-service-btn"]',
+      title: 'Crear nuevo servicio',
+      description: 'Hacé clic en "Nuevo servicio" para agregar un servicio con nombre, descripción, duración y precio.',
+    },
+    {
+      target: '[data-tour="services-grid"]',
+      title: 'Tarjetas de servicio',
+      description: 'Cada tarjeta muestra el nombre, descripción, precio y duración. El toggle activa o desactiva el servicio: cuando está desactivado, el servicio queda griseado y los clientes no pueden agendarlo.',
+    },
+    {
+      target: '[data-tour="service-edit"]',
+      title: 'Editar servicio',
+      description: 'Modificá los datos de un servicio. Solo disponible para servicios activos. Al editar, la versión anterior se marca como eliminada.',
+    },
+    {
+      target: '[data-tour="service-delete"]',
+      title: 'Eliminar servicio',
+      description: 'Elimina el servicio de forma permanente. Los clientes con turnos agendados conservarán el servicio en sus citas pasadas.',
+    },
+  ], []);
+
+  const tourStepComponent = React.useMemo(() => {
+    if (!tourSteps[tourSteps.length - 1]) return null;
+    return (
+      <div>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed mb-3">
+          Recoré cada sección del panel de servicios. Usá los botones <strong className="text-zinc-700 dark:text-zinc-200">Anterior</strong> y <strong className="text-zinc-700 dark:text-zinc-200">Siguiente</strong> para navegar, o <strong className="text-zinc-700 dark:text-zinc-200">Esc</strong> para cerrar.
+        </p>
+        <div className="flex gap-1.5 flex-wrap">
+          {tourSteps.map((_, i) => (
+            <span key={i} className={`w-2 h-2 rounded-full ${i === tourStep ? 'bg-zinc-900 dark:bg-zinc-100' : 'bg-zinc-200 dark:bg-zinc-700'}`} />
+          ))}
+        </div>
+      </div>
+    );
+  }, [tourSteps.length, tourOpen, tourStep]);
 
   React.useEffect(() => {
     if (!businessSlug) return;
@@ -226,7 +273,7 @@ export function DashboardServices() {
   return (
     <DashboardLayout currentTab="services">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <div data-tour="services-header" className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-zinc-100 to-zinc-300 dark:from-zinc-800 dark:to-zinc-950 flex items-center justify-center shadow-lg shadow-zinc-300/30 dark:shadow-zinc-900/50">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-zinc-900 dark:text-white">
@@ -239,15 +286,29 @@ export function DashboardServices() {
             <p className="text-sm text-zinc-500 dark:text-zinc-400 font-medium">Organizá y gestioná todos los servicios de tu negocio</p>
           </div>
         </div>
-        <button
-          onClick={openNew}
-          className="inline-flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-bold shadow-lg shadow-zinc-300/20 dark:shadow-zinc-900/30 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all duration-200 active:scale-[0.98]"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="M12 5v14M5 12h14" strokeLinecap="round" />
-          </svg>
-          Nuevo servicio
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setTourOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-3 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 text-sm font-semibold hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors active:scale-[0.97]"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" strokeLinecap="round" />
+              <path d="M12 17h.01" strokeLinecap="round" />
+            </svg>
+            Ver tutorial
+          </button>
+          <button
+            data-tour="new-service-btn"
+            onClick={openNew}
+            className="inline-flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-bold shadow-lg shadow-zinc-300/20 dark:shadow-zinc-900/30 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all duration-200 active:scale-[0.98]"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+            </svg>
+            Nuevo servicio
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -278,7 +339,7 @@ export function DashboardServices() {
         </div>
       ) : (
         <>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div data-tour="services-grid" className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {services.map((service) => (
               <div key={service.id} className={`group rounded-3xl border transition-all duration-300 overflow-hidden ${
                 service.is_active
@@ -375,6 +436,7 @@ export function DashboardServices() {
                   {/* Actions */}
                   <div className="flex items-center gap-2 pt-4 border-t border-zinc-100 dark:border-zinc-800">
                     <button
+                      data-tour="service-edit"
                       onClick={() => openEdit(service)}
                       className={`flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors active:scale-[0.97] ${
                         service.is_active
@@ -390,6 +452,7 @@ export function DashboardServices() {
                       Editar
                     </button>
                     <button
+                      data-tour="service-delete"
                       onClick={() => handleDelete(service.id)}
                       className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-500 dark:text-red-400 border border-red-100 dark:border-red-900/50 hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors active:scale-[0.97]"
                     >
@@ -573,6 +636,16 @@ export function DashboardServices() {
           </div>
         </>
       )}
+
+      {/* Guided tour */}
+      <GuidedTour
+        steps={tourSteps}
+        isOpen={tourOpen}
+        currentStep={tourStep}
+        onClose={() => setTourOpen(false)}
+        onStepChange={setTourStep}
+        stepComponent={tourStepComponent}
+      />
     </DashboardLayout>
   );
 }
