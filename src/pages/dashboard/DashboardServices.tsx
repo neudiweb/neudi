@@ -24,6 +24,7 @@ export function DashboardServices() {
   const [businessId, setBusinessId] = React.useState<string | null>(null);
   const [services, setServices] = React.useState<ServiceItem[]>([]);
   const [showForm, setShowForm] = React.useState(false);
+  const [showSuccess, setShowSuccess] = React.useState(false);
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [saveError, setSaveError] = React.useState<string | null>(null);
@@ -121,6 +122,11 @@ export function DashboardServices() {
     setShowForm(true);
   };
 
+  const openNew = () => {
+    resetForm();
+    setShowForm(true);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -153,6 +159,8 @@ export function DashboardServices() {
       setShowForm(false);
       resetForm();
       await refreshServices();
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 1000);
     } catch (e) {
       console.error('Error saving service:', e);
       setSaveError('No se pudo guardar el servicio. Intentá de nuevo.');
@@ -201,7 +209,7 @@ export function DashboardServices() {
           </div>
         </div>
         <button
-          onClick={() => { resetForm(); setShowForm(!showForm); }}
+          onClick={openNew}
           className="inline-flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-bold shadow-lg shadow-zinc-300/20 dark:shadow-zinc-900/30 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all duration-200 active:scale-[0.98]"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -215,7 +223,7 @@ export function DashboardServices() {
         <div className="flex items-center justify-center py-20">
           <LoadingSpinner />
         </div>
-      ) : services.length === 0 && !showForm ? (
+      ) : services.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 gap-6 rounded-3xl border-2 border-dashed border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-900/40">
           <div className="w-20 h-20 rounded-3xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center shadow-sm">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-zinc-400 dark:text-zinc-500">
@@ -228,7 +236,7 @@ export function DashboardServices() {
             <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">Agregá tu primer servicio para empezar a recibir turnos y organizar tu agenda.</p>
           </div>
           <button
-            onClick={() => setShowForm(true)}
+            onClick={openNew}
             className="inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-bold shadow-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all active:scale-[0.98]"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -304,98 +312,112 @@ export function DashboardServices() {
             ))}
           </div>
 
-          {/* Form */}
+          {/* Form Modal */}
           {showForm && (
-            <div className="mt-8 rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xl shadow-zinc-200/30 dark:shadow-zinc-900/30 overflow-hidden">
-              {/* Form header */}
-              <div className="px-8 py-5 border-b border-zinc-100 dark:border-zinc-800 bg-gradient-to-r from-zinc-50 to-zinc-100/50 dark:from-zinc-800/80 dark:to-zinc-900/50">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-zinc-900 dark:bg-zinc-100 flex items-center justify-center shadow-md">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" className="dark:stroke-zinc-900">
-                      {editingId ? (
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                      ) : (
-                        <path d="M12 5v14M5 12h14" strokeLinecap="round" />
-                      )}
-                    </svg>
+            <>
+              <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" onClick={() => { setShowForm(false); resetForm(); }} />
+              <div className="fixed inset-x-4 bottom-8 z-[60] sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-lg sm:rounded-3xl">
+                <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xl overflow-hidden max-h-[85vh] sm:max-h-none overflow-y-auto">
+                  {/* Form header */}
+                  <div className="sticky top-0 px-6 py-4 border-b border-zinc-100 dark:border-zinc-800 bg-gradient-to-r from-zinc-50 to-zinc-100/50 dark:from-zinc-800/80 dark:to-zinc-900/50 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-zinc-900 dark:bg-zinc-100 flex items-center justify-center shadow-md">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" className="dark:stroke-zinc-900">
+                          {editingId ? (
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                          ) : (
+                            <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+                          )}
+                        </svg>
+                      </div>
+                      <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-50 tracking-tight">
+                        {editingId ? 'Editar servicio' : 'Nuevo servicio'}
+                      </h3>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => { setShowForm(false); resetForm(); }}
+                      className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-400 transition-colors"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" />
+                      </svg>
+                    </button>
                   </div>
-                  <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 tracking-tight">
-                    {editingId ? 'Editar servicio' : 'Nuevo servicio'}
-                  </h3>
+                  
+                  <form onSubmit={handleSubmit} className="p-6 space-y-5">
+                    <div>
+                      <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mb-2">Nombre del servicio</label>
+                      <input
+                        type="text"
+                        value={formName}
+                        onChange={(e) => setFormName(e.target.value)}
+                        required
+                        placeholder="Ej: Corte de cabello clásico"
+                        className="w-full px-4 py-3 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-sm font-semibold text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-4 focus:ring-zinc-900/10 dark:focus:ring-zinc-100/10 focus:border-zinc-900 dark:focus:border-zinc-100 transition-all"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mb-2">Descripción</label>
+                      <input
+                        type="text"
+                        value={formDescription}
+                        onChange={(e) => setFormDescription(e.target.value)}
+                        placeholder="Descripción del servicio"
+                        className="w-full px-4 py-3 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-sm font-semibold text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-4 focus:ring-zinc-900/10 dark:focus:ring-zinc-100/10 focus:border-zinc-900 dark:focus:border-zinc-100 transition-all"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mb-2">Duración</label>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            value={formDuration}
+                            onChange={(e) => setFormDuration(Number(e.target.value))}
+                            min={15}
+                            step={15}
+                            className="w-full px-4 py-3 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-sm font-semibold text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-4 focus:ring-zinc-900/10 dark:focus:ring-zinc-100/10 focus:border-zinc-900 dark:focus:border-zinc-100 transition-all pr-14"
+                          />
+                          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-zinc-400 dark:text-zinc-500 pointer-events-none">min</span>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mb-2">Precio</label>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            value={formPrice}
+                            onChange={(e) => setFormPrice(Number(e.target.value))}
+                            min={0}
+                            className="w-full px-4 py-3 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-sm font-semibold text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-4 focus:ring-zinc-900/10 dark:focus:ring-zinc-100/10 focus:border-zinc-900 dark:focus:border-zinc-100 transition-all pr-12"
+                          />
+                          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-zinc-400 dark:text-zinc-500 pointer-events-none">ARS</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-end gap-3 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => { setShowForm(false); resetForm(); }}
+                        className="px-5 py-2.5 rounded-2xl text-xs font-semibold text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 border-2 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors active:scale-[0.97]"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-6 py-2.5 rounded-2xl text-xs font-bold text-white bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 shadow-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all active:scale-[0.97]"
+                      >
+                        {editingId ? 'Guardar cambios' : 'Crear servicio'}
+                      </button>
+                    </div>
+                  </form>
                 </div>
               </div>
-              
-              <form onSubmit={handleSubmit} className="p-8 space-y-6">
-                <div>
-                  <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mb-2">Nombre del servicio</label>
-                  <input
-                    type="text"
-                    value={formName}
-                    onChange={(e) => setFormName(e.target.value)}
-                    required
-                    placeholder="Ej: Corte de cabello clásico"
-                    className="w-full px-5 py-3.5 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-base font-semibold text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-4 focus:ring-zinc-900/10 dark:focus:ring-zinc-100/10 focus:border-zinc-900 dark:focus:border-zinc-100 transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mb-2">Descripción</label>
-                  <input
-                    type="text"
-                    value={formDescription}
-                    onChange={(e) => setFormDescription(e.target.value)}
-                    placeholder="Descripción del servicio"
-                    className="w-full px-5 py-3.5 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-base font-semibold text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-4 focus:ring-zinc-900/10 dark:focus:ring-zinc-100/10 focus:border-zinc-900 dark:focus:border-zinc-100 transition-all"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-5">
-                  <div>
-                    <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mb-2">Duración</label>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        value={formDuration}
-                        onChange={(e) => setFormDuration(Number(e.target.value))}
-                        min={15}
-                        step={15}
-                        className="w-full px-5 py-3.5 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-base font-semibold text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-4 focus:ring-zinc-900/10 dark:focus:ring-zinc-100/10 focus:border-zinc-900 dark:focus:border-zinc-100 transition-all pr-16"
-                      />
-                      <span className="absolute right-5 top-1/2 -translate-y-1/2 text-sm font-semibold text-zinc-400 dark:text-zinc-500 pointer-events-none">min</span>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mb-2">Precio</label>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        value={formPrice}
-                        onChange={(e) => setFormPrice(Number(e.target.value))}
-                        min={0}
-                        className="w-full px-5 py-3.5 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-base font-semibold text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-4 focus:ring-zinc-900/10 dark:focus:ring-zinc-100/10 focus:border-zinc-900 dark:focus:border-zinc-100 transition-all pr-14"
-                      />
-                      <span className="absolute right-5 top-1/2 -translate-y-1/2 text-sm font-semibold text-zinc-400 dark:text-zinc-500 pointer-events-none">ARS</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-end gap-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={cancelForm}
-                    className="px-6 py-3 rounded-2xl text-sm font-semibold text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 border-2 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors active:scale-[0.97]"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-8 py-3 rounded-2xl text-sm font-bold text-white bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 shadow-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all active:scale-[0.97]"
-                  >
-                    {editingId ? 'Guardar cambios' : 'Crear servicio'}
-                  </button>
-                </div>
-              </form>
-            </div>
+            </>
           )}
         </>
       )}
@@ -405,6 +427,24 @@ export function DashboardServices() {
           message={saveError || deleteError || ''}
           onClose={() => { setSaveError(null); setDeleteError(null); }}
         />
+      )}
+
+      {/* Success toast */}
+      {showSuccess && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none px-4">
+          <div className="max-w-sm w-full" style={{ animation: 'toastIn 0.3s ease-out' }}>
+            <div className="bg-white dark:bg-zinc-900 border border-green-200 dark:border-green-800/50 rounded-2xl shadow-xl shadow-green-500/10 dark:shadow-green-500/20 p-6 flex items-center gap-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-md shadow-green-500/20">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Servicio creado con éxito</p>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </DashboardLayout>
   );
