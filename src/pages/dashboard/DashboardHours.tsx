@@ -615,21 +615,19 @@ export function DashboardHours() {
         </div>
       )}
 
-      {/* Save button - always visible */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-lg border-t border-zinc-200 dark:border-zinc-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-end">
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-3.5 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-bold shadow-lg shadow-zinc-300/20 dark:shadow-zinc-900/30 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed min-w-[200px]"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
-              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-              <path d="M17 21v-8H7v8M7 3v5h8" />
-            </svg>
-            {saving ? 'Guardando...' : 'Guardar cambios'}
-          </button>
-        </div>
+      {/* Save button - floating */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="inline-flex items-center justify-center gap-3 px-8 py-3.5 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-bold shadow-lg shadow-zinc-300/20 dark:shadow-zinc-900/30 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+            <path d="M17 21v-8H7v8M7 3v5h8" />
+          </svg>
+          {saving ? 'Guardando...' : 'Guardar cambios'}
+        </button>
       </div>
 
       {saveError && <ErrorModal message={saveError} onClose={() => setSaveError(null)} />}
