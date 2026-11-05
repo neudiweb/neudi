@@ -95,6 +95,9 @@ export function DashboardAgenda() {
   const [slotConflict, setSlotConflict] = React.useState<{ occupied: string; endAt: string } | null>(null);
   const [actionError, setActionError] = React.useState<string | null>(null);
 
+  // Success toast for created appointment
+  const [showSuccess, setShowSuccess] = React.useState(false);
+
   // Reschedule modal state
   const [showRescheduleModal, setShowRescheduleModal] = React.useState(false);
   const [rescheduling, setRescheduling] = React.useState(false);
@@ -498,7 +501,11 @@ export function DashboardAgenda() {
       }
 
       refetchAgenda();
-      closeAddModal();
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        closeAddModal();
+      }, 4000);
     } catch (e) {
       console.error('Error creating appointment:', e);
       alert(e instanceof Error ? e.message : 'Error al crear el turno');
@@ -533,6 +540,22 @@ export function DashboardAgenda() {
                 <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" />
               </svg>
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Success toast */}
+      {showSuccess && (
+        <div className="fixed top-4 right-4 z-[100] max-w-sm" style={{ animation: 'toastIn 0.3s ease-out' }}>
+          <div className="bg-white dark:bg-zinc-900 border border-green-200 dark:border-green-800/50 rounded-2xl shadow-xl shadow-green-500/5 dark:shadow-green-500/10 p-5 flex gap-4">
+            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-md shadow-green-500/20">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 6L9 17l-5-5" />
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Turno creado con éxito</p>
+            </div>
           </div>
         </div>
       )}
