@@ -696,13 +696,15 @@ export function DashboardAgenda() {
         </div>
       </div>
 
-<AgendaSummary
-  todayCount={todayCount}
-  weekCount={weekCount}
-  pendingCount={totalPendingCount}
-/>
+{viewMode === 'list' && (
+  <AgendaSummary
+    todayCount={todayCount}
+    weekCount={weekCount}
+    pendingCount={totalPendingCount}
+  />
+)}
 
-<div className="mb-10"></div>
+{viewMode === 'list' && <div className="mb-10"></div>}
 
       {/* Main content */}
       {viewMode === 'timeline' ? (
