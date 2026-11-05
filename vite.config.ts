@@ -19,8 +19,8 @@ export default defineConfig({
         name: 'Neudi — Turnos para tu negocio',
         short_name: 'Neudi',
         description: 'Reservá online de forma simple y rápida para tu negocio',
-        theme_color: '#6366f1',
-        background_color: '#ffffff',
+        theme_color: '#09090b',
+        background_color: '#09090b',
         display: 'standalone',
         icons: [
           {
