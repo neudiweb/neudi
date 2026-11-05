@@ -243,7 +243,7 @@
 
 /* === Global base === */
 *, *::before, *::after { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; background-color: #000000; }
 body {
   margin: 0;
   background-color: var(--color-bg-primary);
@@ -932,4 +932,19 @@ body {
 
 .animate-morph {
   animation: morph 8s ease-in-out infinite;
+}
+
+/* === MIUI / HyperOS navigation bar fix ===
+ * Xiaomi phones show violet navigation bar in PWA standalone mode.
+ * This covers the bottom safe area with black to override the MIUI tint. */
+body::after {
+  content: '';
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: env(safe-area-inset-bottom, 0px);
+  background-color: #000000;
+  z-index: 99999;
+  pointer-events: none;
 }

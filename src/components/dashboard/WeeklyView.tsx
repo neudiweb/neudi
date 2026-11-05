@@ -35,24 +35,24 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; ring: string }> 
     ring: 'ring-amber-300',
   },
   requires_deposit: {
-    bg: 'bg-violet-500',
+    bg: 'bg-zinc-500',
     text: 'text-white',
-    ring: 'ring-violet-300',
+    ring: 'ring-zinc-300',
   },
   cancelled: {
-    bg: 'bg-rose-400',
+    bg: 'bg-zinc-400',
     text: 'text-white',
-    ring: 'ring-rose-300',
+    ring: 'ring-zinc-300',
   },
   rejected: {
-    bg: 'bg-rose-500',
+    bg: 'bg-zinc-500',
     text: 'text-white',
-    ring: 'ring-rose-300',
+    ring: 'ring-zinc-300',
   },
   no_show: {
-    bg: 'bg-pink-500',
+    bg: 'bg-zinc-600',
     text: 'text-white',
-    ring: 'ring-pink-300',
+    ring: 'ring-zinc-400',
   },
   expired: {
     bg: 'bg-slate-400',

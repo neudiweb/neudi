@@ -35,10 +35,10 @@ const STATUS_COLORS: Record<string, { light: string; dark: string; bg: string; d
     darkBg: 'bg-yellow-600',
   },
   requires_deposit: {
-    light: 'text-purple-700',
-    dark: 'text-purple-300',
-    bg: 'bg-purple-500',
-    darkBg: 'bg-purple-600',
+    light: 'text-zinc-700',
+    dark: 'text-zinc-300',
+    bg: 'bg-zinc-500',
+    darkBg: 'bg-zinc-600',
   },
   cancelled: {
     light: 'text-red-700',
@@ -53,16 +53,16 @@ const STATUS_COLORS: Record<string, { light: string; dark: string; bg: string; d
     darkBg: 'bg-red-700',
   },
   no_show: {
-    light: 'text-pink-700',
-    dark: 'text-pink-300',
-    bg: 'bg-pink-500',
-    darkBg: 'bg-pink-600',
+    light: 'text-zinc-700',
+    dark: 'text-zinc-300',
+    bg: 'bg-zinc-500',
+    darkBg: 'bg-zinc-600',
   },
   expired: {
-    light: 'text-pink-700',
-    dark: 'text-pink-300',
-    bg: 'bg-pink-600',
-    darkBg: 'bg-pink-700',
+    light: 'text-zinc-700',
+    dark: 'text-zinc-300',
+    bg: 'bg-zinc-600',
+    darkBg: 'bg-zinc-700',
   },
 };
 
@@ -70,11 +70,11 @@ const STATUS_BORDER_COLORS: Record<string, { light: string; dark: string }> = {
   confirmed: { light: 'border-blue-500/30', dark: 'border-blue-400/30' },
   completed: { light: 'border-green-500/30', dark: 'border-green-400/30' },
   pending: { light: 'border-yellow-500/30', dark: 'border-yellow-400/30' },
-  requires_deposit: { light: 'border-purple-500/30', dark: 'border-purple-400/30' },
+  requires_deposit: { light: 'border-zinc-500/30', dark: 'border-zinc-400/30' },
   cancelled: { light: 'border-red-500/30', dark: 'border-red-400/30' },
   rejected: { light: 'border-red-500/30', dark: 'border-red-400/30' },
-  no_show: { light: 'border-pink-500/30', dark: 'border-pink-400/30' },
-  expired: { light: 'border-pink-500/30', dark: 'border-pink-400/30' },
+  no_show: { light: 'border-zinc-500/30', dark: 'border-zinc-400/30' },
+  expired: { light: 'border-zinc-500/30', dark: 'border-zinc-400/30' },
 };
 
 interface TimelineViewProps {

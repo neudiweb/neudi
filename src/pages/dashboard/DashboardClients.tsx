@@ -15,7 +15,7 @@ interface Client {
 }
 
 const avatarGradients = [
-  'from-violet-500 to-purple-600',
+  'from-zinc-500 to-zinc-600',
   'from-blue-500 to-cyan-500',
   'from-emerald-500 to-teal-500',
   'from-orange-500 to-amber-500',

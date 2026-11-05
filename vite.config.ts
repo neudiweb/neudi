@@ -19,9 +19,10 @@ export default defineConfig({
         name: 'Neudi — Turnos para tu negocio',
         short_name: 'Neudi',
         description: 'Reservá online de forma simple y rápida para tu negocio',
-        theme_color: '#09090b',
-        background_color: '#09090b',
+        theme_color: '#000000',
+        background_color: '#000000',
         display: 'standalone',
+        start_url: '/neudi/',
         icons: [
           {
             src: 'pwa-192x192.png',
@@ -45,6 +46,7 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,txt,woff2}'],
         cleanupOutdatedCaches: true,
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/hvafniqbmwwdcrlxymir\.supabase\.co\/.*/i,

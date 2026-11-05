@@ -3,7 +3,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 const ACCENT_PRESETS = [
   { name: 'Azul', value: 'blue', hex: '#3b82f6' },
   { name: 'Verde', value: 'green', hex: '#22c55e' },
-  { name: 'Violeta', value: 'violet', hex: '#8b5cf6' },
+  { name: 'Morado', value: 'violet', hex: '#7c3aed' },
   { name: 'Rosa', value: 'pink', hex: '#ec4899' },
   { name: 'Naranja', value: 'orange', hex: '#f97316' },
   { name: 'Neutro', value: 'neutral', hex: '#6b7280' },
