@@ -591,6 +591,21 @@ export function WeeklyView({
                   }`}>
                     {dayDate.getDate()}
                   </p>
+                  {count > 0 && (
+                    <span className={`
+                      text-[10px] font-bold px-1.5 py-0.5 rounded-md mt-1.5 inline-block
+                      ${isDark ? 'bg-zinc-800 text-zinc-400' : 'bg-zinc-100 text-zinc-500'}
+                    `}>
+                      {count}
+                    </span>
+                  )}
+                  {isToday && (
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md mt-1 inline-block ${
+                      isDark ? 'bg-zinc-100 text-zinc-900' : 'bg-zinc-900 text-white'
+                    }`}>
+                      HOY
+                    </span>
+                  )}
                 </button>
               );
             })}

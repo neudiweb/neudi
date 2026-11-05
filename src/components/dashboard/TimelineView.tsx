@@ -307,7 +307,7 @@ export function TimelineView({
         onClick={() => handleDayClick(dayInfo.date)}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleDayClick(dayInfo.date); } }}
         className={`
-          relative flex flex-col rounded-xl p-1.5 transition-all duration-200 h-full min-h-[160px] border cursor-pointer focus:outline-none focus:ring-2 focus:ring-zinc-500
+          relative flex flex-col rounded-xl p-1.5 transition-all duration-200 h-full min-h-[200px] border cursor-pointer focus:outline-none focus:ring-2 focus:ring-zinc-500
           ${isSelected
             ? isDark
               ? 'bg-zinc-700/50 border-zinc-500 shadow-md shadow-zinc-500/10'
@@ -319,7 +319,7 @@ export function TimelineView({
         `}
       >
         {/* Day number */}
-        <div className="mb-1">
+        <div className="flex items-center justify-between mb-1">
           <span className={`
             text-xs font-bold w-6 h-6 flex items-center justify-center rounded-lg
             ${isToday
@@ -333,6 +333,14 @@ export function TimelineView({
           `}>
             {dayInfo.day}
           </span>
+          {count > 0 && (
+            <span className={`
+              text-[10px] font-bold px-1.5 py-0.5 rounded-md
+              ${isDark ? 'bg-zinc-700 text-zinc-300' : 'bg-zinc-100 text-zinc-600'}
+            `}>
+              {count}
+            </span>
+          )}
         </div>
 
         {/* Appointment blocks — grouped by status */}
@@ -511,7 +519,7 @@ export function TimelineView({
           </div>
 
           {/* Calendar grid */}
-          <div className="grid grid-cols-7 gap-2" style={{ gridAutoRows: '160px' }}>
+          <div className="grid grid-cols-7 gap-2" style={{ gridAutoRows: '200px' }}>
             {monthDays.map(renderDayCell)}
           </div>
         </div>
