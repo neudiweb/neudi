@@ -307,7 +307,7 @@ export function TimelineView({
         onClick={() => handleDayClick(dayInfo.date)}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleDayClick(dayInfo.date); } }}
         className={`
-          relative flex flex-col rounded-xl p-2 transition-all duration-200 min-h-[100px] border cursor-pointer focus:outline-none focus:ring-2 focus:ring-zinc-500
+          relative flex flex-col rounded-xl p-2 transition-all duration-200 min-h-[80px] border cursor-pointer focus:outline-none focus:ring-2 focus:ring-zinc-500
           ${isSelected
             ? isDark
               ? 'bg-zinc-700/50 border-zinc-500 shadow-md shadow-zinc-500/10'
@@ -343,44 +343,41 @@ export function TimelineView({
           )}
         </div>
 
-        {/* Appointment blocks */}
-        <div className="flex-1 space-y-1 overflow-hidden">
-          {dayAppointments.slice(0, 3).map((apt) => {
-            const colors = getAppointmentColor(apt.status);
-            return (
-              <button
-                key={apt.id}
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleAppointmentClick(apt);
-                }}
-                className={`
-                  w-full text-left rounded-lg px-2 py-1.5 text-xs border transition-all duration-200
-                  ${colors.darkBg} ${isDark ? colors.dark : colors.light}
-                  ${isSelected ? 'ring-1 ring-offset-1 ' + (isDark ? 'ring-zinc-400' : 'ring-zinc-500') : ''}
-                  hover:opacity-90 hover:scale-[1.02]
-                `}
-              >
-                <div className="flex items-center gap-1.5">
-                  <div className={`w-1 h-full rounded-full ${colors.bg} shrink-0`} />
-                  <div className="min-w-0 flex-1">
-                    <div className="font-semibold truncate">{apt.time}</div>
-                    <div className="truncate opacity-80 text-[10px]">{apt.clientName}</div>
-                  </div>
-                </div>
-              </button>
-            );
-          })}
-          {dayAppointments.length > 3 && (
-            <div className={`
-              text-[10px] font-semibold text-center py-0.5 rounded
-              ${isDark ? 'text-zinc-500' : 'text-zinc-400'}
-            `}>
-              +{dayAppointments.length - 3} más
+        {/* Appointment blocks — grouped by status */}
+        {(() => {
+          const grouped: Record<string, AgendaAppointment[]> = {};
+          for (const apt of dayAppointments) {
+            const key = apt.status.toLowerCase().replace(/\s+/g, '_');
+            if (!grouped[key]) grouped[key] = [];
+            grouped[key].push(apt);
+          }
+          const entries = Object.entries(grouped).sort((a, b) => a[0].localeCompare(b[0]));
+          if (entries.length === 0) return null;
+
+          return (
+            <div className="flex flex-wrap gap-1">
+              {entries.map(([statusKey, apts]) => {
+                const colors = getAppointmentColor(statusKey);
+                return (
+                  <button
+                    key={statusKey}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAppointmentClick(apts[0]);
+                    }}
+                    className={`
+                      flex-1 min-w-0 rounded-lg px-1.5 py-1 text-center border transition-all duration-200 hover:opacity-90 hover:scale-[1.02]
+                      ${colors.darkBg} ${isDark ? colors.dark : colors.light}
+                    `}
+                  >
+                    <div className="text-lg leading-none font-black">{apts.length}</div>
+                  </button>
+                );
+              })}
             </div>
-          )}
-        </div>
+          );
+        })()}
 
         {/* Pending indicator */}
         {pending > 0 && !isSelected && (
