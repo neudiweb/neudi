@@ -25,6 +25,7 @@ export function DashboardServices() {
   const [services, setServices] = React.useState<ServiceItem[]>([]);
   const [showForm, setShowForm] = React.useState(false);
   const [showSuccess, setShowSuccess] = React.useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = React.useState<string | null>(null);
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [saveError, setSaveError] = React.useState<string | null>(null);
@@ -168,12 +169,17 @@ export function DashboardServices() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('¿Estás seguro de eliminar este servicio?')) return;
+    setDeleteConfirmId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirmId) return;
     try {
-      const { error: deleteError } = await supabase.from('services').delete().eq('id', id);
+      const { error: deleteError } = await supabase.from('services').delete().eq('id', deleteConfirmId);
       if (deleteError) {
         console.error('Error deleting service:', deleteError);
         setDeleteError('No se pudo eliminar el servicio. Intentá de nuevo.');
+        setDeleteConfirmId(null);
         return;
       }
       await refreshServices();
@@ -181,6 +187,7 @@ export function DashboardServices() {
       console.error('Error deleting service:', e);
       setDeleteError('No se pudo eliminar el servicio. Intentá de nuevo.');
     }
+    setDeleteConfirmId(null);
   };
 
   const cancelForm = () => {
@@ -445,6 +452,42 @@ export function DashboardServices() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Delete confirmation modal */}
+      {deleteConfirmId && (
+        <>
+          <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" onClick={() => setDeleteConfirmId(null)} />
+          <div className="fixed inset-x-4 bottom-8 z-[60] sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-sm">
+            <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xl overflow-hidden">
+              <div className="p-6 text-center">
+                <div className="w-14 h-14 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/50 flex items-center justify-center mx-auto mb-4">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-red-500 dark:text-red-400">
+                    <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V7h14z" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 mb-2">¿Eliminar servicio?</h3>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Esta acción no se puede deshacer.</p>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setDeleteConfirmId(null)}
+                    className="flex-1 px-4 py-2.5 rounded-2xl text-sm font-semibold text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 border-2 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors active:scale-[0.97]"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={confirmDelete}
+                    className="flex-1 px-4 py-2.5 rounded-2xl text-sm font-bold text-white bg-red-600 hover:bg-red-700 transition-colors active:scale-[0.97]"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </DashboardLayout>
   );
