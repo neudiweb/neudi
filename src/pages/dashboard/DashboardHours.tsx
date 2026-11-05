@@ -143,7 +143,7 @@ export function DashboardHours() {
     setDayHours((prev) => {
       const next = new Map(prev);
       const dayData = next.get(jsDay);
-      if (!dayData) return prev;
+      if (!dayData || dayData.ranges.length >= 4) return prev;
 
       const newRange = { ...DEFAULT_RANGE };
       const newRanges = [...dayData.ranges, newRange];
@@ -562,15 +562,24 @@ export function DashboardHours() {
                     ))}
 
                     {/* Add range button */}
-                    <button
-                      onClick={() => addRange(jsDay)}
-                      className="w-full flex items-center justify-center gap-2 py-4 px-4 border-2 border-dashed border-zinc-300 dark:border-zinc-600 rounded-xl text-sm font-semibold text-zinc-600 dark:text-zinc-300 hover:border-zinc-500 dark:hover:border-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50/80 dark:hover:bg-zinc-800/50 transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-zinc-900 focus-visible:outline-offset-2"
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M12 5v14M5 12h14" strokeLinecap="round" />
-                      </svg>
-                      Agregar otra franja horaria
-                    </button>
+                    {dayData.ranges.length < 4 ? (
+                      <button
+                        onClick={() => addRange(jsDay)}
+                        className="w-full flex items-center justify-center gap-2 py-4 px-4 border-2 border-dashed border-zinc-300 dark:border-zinc-600 rounded-xl text-sm font-semibold text-zinc-600 dark:text-zinc-300 hover:border-zinc-500 dark:hover:border-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50/80 dark:hover:bg-zinc-800/50 transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-zinc-900 focus-visible:outline-offset-2"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+                        </svg>
+                        Agregar otra franja horaria
+                      </button>
+                    ) : (
+                      <div className="w-full flex items-center justify-center gap-2 py-4 px-4 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl text-xs font-semibold text-zinc-400 dark:text-zinc-600">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+                        </svg>
+                        Máximo 4 franjas alcanzado
+                      </div>
+                    )}
 
                     {/* Validation errors */}
                     {hasErrors && (
