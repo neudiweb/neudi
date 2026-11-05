@@ -39,7 +39,6 @@ export function DashboardServices() {
   const [formPrice, setFormPrice] = React.useState(0);
 
   const [tourOpen, setTourOpen] = React.useState(false);
-  const [tourStep, setTourStep] = React.useState(0);
   const tourSteps = React.useMemo(() => [
     {
       target: '[data-tour="services-header"]',
@@ -67,22 +66,6 @@ export function DashboardServices() {
       description: 'Elimina el servicio de forma permanente. Los clientes con turnos agendados conservarán el servicio en sus citas pasadas.',
     },
   ], []);
-
-  const tourStepComponent = React.useMemo(() => {
-    if (!tourSteps[tourSteps.length - 1]) return null;
-    return (
-      <div>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed mb-3">
-          Recoré cada sección del panel de servicios. Usá los botones <strong className="text-zinc-700 dark:text-zinc-200">Anterior</strong> y <strong className="text-zinc-700 dark:text-zinc-200">Siguiente</strong> para navegar, o <strong className="text-zinc-700 dark:text-zinc-200">Esc</strong> para cerrar.
-        </p>
-        <div className="flex gap-1.5 flex-wrap">
-          {tourSteps.map((_, i) => (
-            <span key={i} className={`w-2 h-2 rounded-full ${i === tourStep ? 'bg-zinc-900 dark:bg-zinc-100' : 'bg-zinc-200 dark:bg-zinc-700'}`} />
-          ))}
-        </div>
-      </div>
-    );
-  }, [tourSteps.length, tourOpen, tourStep]);
 
   React.useEffect(() => {
     if (!businessSlug) return;
@@ -641,10 +624,7 @@ export function DashboardServices() {
       <GuidedTour
         steps={tourSteps}
         isOpen={tourOpen}
-        currentStep={tourStep}
         onClose={() => setTourOpen(false)}
-        onStepChange={setTourStep}
-        stepComponent={tourStepComponent}
       />
     </DashboardLayout>
   );
