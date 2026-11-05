@@ -307,7 +307,7 @@ export function TimelineView({
         onClick={() => handleDayClick(dayInfo.date)}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleDayClick(dayInfo.date); } }}
         className={`
-          relative flex flex-col rounded-xl p-1.5 transition-all duration-200 h-full border cursor-pointer focus:outline-none focus:ring-2 focus:ring-zinc-500
+          relative flex flex-col rounded-xl p-1.5 transition-all duration-200 h-full min-h-[200px] border cursor-pointer focus:outline-none focus:ring-2 focus:ring-zinc-500
           ${isSelected
             ? isDark
               ? 'bg-zinc-700/50 border-zinc-500 shadow-md shadow-zinc-500/10'
@@ -519,7 +519,7 @@ export function TimelineView({
           </div>
 
           {/* Calendar grid */}
-          <div className="grid grid-cols-7 gap-2" style={{ gridAutoRows: '110px' }}>
+          <div className="grid grid-cols-7 gap-2" style={{ gridAutoRows: '200px' }}>
             {monthDays.map(renderDayCell)}
           </div>
         </div>
