@@ -20,44 +20,44 @@ const DAY_NAMES_FULL = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'S
 // Professional color palette: softer backgrounds with white text for contrast
 const STATUS_COLORS: Record<string, { bg: string; text: string; ring: string }> = {
   confirmed: {
-    bg: 'bg-indigo-200 dark:bg-indigo-900',
+    bg: 'bg-indigo-300 dark:bg-indigo-900',
     text: 'text-indigo-900 dark:text-indigo-100',
-    ring: 'ring-indigo-200 dark:ring-indigo-800',
+    ring: 'ring-indigo-300 dark:ring-indigo-800',
   },
   completed: {
-    bg: 'bg-emerald-200 dark:bg-emerald-900',
+    bg: 'bg-emerald-300 dark:bg-emerald-900',
     text: 'text-emerald-900 dark:text-emerald-100',
-    ring: 'ring-emerald-200 dark:ring-emerald-800',
+    ring: 'ring-emerald-300 dark:ring-emerald-800',
   },
   pending: {
-    bg: 'bg-amber-200 dark:bg-amber-900',
+    bg: 'bg-amber-300 dark:bg-amber-900',
     text: 'text-amber-900 dark:text-amber-100',
-    ring: 'ring-amber-200 dark:ring-amber-800',
+    ring: 'ring-amber-300 dark:ring-amber-800',
   },
   requires_deposit: {
-    bg: 'bg-zinc-200 dark:bg-zinc-800',
+    bg: 'bg-zinc-300 dark:bg-zinc-800',
     text: 'text-zinc-900 dark:text-zinc-100',
-    ring: 'ring-zinc-200 dark:ring-zinc-700',
+    ring: 'ring-zinc-300 dark:ring-zinc-700',
   },
   cancelled: {
-    bg: 'bg-zinc-200 dark:bg-zinc-800',
+    bg: 'bg-zinc-300 dark:bg-zinc-800',
     text: 'text-zinc-900 dark:text-zinc-100',
-    ring: 'ring-zinc-200 dark:ring-zinc-700',
+    ring: 'ring-zinc-300 dark:ring-zinc-700',
   },
   rejected: {
-    bg: 'bg-zinc-200 dark:bg-zinc-800',
+    bg: 'bg-zinc-300 dark:bg-zinc-800',
     text: 'text-zinc-900 dark:text-zinc-100',
-    ring: 'ring-zinc-200 dark:ring-zinc-700',
+    ring: 'ring-zinc-300 dark:ring-zinc-700',
   },
   no_show: {
-    bg: 'bg-zinc-200 dark:bg-zinc-800',
+    bg: 'bg-zinc-300 dark:bg-zinc-800',
     text: 'text-zinc-900 dark:text-zinc-100',
-    ring: 'ring-zinc-200 dark:ring-zinc-700',
+    ring: 'ring-zinc-300 dark:ring-zinc-700',
   },
   expired: {
-    bg: 'bg-slate-200 dark:bg-slate-800',
+    bg: 'bg-slate-300 dark:bg-slate-800',
     text: 'text-slate-900 dark:text-slate-100',
-    ring: 'ring-slate-200 dark:ring-slate-700',
+    ring: 'ring-slate-300 dark:ring-slate-700',
   },
 };
 
