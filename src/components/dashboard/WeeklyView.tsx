@@ -61,12 +61,12 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; ring: string }> 
   },
 };
 
-const HOURS = Array.from({ length: 14 }, (_, i) => i + 8); // 08:00 to 21:00
+const HOURS = Array.from({ length: 24 }, (_, i) => i); // 00:00 to 23:00
 const HOUR_HEIGHT = 64; // px per hour
 
 function getTimePosition(timeStr: string): number {
   const [hours, minutes] = timeStr.split(':').map(Number);
-  return ((hours - 8) * 60 + minutes) / 60; // hours from 08:00
+  return (hours * 60 + minutes) / 60; // hours from 00:00
 }
 
 function getTimeHeight(durationMinutes: number): number {
@@ -619,7 +619,7 @@ export function WeeklyView({
                   key={hour}
                   className={`
                     grid grid-cols-8 border-b
-                    ${isDark ? 'border-zinc-800/60' : 'border-zinc-100'}
+                    ${isDark ? 'border-zinc-800/60' : 'border-zinc-200'}
                   `}
                   style={{ height: `${HOUR_HEIGHT}px` }}
                 >
@@ -637,7 +637,7 @@ export function WeeklyView({
                       key={date}
                       className={`
                         relative border-l-2
-                        ${isDark ? 'border-zinc-800/40' : 'border-zinc-100'}
+                        ${isDark ? 'border-zinc-800/40' : 'border-zinc-200'}
                       `}
                     />
                   ))}
