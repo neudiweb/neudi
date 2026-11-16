@@ -356,7 +356,7 @@ export function HorizontalView({
     <div className="flex flex-col flex-1 min-h-0">
       {/* ── Horizontal grid view ── */}
       <div className={`flex-1 min-h-0 rounded-2xl border overflow-hidden ${isDark ? 'bg-zinc-950 border-zinc-800' : 'bg-white border-zinc-200'}`}>
-        <div ref={scrollRef} className="flex-1 min-h-0 overflow-auto scrollbar-hide">
+        <div ref={scrollRef} className="flex-1 min-h-0 overflow-x-auto overflow-y-hidden">
           <div className="relative" style={{ width: 80 + 24 * HOUR_WIDTH, height: totalHeight }}>
             {/* ── Hour header (top row) ── */}
             <div

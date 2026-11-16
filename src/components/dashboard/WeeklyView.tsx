@@ -520,7 +520,7 @@ export function WeeklyView({
     return (
       <>
         {dayHeaders}
-        <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide">
+        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-hide">
           <div className="relative" style={{ height: `${HOURS.length * HOUR_HEIGHT}px` }}>
             {hourRows}
             <div

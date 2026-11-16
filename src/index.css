@@ -11,6 +11,18 @@
   display: none;
 }
 
+/* Hide only horizontal scrollbar */
+.scrollbar-hide-x {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide-x::-webkit-scrollbar {
+  height: 0;
+}
+.scrollbar-hide-x::-webkit-scrollbar-thumb {
+  display: none;
+}
+
 /* === Color tokens — accent palettes === */
 :root,
 [data-theme="light"] {
