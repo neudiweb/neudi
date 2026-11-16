@@ -540,8 +540,9 @@ export function WeeklyView({
   return (
     <div className="flex flex-col flex-1 min-h-0">
       {/* ── Header ── */}
-      <div className="flex flex-col items-start sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
-        <div className="flex items-center gap-3 w-full sm:w-auto">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4 mb-6">
+        {/* Navigation row */}
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
           <button
             onClick={() => navigateWeek(-1)}
             className={`
@@ -558,8 +559,8 @@ export function WeeklyView({
             </svg>
           </button>
 
-          <div className="text-center min-w-[120px] flex-1 sm:flex-none">
-            <h2 className="text-base font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+          <div className="text-center min-w-[100px] sm:min-w-[120px] flex-1 sm:flex-none">
+            <h2 className="text-sm sm:text-base font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
               {weekLabel}
             </h2>
             <p className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400 mt-0.5">
@@ -597,7 +598,10 @@ export function WeeklyView({
               Hoy
             </button>
           )}
+        </div>
 
+        {/* Controls row: sub-view toggle + show past switch */}
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
           {/* Sub-view toggle: Vertical / Horizontal */}
           <div className={`
             shrink-0 inline-flex items-center rounded-lg border p-0.5 transition-all duration-200
@@ -606,7 +610,7 @@ export function WeeklyView({
             <button
               onClick={() => setSubViewMode('vertical')}
               className={`
-                flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-semibold transition-all duration-200
+                flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[11px] font-semibold transition-all duration-200
                 ${subViewMode === 'vertical'
                   ? isDark
                     ? 'bg-zinc-100 text-zinc-900 shadow-sm'
@@ -622,12 +626,13 @@ export function WeeklyView({
                 <path d="M16 2v4M8 2v4M3 10h18" />
                 <path d="M3 6h18M3 12h18M3 18h18" />
               </svg>
-              Vertical
+              <span className="hidden sm:inline">Vertical</span>
+              <span className="sm:hidden">Vertical</span>
             </button>
             <button
               onClick={() => setSubViewMode('horizontal')}
               className={`
-                flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-semibold transition-all duration-200
+                flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[11px] font-semibold transition-all duration-200
                 ${subViewMode === 'horizontal'
                   ? isDark
                     ? 'bg-zinc-100 text-zinc-900 shadow-sm'
@@ -644,7 +649,8 @@ export function WeeklyView({
                 <path d="M3 6h18M3 12h18M3 18h18" />
                 <path d="M9 2v20" />
               </svg>
-              Horizontal
+              <span className="hidden sm:inline">Horizontal</span>
+              <span className="sm:hidden">Horizontal</span>
             </button>
           </div>
 
@@ -679,28 +685,28 @@ export function WeeklyView({
             </span>
           </div>
         </div>
+      </div>
 
-        {/* Search */}
-        <div className="relative w-full sm:max-w-xs">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400">
-            <circle cx="11" cy="11" r="8" />
-            <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
-          </svg>
-          <input
-            type="text"
-            placeholder="Buscar..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className={`
-              w-full pl-10 pr-4 py-2.5 rounded-xl text-sm border-2 transition-all duration-200
-              ${isDark
-                ? 'bg-zinc-800 border-zinc-700 text-zinc-100 placeholder-zinc-500 focus:border-zinc-500'
-                : 'bg-white border-zinc-200 text-zinc-900 placeholder-zinc-400 focus:border-zinc-400'
-              }
-              focus:outline-none focus:ring-2 focus:ring-zinc-500/20
-            `}
-          />
-        </div>
+      {/* Search */}
+      <div className="relative w-full sm:max-w-xs mb-5">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400">
+          <circle cx="11" cy="11" r="8" />
+          <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
+        </svg>
+        <input
+          type="text"
+          placeholder="Buscar..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className={`
+            w-full pl-10 pr-4 py-2.5 rounded-xl text-sm border-2 transition-all duration-200
+            ${isDark
+              ? 'bg-zinc-800 border-zinc-700 text-zinc-100 placeholder-zinc-500 focus:border-zinc-500'
+              : 'bg-white border-zinc-200 text-zinc-900 placeholder-zinc-400 focus:border-zinc-400'
+            }
+            focus:outline-none focus:ring-2 focus:ring-zinc-500/20
+          `}
+        />
       </div>
 
       {/* ── Status filters ── */}
@@ -728,115 +734,200 @@ export function WeeklyView({
 
       {/* ── Weekly grid ── */}
       {isMobile ? (
-        /* ── Mobile: horizontal scroll per day ── */
-        <div className="flex gap-3 overflow-x-auto pb-4 -mx-1 px-1">
-          {weekDates.map((date, idx) => {
-            const dayAppointments = getFilteredAppointments(date);
-            const dayDate = new Date(date + 'T00:00:00');
-            const isToday = date === todayStr;
-            const isSelected = date === selectedDate;
-            const overlaps = computeOverlaps(dayAppointments);
+        /* ── Mobile: responsive per sub-view ── */
+        subViewMode === 'horizontal' ? (
+          /* Mobile Horizontal: scroll horizontal */
+          <div className="flex-1 min-h-0 overflow-x-auto overflow-y-hidden">
+            <HorizontalView
+              appointmentsByDate={appointmentsByDate}
+              calendarCountByDate={calendarCountByDate}
+              calendarPendingCountByDate={calendarPendingCountByDate}
+              selectedDate={selectedDate}
+              onDateSelect={onDateSelect}
+              onMonthChange={onMonthChange}
+              filterStatus={filterStatus}
+              searchQuery={searchQuery}
+              setFilterStatus={setFilterStatus}
+              setSearchQuery={setSearchQuery}
+              STATUS_LABELS={STATUS_LABELS}
+              bizTimezone={bizTimezone}
+              selectedAppointment={selectedAppointment}
+              setSelectedAppointment={setSelectedAppointment}
+              todayStr={todayStr}
+              formatMonthLabel={formatMonthLabel}
+              navigateDate={navigateDate}
+              goToday={goToday}
+              activeTheme={activeTheme}
+              showPastAppointments={showPastAppointments}
+            />
+          </div>
+        ) : (
+          /* Mobile Vertical: single day timeline */
+          <div className="flex-1 min-h-0">
+            {(() => {
+              const selIdx = weekDates.indexOf(selectedDate);
+              const dayDate = new Date(selectedDate + 'T00:00:00');
+              const isToday = selectedDate === todayStr;
+              const dayAppointments = getFilteredAppointments(selectedDate);
+              const overlaps = computeOverlaps(dayAppointments);
 
-            return (
-              <div
-                key={date}
-                role="button"
-                tabIndex={0}
-                onClick={() => onDateSelect(date)}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onDateSelect(date); } }}
-                className={`
-                  shrink-0 w-[170px] rounded-2xl border-2 p-3 transition-all duration-200 text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-zinc-500
-                  ${isSelected
-                    ? isDark
-                      ? 'bg-zinc-800 border-zinc-500'
-                      : 'bg-zinc-50 border-zinc-400'
-                    : isDark
-                      ? 'bg-zinc-900/80 border-zinc-800 hover:bg-zinc-800/80'
-                      : 'bg-white border-zinc-200 hover:bg-zinc-50'
-                  }
-                `}
-              >
-                {/* Day header */}
-                <div className="text-center mb-3">
-                  <p className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>
-                    {DAY_NAMES_SHORT[idx]}
-                  </p>
-                  <p className={`text-2xl font-bold mt-0.5 ${
-                    isToday
-                      ? isDark ? 'text-zinc-100' : 'text-zinc-900'
-                      : isDark ? 'text-zinc-300' : 'text-zinc-700'
-                  }`}>
-                    {dayDate.getDate()}
-                  </p>
-                  {isToday && (
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md mt-1.5 inline-block ${
-                      isDark ? 'bg-zinc-100 text-zinc-900' : 'bg-zinc-900 text-white'
-                    }`}>
-                      HOY
-                    </span>
-                  )}
-                </div>
+              return (
+                <>
+                  {/* Day selector */}
+                  <div className="flex items-center justify-between mb-4">
+                    <button
+                      onClick={() => {
+                        const idx = weekDates.indexOf(selectedDate);
+                        if (idx > 0) onDateSelect(weekDates[idx - 1]);
+                      }}
+                      disabled={weekDates.indexOf(selectedDate) === 0}
+                      className={`flex items-center justify-center w-9 h-9 rounded-xl border transition-all duration-200
+                        ${weekDates.indexOf(selectedDate) === 0
+                          ? 'opacity-30 cursor-not-allowed border-zinc-200 dark:border-zinc-700'
+                          : 'hover:scale-105 active:scale-95 border-zinc-200 dark:border-zinc-700'
+                        }`}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </button>
 
-                {/* Appointments with overlap handling */}
-                {dayAppointments.length === 0 ? (
-                  <p className={`text-[11px] text-center py-6 ${isDark ? 'text-zinc-600' : 'text-zinc-300'}`}>
-                    Sin turnos
-                  </p>
-                ) : (
-                  <div className="space-y-2">
-                    {overlaps.map((apt, overlapIdx) => {
-                      const colors = getAppointmentColor(apt.status);
-                      const typedApt = apt as AgendaAppointment & { _colIndex?: number; _colCount?: number };
-                      const isGrouped = typedApt._colCount !== undefined && typedApt._colCount! > 1;
-                      const colCount = typedApt._colCount ?? 1;
+                    <div className="text-center">
+                      <p className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>
+                        {DAY_NAMES_SHORT[selIdx >= 0 ? selIdx : 0]}
+                      </p>
+                      <p className={`text-2xl font-bold ${
+                        isToday
+                          ? isDark ? 'text-zinc-100' : 'text-zinc-900'
+                          : isDark ? 'text-zinc-300' : 'text-zinc-700'
+                      }`}>
+                        {dayDate.getDate()}
+                      </p>
+                      {isToday && (
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md mt-1 inline-block ${
+                          isDark ? 'bg-zinc-100 text-zinc-900' : 'bg-zinc-900 text-white'
+                        }`}>
+                          HOY
+                        </span>
+                      )}
+                    </div>
 
-                      return (
-                        <div
-                          key={`${apt.id}-${overlapIdx}`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAppointmentClick(apt);
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              e.stopPropagation();
-                              e.preventDefault();
-                              handleAppointmentClick(apt);
-                            }
-                          }}
-                          className={`
-                            w-full text-left rounded-xl p-2.5 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-zinc-500
-                            ${colors.bg} ${colors.text}
-                            hover:opacity-90 hover:scale-[1.02]
-                          `}
-                        >
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="min-w-0 flex-1">
-                              <div className="font-bold text-sm">{apt.time}</div>
-                              <div className="truncate text-xs opacity-90 mt-0.5 font-medium">
-                                {apt.clientName}
-                              </div>
-                              {apt.totalDuration > 0 && (
-                                <div className="text-[10px] opacity-75 mt-0.5">
-                                  {apt.totalDuration} min
-                                </div>
-                              )}
-                            </div>
-                            {isGrouped && (
-                              <div className="flex-shrink-0 w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
-                                <span className="text-xs font-bold">{colCount}</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
+                    <button
+                      onClick={() => {
+                        const idx = weekDates.indexOf(selectedDate);
+                        if (idx < weekDates.length - 1) onDateSelect(weekDates[idx + 1]);
+                      }}
+                      disabled={weekDates.indexOf(selectedDate) === weekDates.length - 1}
+                      className={`flex items-center justify-center w-9 h-9 rounded-xl border transition-all duration-200
+                        ${weekDates.indexOf(selectedDate) === weekDates.length - 1
+                          ? 'opacity-30 cursor-not-allowed border-zinc-200 dark:border-zinc-700'
+                          : 'hover:scale-105 active:scale-95 border-zinc-200 dark:border-zinc-700'
+                        }`}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <path d="M9 18l6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </button>
                   </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+
+                  {/* Day timeline */}
+                  <div className="flex-1 min-h-0 flex flex-col">
+                    <div className="flex-1 min-h-0 relative overflow-y-auto scrollbar-hide">
+                      <div className="relative" style={{ height: `${HOURS.length * 48}px` }}>
+                        {/* Time column + grid rows */}
+                        {HOURS.map((hour) => (
+                          <div
+                            key={hour}
+                            className={`
+                              flex border-b
+                              ${isDark ? 'border-zinc-800/60' : 'border-zinc-200'}
+                            `}
+                            style={{ height: '48px' }}
+                          >
+                            {/* Time label */}
+                            <div className={`
+                              w-16 shrink-0 px-2 flex items-center justify-center
+                              text-[11px] font-semibold
+                              ${isDark ? 'text-zinc-500 bg-zinc-950/90' : 'text-zinc-400 bg-white/90'}
+                            `}>
+                              {String(hour).padStart(2, '0')}:00
+                            </div>
+                            {/* Grid cell */}
+                            <div className={`
+                              flex-1 border-l
+                              ${isDark ? 'border-zinc-800/40' : 'border-zinc-200'}
+                            `} />
+                          </div>
+                        ))}
+
+                        {/* Appointments overlay */}
+                        <div className="absolute top-0 left-16 right-0 pointer-events-none" style={{ height: `${HOURS.length * 48}px` }}>
+                          {overlaps.map((apt) => {
+                            const colors = getAppointmentColor(apt.status);
+                            const typedApt = apt as AgendaAppointment & { _colIndex?: number; _colCount?: number };
+                            const colCount = typedApt._colCount ?? 1;
+                            const isGrouped = colCount > 1;
+
+                            const topOffset = getTimePosition(apt.time) * 48;
+                            const height = Math.max(getTimeHeight(apt.totalDuration), 32);
+
+                            return (
+                              <div
+                                key={apt.id}
+                                onClick={() => handleAppointmentClick(apt)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter' || e.key === ' ') {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    handleAppointmentClick(apt);
+                                  }
+                                }}
+                                role="button"
+                                tabIndex={0}
+                                className={`
+                                  absolute rounded-xl px-3 py-2 text-xs transition-all duration-200
+                                  cursor-pointer focus:outline-none focus:ring-2 focus:ring-zinc-500
+                                  ${colors.bg} ${colors.text}
+                                  hover:opacity-90 hover:scale-[1.01]
+                                  z-10 pointer-events-auto
+                                `}
+                                style={{
+                                  left: '0px',
+                                  right: '0px',
+                                  top: `${Math.max(topOffset, 2)}px`,
+                                  height: `${height}px`,
+                                }}
+                              >
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="min-w-0 flex-1">
+                                    <div className="font-bold text-xs">{apt.time}</div>
+                                    <div className="truncate text-[11px] opacity-90 mt-0.5 font-medium">
+                                      {apt.clientName}
+                                    </div>
+                                    {apt.totalDuration > 0 && (
+                                      <div className="text-[10px] opacity-75 mt-0.5">
+                                        {apt.totalDuration} min
+                                      </div>
+                                    )}
+                                  </div>
+                                  {isGrouped && (
+                                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+                                      <span className="text-xs font-bold">{colCount}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        )
       ) : (
         /* ── Desktop: full grid with overlap columns ── */
         getDesktopContent()
