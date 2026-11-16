@@ -23,6 +23,7 @@ import { MonthlyCalendar } from '../../components/dashboard/MonthlyCalendar';
 import { AgendaSummary } from '../../components/dashboard/AgendaSummary';
 import { TimelineView } from '../../components/dashboard/TimelineView';
 import { WeeklyView } from '../../components/dashboard/WeeklyView';
+import { HorizontalView } from '../../components/dashboard/HorizontalView';
 import { useAgendaData } from '../../hooks/useAgendaData';
 import { updateAppointmentStatusLower, rescheduleAppointment, getAvailableSlots } from '../../services/appointmentService';
 
@@ -61,7 +62,7 @@ export function DashboardAgenda() {
   } | null>(null);
   const [filterStatus, setFilterStatus] = React.useState<string>('all');
   const [searchQuery, setSearchQuery] = React.useState('');
-  const [viewMode, setViewMode] = React.useState<'list' | 'timeline' | 'weekly'>('list');
+  const [viewMode, setViewMode] = React.useState<'list' | 'timeline' | 'weekly' | 'horizontal'>('list');
   const [showPastAppointments, setShowPastAppointments] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
 
@@ -651,9 +652,31 @@ export function DashboardAgenda() {
               </svg>
               Semanal
             </button>
+            <button
+              onClick={() => setViewMode('horizontal')}
+              className={`
+                flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 flex-1 sm:flex-none justify-center
+                ${viewMode === 'horizontal'
+                  ? activeTheme === 'dark'
+                    ? 'bg-zinc-100 text-zinc-900 shadow-sm'
+                    : 'bg-zinc-900 text-white shadow-sm'
+                  : activeTheme === 'dark'
+                    ? 'text-zinc-400 hover:text-zinc-200'
+                    : 'text-zinc-500 hover:text-zinc-900'
+                }
+              `}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <path d="M16 2v4M8 2v4M3 10h18" />
+                <path d="M3 6h18M3 12h18M3 18h18" />
+                <path d="M9 2v20" />
+              </svg>
+              Horizontal
+            </button>
           </div>
-          {/* Show past appointments toggle (weekly view only) */}
-          {viewMode === 'weekly' && (
+          {/* Show past appointments toggle (weekly & horizontal views only) */}
+          {(viewMode === 'weekly' || viewMode === 'horizontal') && (
             <div className={`
               sm:w-auto mx-auto inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl border transition-all duration-200
               ${activeTheme === 'dark' ? 'bg-zinc-900 border-zinc-700' : 'bg-white border-zinc-200'}
@@ -731,6 +754,29 @@ export function DashboardAgenda() {
         />
       ) : viewMode === 'weekly' ? (
         <WeeklyView
+          appointmentsByDate={appointmentsByDate}
+          calendarCountByDate={calendarCountByDate}
+          calendarPendingCountByDate={calendarPendingCountByDate}
+          selectedDate={selectedDate}
+          onDateSelect={handleDateSelect}
+          onMonthChange={handleMonthChange}
+          filterStatus={filterStatus}
+          searchQuery={searchQuery}
+          setFilterStatus={setFilterStatus}
+          setSearchQuery={setSearchQuery}
+          STATUS_LABELS={STATUS_LABELS}
+          bizTimezone={bizTimezone}
+          selectedAppointment={selectedAppointment}
+          setSelectedAppointment={setSelectedAppointment}
+          todayStr={todayStr}
+          formatMonthLabel={formatMonthLabel}
+          navigateDate={navigateDate}
+          goToday={goToday}
+          activeTheme={activeTheme}
+          showPastAppointments={showPastAppointments}
+        />
+      ) : viewMode === 'horizontal' ? (
+        <HorizontalView
           appointmentsByDate={appointmentsByDate}
           calendarCountByDate={calendarCountByDate}
           calendarPendingCountByDate={calendarPendingCountByDate}

@@ -611,7 +611,7 @@ export function WeeklyView({
           </div>
 
           {/* Time grid + appointments */}
-          <div className="flex-1 min-h-0 overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide">
             <div className="relative" style={{ height: `${HOURS.length * HOUR_HEIGHT}px` }}>
               {/* Hour rows */}
               {HOURS.map((hour) => (
@@ -698,16 +698,20 @@ export function WeeklyView({
                               height: `${height}px`,
                             }}
                           >
-                            <div className="font-bold text-xs truncate">{apt.time}</div>
-                            {height > 35 && (
-                              <div className="truncate text-[10px] opacity-90 font-medium mt-0.5">
-                                {apt.clientName}
-                              </div>
-                            )}
-                            {isGrouped && height > 28 && (
-                              <div className="text-[10px] opacity-75 font-semibold mt-0.5">
-                                +{colCount - 1} más
-                              </div>
+                            {slotWidth > 40 && (
+                              <>
+                                <div className="font-bold text-xs truncate">{apt.time}</div>
+                                {height > 35 && (
+                                  <div className="truncate text-[10px] opacity-90 font-medium mt-0.5">
+                                    {apt.clientName}
+                                  </div>
+                                )}
+                                {isGrouped && height > 28 && (
+                                  <div className="text-[10px] opacity-75 font-semibold mt-0.5">
+                                    +{colCount - 1} más
+                                  </div>
+                                )}
+                              </>
                             )}
                           </div>
                         );
