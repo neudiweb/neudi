@@ -776,16 +776,9 @@ export function WeeklyView({
                   {/* Day selector */}
                   <div className="flex items-center justify-between mb-4">
                     <button
-                      onClick={() => {
-                        const idx = weekDates.indexOf(selectedDate);
-                        if (idx > 0) onDateSelect(weekDates[idx - 1]);
-                      }}
-                      disabled={weekDates.indexOf(selectedDate) === 0}
-                      className={`flex items-center justify-center w-9 h-9 rounded-xl border transition-all duration-200
-                        ${weekDates.indexOf(selectedDate) === 0
-                          ? 'opacity-30 cursor-not-allowed border-zinc-200 dark:border-zinc-700'
-                          : 'hover:scale-105 active:scale-95 border-zinc-200 dark:border-zinc-700'
-                        }`}
+                      onClick={() => navigateDate(-1)}
+                      className={`flex items-center justify-center w-9 h-9 rounded-xl border transition-all duration-200 hover:scale-105 active:scale-95
+                        ${isDark ? 'border-zinc-700 bg-zinc-800 text-zinc-300' : 'border-zinc-200 bg-white text-zinc-600'}`}
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                         <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
@@ -813,16 +806,9 @@ export function WeeklyView({
                     </div>
 
                     <button
-                      onClick={() => {
-                        const idx = weekDates.indexOf(selectedDate);
-                        if (idx < weekDates.length - 1) onDateSelect(weekDates[idx + 1]);
-                      }}
-                      disabled={weekDates.indexOf(selectedDate) === weekDates.length - 1}
-                      className={`flex items-center justify-center w-9 h-9 rounded-xl border transition-all duration-200
-                        ${weekDates.indexOf(selectedDate) === weekDates.length - 1
-                          ? 'opacity-30 cursor-not-allowed border-zinc-200 dark:border-zinc-700'
-                          : 'hover:scale-105 active:scale-95 border-zinc-200 dark:border-zinc-700'
-                        }`}
+                      onClick={() => navigateDate(1)}
+                      className={`flex items-center justify-center w-9 h-9 rounded-xl border transition-all duration-200 hover:scale-105 active:scale-95
+                        ${isDark ? 'border-zinc-700 bg-zinc-800 text-zinc-300' : 'border-zinc-200 bg-white text-zinc-600'}`}
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                         <path d="M9 18l6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
@@ -865,11 +851,14 @@ export function WeeklyView({
                           {overlaps.map((apt) => {
                             const colors = getAppointmentColor(apt.status);
                             const typedApt = apt as AgendaAppointment & { _colIndex?: number; _colCount?: number };
+                            const colIndex = typedApt._colIndex ?? 0;
                             const colCount = typedApt._colCount ?? 1;
                             const isGrouped = colCount > 1;
 
                             const topOffset = getTimePosition(apt.time) * 48;
-                            const height = Math.max(getTimeHeight(apt.totalDuration), 32);
+                            const height = Math.max((apt.totalDuration / 60) * 48, 32);
+                            const slotWidth = 100 / colCount;
+                            const leftOffset = colIndex * slotWidth;
 
                             return (
                               <div
@@ -885,37 +874,42 @@ export function WeeklyView({
                                 role="button"
                                 tabIndex={0}
                                 className={`
-                                  absolute rounded-xl px-3 py-2 text-xs transition-all duration-200
+                                  absolute rounded-xl px-2 py-1.5 text-xs transition-all duration-200
                                   cursor-pointer focus:outline-none focus:ring-2 focus:ring-zinc-500
                                   ${colors.bg} ${colors.text}
                                   hover:opacity-90 hover:scale-[1.01]
                                   z-10 pointer-events-auto
                                 `}
                                 style={{
-                                  left: '0px',
-                                  right: '0px',
+                                  left: `calc(${leftOffset}% + 1px)`,
+                                  right: '1px',
+                                  width: `calc(${slotWidth}% - 2px)`,
                                   top: `${Math.max(topOffset, 2)}px`,
                                   height: `${height}px`,
                                 }}
                               >
-                                <div className="flex items-start justify-between gap-2">
-                                  <div className="min-w-0 flex-1">
-                                    <div className="font-bold text-xs">{apt.time}</div>
-                                    <div className="truncate text-[11px] opacity-90 mt-0.5 font-medium">
-                                      {apt.clientName}
+                                {slotWidth > 20 && (
+                                  <div className="flex items-start justify-between gap-1">
+                                    <div className="min-w-0 flex-1">
+                                      <div className="font-bold text-[10px] leading-tight">{apt.time}</div>
+                                      {height > 30 && (
+                                        <div className="truncate text-[9px] opacity-90 mt-0.5 leading-tight">
+                                          {apt.clientName}
+                                        </div>
+                                      )}
+                                      {height > 40 && apt.totalDuration > 0 && (
+                                        <div className="text-[8px] opacity-75 mt-0.5 leading-tight">
+                                          {apt.totalDuration} min
+                                        </div>
+                                      )}
                                     </div>
-                                    {apt.totalDuration > 0 && (
-                                      <div className="text-[10px] opacity-75 mt-0.5">
-                                        {apt.totalDuration} min
+                                    {isGrouped && (
+                                      <div className="flex-shrink-0 w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                                        <span className="text-[10px] font-bold">{colCount}</span>
                                       </div>
                                     )}
                                   </div>
-                                  {isGrouped && (
-                                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
-                                      <span className="text-xs font-bold">{colCount}</span>
-                                    </div>
-                                  )}
-                                </div>
+                                )}
                               </div>
                             );
                           })}
