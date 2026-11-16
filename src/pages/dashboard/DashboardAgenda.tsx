@@ -62,7 +62,7 @@ export function DashboardAgenda() {
   } | null>(null);
   const [filterStatus, setFilterStatus] = React.useState<string>('all');
   const [searchQuery, setSearchQuery] = React.useState('');
-  const [viewMode, setViewMode] = React.useState<'list' | 'timeline' | 'weekly' | 'horizontal'>('list');
+  const [viewMode, setViewMode] = React.useState<'list' | 'timeline' | 'weekly'>('list');
   const [showPastAppointments, setShowPastAppointments] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
 
@@ -652,61 +652,7 @@ export function DashboardAgenda() {
               </svg>
               Semanal
             </button>
-            <button
-              onClick={() => setViewMode('horizontal')}
-              className={`
-                flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 flex-1 sm:flex-none justify-center
-                ${viewMode === 'horizontal'
-                  ? activeTheme === 'dark'
-                    ? 'bg-zinc-100 text-zinc-900 shadow-sm'
-                    : 'bg-zinc-900 text-white shadow-sm'
-                  : activeTheme === 'dark'
-                    ? 'text-zinc-400 hover:text-zinc-200'
-                    : 'text-zinc-500 hover:text-zinc-900'
-                }
-              `}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" />
-                <path d="M16 2v4M8 2v4M3 10h18" />
-                <path d="M3 6h18M3 12h18M3 18h18" />
-                <path d="M9 2v20" />
-              </svg>
-              Horizontal
-            </button>
           </div>
-          {/* Show past appointments toggle (weekly & horizontal views only) */}
-          {(viewMode === 'weekly' || viewMode === 'horizontal') && (
-            <div className={`
-              sm:w-auto mx-auto inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl border transition-all duration-200
-              ${activeTheme === 'dark' ? 'bg-zinc-900 border-zinc-700' : 'bg-white border-zinc-200'}
-            `}>
-              <button
-                onClick={() => setShowPastAppointments(!showPastAppointments)}
-                className={`
-                  relative w-9 h-5 rounded-full transition-all duration-200 shrink-0
-                  ${showPastAppointments
-                    ? activeTheme === 'dark' ? 'bg-zinc-100' : 'bg-zinc-900'
-                    : activeTheme === 'dark' ? 'bg-zinc-700' : 'bg-zinc-300'
-                  }
-                `}
-              >
-                <span
-                  className={`
-                    absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-all duration-200 shadow-sm
-                    ${showPastAppointments ? 'translate-x-4' : 'translate-x-0'
-                  }`}
-                />
-              </button>
-              <span className={`text-[11px] font-semibold whitespace-nowrap ${
-                showPastAppointments
-                  ? 'text-zinc-900 dark:text-zinc-100'
-                  : 'text-zinc-500 dark:text-zinc-400'
-              }`}>
-                {showPastAppointments ? 'Mostrar todos' : 'Solo futuros'}
-              </span>
-            </div>
-          )}
           <button
             onClick={openAddModal}
             className="sm:w-auto mx-auto shrink-0 inline-flex items-center justify-center gap-2.5 px-5 py-3 rounded-2xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-semibold shadow-lg shadow-zinc-300/20 dark:shadow-zinc-900/30 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all duration-200 active:scale-[0.98]"
@@ -774,29 +720,7 @@ export function DashboardAgenda() {
           goToday={goToday}
           activeTheme={activeTheme}
           showPastAppointments={showPastAppointments}
-        />
-      ) : viewMode === 'horizontal' ? (
-        <HorizontalView
-          appointmentsByDate={appointmentsByDate}
-          calendarCountByDate={calendarCountByDate}
-          calendarPendingCountByDate={calendarPendingCountByDate}
-          selectedDate={selectedDate}
-          onDateSelect={handleDateSelect}
-          onMonthChange={handleMonthChange}
-          filterStatus={filterStatus}
-          searchQuery={searchQuery}
-          setFilterStatus={setFilterStatus}
-          setSearchQuery={setSearchQuery}
-          STATUS_LABELS={STATUS_LABELS}
-          bizTimezone={bizTimezone}
-          selectedAppointment={selectedAppointment}
-          setSelectedAppointment={setSelectedAppointment}
-          todayStr={todayStr}
-          formatMonthLabel={formatMonthLabel}
-          navigateDate={navigateDate}
-          goToday={goToday}
-          activeTheme={activeTheme}
-          showPastAppointments={showPastAppointments}
+          setShowPastAppointments={setShowPastAppointments}
         />
       ) : (
         <div className="flex flex-col lg:flex-row gap-6">

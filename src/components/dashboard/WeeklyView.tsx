@@ -8,6 +8,7 @@ import {
   getTodayInTimezone,
 } from '../../utils/helpers';
 import type { AppointmentStatusLower } from '../../types/index';
+import { HorizontalView } from './HorizontalView';
 
 const MONTH_NAMES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -177,6 +178,7 @@ interface WeeklyViewProps {
   goToday: () => void;
   activeTheme: 'light' | 'dark';
   showPastAppointments: boolean;
+  setShowPastAppointments: (val: boolean) => void;
 }
 
 export function WeeklyView({
@@ -185,6 +187,7 @@ export function WeeklyView({
   calendarPendingCountByDate,
   selectedDate,
   onDateSelect,
+  onMonthChange,
   filterStatus,
   searchQuery,
   setFilterStatus,
@@ -194,13 +197,16 @@ export function WeeklyView({
   selectedAppointment,
   setSelectedAppointment,
   todayStr,
+  formatMonthLabel,
   navigateDate,
   goToday,
   activeTheme,
   showPastAppointments,
+  setShowPastAppointments,
 }: WeeklyViewProps) {
   const isDark = activeTheme === 'dark';
   const [isMobile, setIsMobile] = React.useState(() => window.innerWidth < 768);
+  const [subViewMode, setSubViewMode] = React.useState<'vertical' | 'horizontal'>('vertical');
 
   React.useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -318,6 +324,218 @@ export function WeeklyView({
     [navigateDate]
   );
 
+  // ─── Get desktop view content ───
+  const getDesktopContent = () => {
+    if (subViewMode === 'horizontal') {
+      return (
+        <HorizontalView
+          appointmentsByDate={appointmentsByDate}
+          calendarCountByDate={calendarCountByDate}
+          calendarPendingCountByDate={calendarPendingCountByDate}
+          selectedDate={selectedDate}
+          onDateSelect={onDateSelect}
+          onMonthChange={onMonthChange}
+          filterStatus={filterStatus}
+          searchQuery={searchQuery}
+          setFilterStatus={setFilterStatus}
+          setSearchQuery={setSearchQuery}
+          STATUS_LABELS={STATUS_LABELS}
+          bizTimezone={bizTimezone}
+          selectedAppointment={selectedAppointment}
+          setSelectedAppointment={setSelectedAppointment}
+          todayStr={todayStr}
+          formatMonthLabel={formatMonthLabel}
+          navigateDate={navigateDate}
+          goToday={goToday}
+          activeTheme={activeTheme}
+          showPastAppointments={showPastAppointments}
+        />
+      );
+    }
+
+    // Vertical view - day headers
+    const dayHeaders = (
+      <div className={`
+        grid grid-cols-8 border-b-2
+        ${isDark ? 'border-zinc-800' : 'border-zinc-200'}
+      `}>
+        <div className={`
+          px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-center
+          ${isDark ? 'text-zinc-500 bg-zinc-800/60' : 'text-zinc-400 bg-zinc-50'}
+        `}>
+          Hora
+        </div>
+
+        {weekDates.map((date, idx) => {
+          const dayDate = new Date(date + 'T00:00:00');
+          const isToday = date === todayStr;
+          const isSelected = date === selectedDate;
+          const count = calendarCountByDate[date] || 0;
+
+          return (
+            <button
+              key={date}
+              type="button"
+              onClick={() => onDateSelect(date)}
+              className={`
+                px-3 py-3 text-center transition-all duration-200 border-l-2
+                ${isSelected
+                  ? isDark
+                    ? 'bg-zinc-800 border-zinc-500'
+                    : 'bg-zinc-50 border-zinc-400'
+                  : ''
+                }
+              `}
+            >
+              <p className={`text-[11px] font-bold uppercase tracking-wider ${
+                isDark ? 'text-zinc-500' : 'text-zinc-400'
+              }`}>
+                {DAY_NAMES_SHORT[idx]}
+              </p>
+              <p className={`text-xl font-bold mt-1 ${
+                isToday
+                  ? isDark ? 'text-zinc-100' : 'text-zinc-900'
+                  : isDark ? 'text-zinc-300' : 'text-zinc-700'
+              }`}>
+                {dayDate.getDate()}
+              </p>
+              {count > 0 && (
+                <span className={`
+                  text-[10px] font-bold px-1.5 py-0.5 rounded-md mt-1.5 inline-block
+                  ${isDark ? 'bg-zinc-800 text-zinc-400' : 'bg-zinc-100 text-zinc-500'}
+                `}>
+                  {count}
+                </span>
+              )}
+              {isToday && (
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md mt-1 inline-block ${
+                  isDark ? 'bg-zinc-100 text-zinc-900' : 'bg-zinc-900 text-white'
+                }`}>
+                  HOY
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    );
+
+    // Vertical view - time grid
+    const hourRows = HOURS.map((hour) => (
+      <div
+        key={hour}
+        className={`
+          grid grid-cols-8 border-b
+          ${isDark ? 'border-zinc-800/60' : 'border-zinc-200'}
+        `}
+        style={{ height: `${HOUR_HEIGHT}px` }}
+      >
+        <div className={`
+          px-4 py-2 text-[12px] font-semibold
+          ${isDark ? 'text-zinc-500 bg-zinc-800/30' : 'text-zinc-400 bg-zinc-50/50'}
+        `}>
+          {String(hour).padStart(2, '0')}:00
+        </div>
+
+        {weekDates.map((date) => (
+          <div
+            key={date}
+            className={`
+              relative border-l-2
+              ${isDark ? 'border-zinc-800/40' : 'border-zinc-200'}
+            `}
+          />
+        ))}
+      </div>
+    ));
+
+    // Vertical view - appointment cells
+    const dayColumns = weekDates.map((date) => {
+      const dayAppointments = getFilteredAppointments(date);
+      const overlaps = computeOverlaps(dayAppointments);
+
+      return (
+        <div key={date} className="relative pointer-events-none">
+          {overlaps.map((apt) => {
+            const colors = getAppointmentColor(apt.status);
+            const typedApt = apt as AgendaAppointment & { _colIndex?: number; _colCount?: number };
+            const colIndex = typedApt._colIndex ?? 0;
+            const colCount = typedApt._colCount ?? 1;
+            const isGrouped = colCount > 1;
+
+            const topOffset = getTimePosition(apt.time) * HOUR_HEIGHT;
+            const height = Math.max(getTimeHeight(apt.totalDuration), 28);
+            const slotWidth = 100 / colCount;
+            const leftOffset = colIndex * slotWidth;
+
+            return (
+              <div
+                key={apt.id}
+                onClick={() => handleAppointmentClick(apt)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    handleAppointmentClick(apt);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                className={`
+                  absolute rounded-xl px-2 py-1.5 text-xs transition-all duration-200
+                  cursor-pointer focus:outline-none focus:ring-2 focus:ring-zinc-500
+                  ${colors.bg} ${colors.text}
+                  hover:opacity-90 hover:scale-[1.02]
+                  z-10 pointer-events-auto
+                `}
+                style={{
+                  left: `calc(${leftOffset}% + 2px)`,
+                  width: `calc(${slotWidth}% - 4px)`,
+                  top: `${Math.max(topOffset, 2)}px`,
+                  height: `${height}px`,
+                }}
+              >
+                {slotWidth > 40 && (
+                  <>
+                    <div className="font-bold text-xs truncate">{apt.time}</div>
+                    {height > 35 && (
+                      <div className="truncate text-[10px] opacity-90 font-medium mt-0.5">
+                        {apt.clientName}
+                      </div>
+                    )}
+                    {isGrouped && height > 28 && (
+                      <div className="text-[10px] opacity-75 font-semibold mt-0.5">
+                        +{colCount - 1} más
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      );
+    });
+
+    return (
+      <>
+        {dayHeaders}
+        <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide">
+          <div className="relative" style={{ height: `${HOURS.length * HOUR_HEIGHT}px` }}>
+            {hourRows}
+            <div
+              className="grid grid-cols-8 absolute inset-0 pointer-events-none"
+              style={{ height: `${HOURS.length * HOUR_HEIGHT}px` }}
+            >
+              <div />
+              {dayColumns}
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  };
+
   // ─── Render ───
   return (
     <div className="flex flex-col flex-1 min-h-0">
@@ -379,6 +597,87 @@ export function WeeklyView({
               Hoy
             </button>
           )}
+
+          {/* Sub-view toggle: Vertical / Horizontal */}
+          <div className={`
+            shrink-0 inline-flex items-center rounded-lg border p-0.5 transition-all duration-200
+            ${isDark ? 'bg-zinc-900 border-zinc-700' : 'bg-white border-zinc-200'}
+          `}>
+            <button
+              onClick={() => setSubViewMode('vertical')}
+              className={`
+                flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-semibold transition-all duration-200
+                ${subViewMode === 'vertical'
+                  ? isDark
+                    ? 'bg-zinc-100 text-zinc-900 shadow-sm'
+                    : 'bg-zinc-900 text-white shadow-sm'
+                  : isDark
+                    ? 'text-zinc-400 hover:text-zinc-200'
+                    : 'text-zinc-500 hover:text-zinc-900'
+                }
+              `}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <path d="M16 2v4M8 2v4M3 10h18" />
+                <path d="M3 6h18M3 12h18M3 18h18" />
+              </svg>
+              Vertical
+            </button>
+            <button
+              onClick={() => setSubViewMode('horizontal')}
+              className={`
+                flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-semibold transition-all duration-200
+                ${subViewMode === 'horizontal'
+                  ? isDark
+                    ? 'bg-zinc-100 text-zinc-900 shadow-sm'
+                    : 'bg-zinc-900 text-white shadow-sm'
+                  : isDark
+                    ? 'text-zinc-400 hover:text-zinc-200'
+                    : 'text-zinc-500 hover:text-zinc-900'
+                }
+              `}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <path d="M16 2v4M8 2v4M3 10h18" />
+                <path d="M3 6h18M3 12h18M3 18h18" />
+                <path d="M9 2v20" />
+              </svg>
+              Horizontal
+            </button>
+          </div>
+
+          {/* Show past toggle */}
+          <div className={`
+            shrink-0 inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl border transition-all duration-200
+            ${isDark ? 'bg-zinc-900 border-zinc-700' : 'bg-white border-zinc-200'}
+          `}>
+            <button
+              onClick={() => setShowPastAppointments(!showPastAppointments)}
+              className={`
+                relative w-9 h-5 rounded-full transition-all duration-200 shrink-0
+                ${showPastAppointments
+                  ? isDark ? 'bg-zinc-100' : 'bg-zinc-900'
+                  : isDark ? 'bg-zinc-700' : 'bg-zinc-300'
+                }
+              `}
+            >
+              <span
+                className={`
+                  absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-all duration-200 shadow-sm
+                  ${showPastAppointments ? 'translate-x-4' : 'translate-x-0'
+                }`}
+              />
+            </button>
+            <span className={`text-[11px] font-semibold whitespace-nowrap ${
+              showPastAppointments
+                ? 'text-zinc-900 dark:text-zinc-100'
+                : 'text-zinc-500 dark:text-zinc-400'
+            }`}>
+              {showPastAppointments ? 'Mostrar todos' : 'Solo futuros'}
+            </span>
+          </div>
         </div>
 
         {/* Search */}
@@ -540,189 +839,7 @@ export function WeeklyView({
         </div>
       ) : (
         /* ── Desktop: full grid with overlap columns ── */
-        <div className={`
-          rounded-2xl border-2 overflow-hidden
-          ${isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200'}
-        `}>
-          {/* Day headers */}
-          <div className={`
-            grid grid-cols-8 border-b-2
-            ${isDark ? 'border-zinc-800' : 'border-zinc-200'}
-          `}>
-            {/* Time column header */}
-            <div className={`
-              px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-center
-              ${isDark ? 'text-zinc-500 bg-zinc-800/60' : 'text-zinc-400 bg-zinc-50'}
-            `}>
-              Hora
-            </div>
-
-            {weekDates.map((date, idx) => {
-              const dayDate = new Date(date + 'T00:00:00');
-              const isToday = date === todayStr;
-              const isSelected = date === selectedDate;
-              const count = calendarCountByDate[date] || 0;
-
-              return (
-                <button
-                  key={date}
-                  type="button"
-                  onClick={() => onDateSelect(date)}
-                  className={`
-                    px-3 py-3 text-center transition-all duration-200 border-l-2
-                    ${isSelected
-                      ? isDark
-                        ? 'bg-zinc-800 border-zinc-500'
-                        : 'bg-zinc-50 border-zinc-400'
-                      : ''
-                    }
-                  `}
-                >
-                  <p className={`text-[11px] font-bold uppercase tracking-wider ${
-                    isDark ? 'text-zinc-500' : 'text-zinc-400'
-                  }`}>
-                    {DAY_NAMES_SHORT[idx]}
-                  </p>
-                  <p className={`text-xl font-bold mt-1 ${
-                    isToday
-                      ? isDark ? 'text-zinc-100' : 'text-zinc-900'
-                      : isDark ? 'text-zinc-300' : 'text-zinc-700'
-                  }`}>
-                    {dayDate.getDate()}
-                  </p>
-                  {count > 0 && (
-                    <span className={`
-                      text-[10px] font-bold px-1.5 py-0.5 rounded-md mt-1.5 inline-block
-                      ${isDark ? 'bg-zinc-800 text-zinc-400' : 'bg-zinc-100 text-zinc-500'}
-                    `}>
-                      {count}
-                    </span>
-                  )}
-                  {isToday && (
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md mt-1 inline-block ${
-                      isDark ? 'bg-zinc-100 text-zinc-900' : 'bg-zinc-900 text-white'
-                    }`}>
-                      HOY
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Time grid + appointments */}
-          <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide">
-            <div className="relative" style={{ height: `${HOURS.length * HOUR_HEIGHT}px` }}>
-              {/* Hour rows */}
-              {HOURS.map((hour) => (
-                <div
-                  key={hour}
-                  className={`
-                    grid grid-cols-8 border-b
-                    ${isDark ? 'border-zinc-800/60' : 'border-zinc-200'}
-                  `}
-                  style={{ height: `${HOUR_HEIGHT}px` }}
-                >
-                  {/* Time label */}
-                  <div className={`
-                    px-4 py-2 text-[12px] font-semibold
-                    ${isDark ? 'text-zinc-500 bg-zinc-800/30' : 'text-zinc-400 bg-zinc-50/50'}
-                  `}>
-                    {String(hour).padStart(2, '0')}:00
-                  </div>
-
-                  {/* Day columns (no appointments) */}
-                  {weekDates.map((date) => (
-                    <div
-                      key={date}
-                      className={`
-                        relative border-l-2
-                        ${isDark ? 'border-zinc-800/40' : 'border-zinc-200'}
-                      `}
-                    />
-                  ))}
-                </div>
-              ))}
-
-              {/* Appointments layer - positioned using CSS grid to match hour rows */}
-              <div
-                className="grid grid-cols-8 absolute inset-0 pointer-events-none"
-                style={{ height: `${HOURS.length * HOUR_HEIGHT}px` }}
-              >
-                {/* Time column spacer */}
-                <div />
-                {/* Day columns with appointments */}
-                {weekDates.map((date) => {
-                  const dayAppointments = getFilteredAppointments(date);
-                  const overlaps = computeOverlaps(dayAppointments);
-
-                  return (
-                    <div key={date} className="relative pointer-events-none">
-                      {overlaps.map((apt) => {
-                        const colors = getAppointmentColor(apt.status);
-                        const isSelected = selectedAppointment?.id === apt.id;
-                        const typedApt = apt as AgendaAppointment & { _colIndex?: number; _colCount?: number };
-                        const colIndex = typedApt._colIndex ?? 0;
-                        const colCount = typedApt._colCount ?? 1;
-                        const isGrouped = colCount > 1;
-
-                        const topOffset = getTimePosition(apt.time) * HOUR_HEIGHT;
-                        const height = Math.max(getTimeHeight(apt.totalDuration), 28);
-                        const slotWidth = 100 / colCount;
-                        const leftOffset = colIndex * slotWidth;
-
-                        return (
-                          <div
-                            key={apt.id}
-                            onClick={() => handleAppointmentClick(apt)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' || e.key === ' ') {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                handleAppointmentClick(apt);
-                              }
-                            }}
-                            role="button"
-                            tabIndex={0}
-                            className={`
-                              absolute rounded-xl px-2 py-1.5 text-xs transition-all duration-200
-                              cursor-pointer focus:outline-none focus:ring-2 focus:ring-zinc-500
-                              ${colors.bg} ${colors.text}
-                              hover:opacity-90 hover:scale-[1.02]
-                              z-10 pointer-events-auto
-                            `}
-                            style={{
-                              left: `calc(${leftOffset}% + 2px)`,
-                              width: `calc(${slotWidth}% - 4px)`,
-                              top: `${Math.max(topOffset, 2)}px`,
-                              height: `${height}px`,
-                            }}
-                          >
-                            {slotWidth > 40 && (
-                              <>
-                                <div className="font-bold text-xs truncate">{apt.time}</div>
-                                {height > 35 && (
-                                  <div className="truncate text-[10px] opacity-90 font-medium mt-0.5">
-                                    {apt.clientName}
-                                  </div>
-                                )}
-                                {isGrouped && height > 28 && (
-                                  <div className="text-[10px] opacity-75 font-semibold mt-0.5">
-                                    +{colCount - 1} más
-                                  </div>
-                                )}
-                              </>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </div>
+        getDesktopContent()
       )}
     </div>
   );

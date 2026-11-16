@@ -354,85 +354,9 @@ export function HorizontalView({
 
   return (
     <div className="flex flex-col flex-1 min-h-0">
-      {/* ── Header row ── */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => navigateWeek(-1)}
-            className={`flex items-center justify-center w-9 h-9 rounded-xl border transition-all duration-200 hover:scale-105 active:scale-95
-              ${isDark ? 'border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700' : 'border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50'}`}
-            aria-label="Semana anterior"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-
-          <div className="text-center min-w-[140px]">
-            <h2 className={`text-sm font-bold tracking-tight ${isDark ? 'text-zinc-100' : 'text-zinc-900'}`}>
-              {weekLabel}
-            </h2>
-          </div>
-
-          <button
-            onClick={() => navigateWeek(1)}
-            className={`flex items-center justify-center w-9 h-9 rounded-xl border transition-all duration-200 hover:scale-105 active:scale-95
-              ${isDark ? 'border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700' : 'border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50'}`}
-            aria-label="Semana siguiente"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M9 18l6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-
-          {weekDates.includes(todayStr) && (
-            <button
-              onClick={goToday}
-              className={`ml-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95
-                ${isDark ? 'bg-zinc-100 text-zinc-900' : 'bg-zinc-900 text-white'}`}
-            >
-              Hoy
-            </button>
-          )}
-        </div>
-
-        <div className="relative w-full sm:max-w-[220px]">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-            className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>
-            <circle cx="11" cy="11" r="8" />
-            <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
-          </svg>
-          <input
-            type="text"
-            placeholder="Buscar…"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className={`w-full pl-9 pr-3 py-2 rounded-xl text-sm border transition-all duration-200 focus:outline-none focus:ring-2
-              ${isDark ? 'bg-zinc-800 border-zinc-700 text-zinc-100 placeholder-zinc-500 focus:ring-zinc-500/30' : 'bg-white border-zinc-200 text-zinc-900 placeholder-zinc-400 focus:ring-zinc-500/20'}`}
-          />
-        </div>
-      </div>
-
-      {/* ── Status filters ── */}
-      <div className="flex gap-1.5 flex-wrap mb-4">
-        {['all', 'pending', 'confirmed', 'completed', 'no_show', 'cancelled', 'expired', 'rejected'].map((status) => (
-          <button
-            key={status}
-            onClick={() => setFilterStatus(status)}
-            className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all duration-200
-              ${filterStatus === status
-                ? isDark ? 'bg-zinc-100 text-zinc-900' : 'bg-zinc-900 text-white'
-                : isDark ? 'bg-zinc-800/60 border border-zinc-700 text-zinc-400 hover:text-zinc-200' : 'bg-white border border-zinc-200 text-zinc-500 hover:text-zinc-900'
-              }`}
-          >
-            {status === 'all' ? 'Todos' : STATUS_LABELS[status] || status}
-          </button>
-        ))}
-      </div>
-
       {/* ── Horizontal grid view ── */}
       <div className={`flex-1 min-h-0 rounded-2xl border overflow-hidden ${isDark ? 'bg-zinc-950 border-zinc-800' : 'bg-white border-zinc-200'}`}>
-        <div ref={scrollRef} className="flex-1 min-h-0 overflow-auto">
+        <div ref={scrollRef} className="flex-1 min-h-0 overflow-auto scrollbar-hide">
           <div className="relative" style={{ width: 80 + 24 * HOUR_WIDTH, height: totalHeight }}>
             {/* ── Hour header (top row) ── */}
             <div
