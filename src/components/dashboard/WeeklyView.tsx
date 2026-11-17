@@ -378,12 +378,16 @@ export function WeeklyView({
               type="button"
               onClick={() => onDateSelect(date)}
               className={`
-                px-3 py-3 text-center transition-all duration-200 border-l-2
+                px-3 py-3 text-center transition-all duration-200
                 ${isSelected
                   ? isDark
-                    ? 'bg-zinc-800 border-zinc-500'
-                    : 'bg-zinc-50 border-zinc-400'
-                  : ''
+                    ? 'bg-zinc-800'
+                    : 'bg-zinc-100'
+                  : isToday
+                    ? isDark
+                      ? 'bg-emerald-900/20'
+                      : 'bg-emerald-50'
+                    : ''
                 }
               `}
             >
@@ -523,6 +527,30 @@ export function WeeklyView({
         <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-hide">
           <div className="relative" style={{ height: `${HOURS.length * HOUR_HEIGHT}px` }}>
             {hourRows}
+
+            {/* Day column backgrounds (full height) */}
+            {weekDates.map((date, idx) => {
+              const isToday = date === todayStr;
+              const isSelected = date === selectedDate;
+              if (!isToday && !isSelected) return null;
+              return (
+                <div
+                  key={`vbg-${date}`}
+                  className="absolute pointer-events-none"
+                  style={{
+                    left: `${(idx + 1) * (100 / 8)}%`,
+                    width: `${100 / 8}%`,
+                    top: 0,
+                    height: `${HOURS.length * HOUR_HEIGHT}px`,
+                    backgroundColor: isSelected
+                      ? isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.06)'
+                      : isDark ? 'rgba(16,185,129,0.08)' : 'rgba(16,185,129,0.12)',
+                    zIndex: 0,
+                  }}
+                />
+              );
+            })}
+
             <div
               className="grid grid-cols-8 absolute inset-0 pointer-events-none"
               style={{ height: `${HOURS.length * HOUR_HEIGHT}px` }}
