@@ -143,20 +143,9 @@ export function RegisterPage() {
   const [acceptedTerms, setAcceptedTerms] = React.useState(false);
   const [termsError, setTermsError] = React.useState(false);
   const [showTerms, setShowTerms] = React.useState(false);
-  const [showSuccess, setShowSuccess] = React.useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
   const isDark = useTheme().activeTheme === 'dark';
-
-  React.useEffect(() => {
-    if (showSuccess) {
-      const timer = setTimeout(() => {
-        setShowSuccess(false);
-        navigate('/onboarding');
-      }, 2500);
-      return () => clearTimeout(timer);
-    }
-  }, [showSuccess, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -179,12 +168,24 @@ export function RegisterPage() {
     }
     setIsSubmitting(true);
     setError('');
+    // Set flag BEFORE calling register() so guards allow the flow through
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('register_success', 'true');
+    }
+    console.log('[RegisterPage] Calling register with email:', email);
     const result = await register(name, email, password);
+    console.log('[RegisterPage] Register result:', result);
     setIsSubmitting(false);
     if (result.error) {
+      // Registration failed — clear the flag
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('register_success');
+      }
       setError(result.error);
     } else {
-      setShowSuccess(true);
+      // signUp() succeeded — use window.location.href for a hard redirect
+      // because React Router's navigate() may not work after component unmount
+      navigate('/neudi/onboarding');
     }
   };
 
@@ -397,57 +398,6 @@ export function RegisterPage() {
         {/* Bottom fade */}
         <div className={`absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t ${isDark ? 'from-zinc-950' : 'from-emerald-100/80'} to-transparent pointer-events-none`} />
       </section>
-
-      {/* Account Created Success Modal */}
-      {showSuccess && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-          <div
-            className={`relative w-full max-w-sm rounded-2xl border shadow-2xl flex flex-col items-center text-center p-8 ${
-              isDark ? 'border-zinc-500/20 bg-zinc-950/95' : 'border-zinc-200 bg-white/95'
-            } backdrop-blur-xl`}
-            style={{ animation: 'modalIn 0.4s cubic-bezier(0.22, 1, 0.36, 1)' }}
-          >
-            {/* Checkmark circle */}
-            <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-500">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                <polyline points="22 4 12 14.01 9 11.01" />
-              </svg>
-            </div>
-
-            <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-zinc-900'}`}>
-              ¡Cuenta creada exitosamente!
-            </h3>
-            <p className={`text-sm leading-relaxed mb-1 ${isDark ? 'text-zinc-300' : 'text-zinc-600'}`}>
-              Tu cuenta de Neudi fue creada correctamente.
-            </p>
-            <p className={`text-xs leading-relaxed mb-6 ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>
-              Se envió un mail de verificación a{' '}
-              <span className="font-semibold">{email}</span>.
-              <br />
-              Redirigiendo al onboarding...
-            </p>
-
-            {/* Progress bar */}
-            <div className={`w-full h-1 rounded-full overflow-hidden ${isDark ? 'bg-zinc-800' : 'bg-zinc-200'}`}>
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500"
-                style={{
-                  animation: 'progressBar 2.5s linear forwards',
-                }}
-              />
-            </div>
-
-            <style>{`
-              @keyframes progressBar {
-                from { width: 0%; }
-                to { width: 100%; }
-              }
-            `}</style>
-          </div>
-        </div>
-      )}
 
       {/* Terms & Conditions Modal */}
       {showTerms && (

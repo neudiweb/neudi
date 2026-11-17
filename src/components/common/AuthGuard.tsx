@@ -111,6 +111,14 @@ export function PublicGuard({ children }: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     if (!isLoading) {
+      // After a successful sign-up, allow the user to reach OnboardingPage
+      // so they can create their business. The sessionStorage flag is set
+      // by RegisterPage and cleared by OnboardingPage after showing the popup.
+      const justRegistered =
+        typeof window !== 'undefined' &&
+        sessionStorage.getItem('register_success');
+      if (justRegistered) return;
+
       if (user) {
         navigate('/dashboard', { replace: true });
       } else if (onboardingRequired) {
@@ -127,6 +135,14 @@ export function PublicGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
+  // Allow users who just registered to reach RegisterPage so the success
+  // flow can complete. The flag is set by RegisterPage before calling register()
+  // and cleared by OnboardingPage after showing the popup.
+  const justRegistered =
+    typeof window !== 'undefined' &&
+    sessionStorage.getItem('register_success');
+  if (justRegistered) return <>{children}</>;
+
   if (user || onboardingRequired) return null;
 
   return <>{children}</>;
@@ -138,6 +154,12 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     if (!isLoading) {
+      // Allow users who just registered to reach onboarding
+      const justRegistered =
+        typeof window !== 'undefined' &&
+        sessionStorage.getItem('register_success');
+      if (justRegistered) return;
+
       if (user) {
         navigate('/dashboard', { replace: true });
       } else if (!onboardingRequired) {
@@ -153,6 +175,12 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
+
+  // Allow users who just registered to reach onboarding
+  const justRegistered =
+    typeof window !== 'undefined' &&
+    sessionStorage.getItem('register_success');
+  if (justRegistered) return <>{children}</>;
 
   if (user || !onboardingRequired) return null;
 

@@ -803,7 +803,7 @@ export function DashboardAgenda() {
                     className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95 ${
                       filterStatus === status
                         ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-md shadow-zinc-300/20 dark:shadow-zinc-900/30'
-                        : 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 hover:border-zinc-300 dark:border-zinc-700'
+                        : 'bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:border-zinc-300 dark:hover:border-zinc-600'
                     }`}
                   >
                     {status === 'all' ? 'Todos' : STATUS_LABELS[status as AppointmentStatusLower]}
@@ -1279,12 +1279,12 @@ export function DashboardAgenda() {
                           className={`w-full text-left p-3 rounded-xl border transition-all duration-200 flex items-center justify-between ${
                             isSelected
                               ? 'border-zinc-700 dark:border-zinc-300 bg-zinc-50 dark:bg-zinc-800/50 ring-1 ring-zinc-500/20 shadow-sm'
-                              : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-500 hover:bg-zinc-50 dark:bg-zinc-800/50'
+                              : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800'
                           }`}
                         >
                           <div className="flex items-center gap-3">
                             <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
-                              isSelected ? 'bg-zinc-900 dark:bg-zinc-100 border-zinc-900 dark:border-zinc-100' : 'border-zinc-200 dark:border-zinc-800'
+                              isSelected ? 'bg-zinc-900 dark:bg-zinc-900 border-zinc-600 dark:border-zinc-400' : 'border-zinc-200 dark:border-zinc-700'
                             }`}>
                               {isSelected && (
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">

@@ -22,8 +22,8 @@ const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
 
 const HOURS_24 = Array.from({ length: 24 }, (_, i) => i);
 const HOUR_WIDTH = 50;
+const DAY_LABEL_WIDTH = 80;
 const DAY_ROW_BASE_HEIGHT = 120;
-const APPT_ROW_HEIGHT = 30;
 const APPT_ROW_GAP = 3;
 
 function formatDateISO(date: Date, tz: string): string {
@@ -116,7 +116,10 @@ export function HorizontalView({
   showPastAppointments,
 }: HorizontalViewProps) {
   const isDark = activeTheme === 'dark';
-  const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  // Refs for the two independent scroll containers
+  const verticalScrollRef = React.useRef<HTMLDivElement>(null);
+  const horizontalScrollRef = React.useRef<HTMLDivElement>(null);
 
   const weekDates = React.useMemo(() => {
     const selected = new Date(selectedDate + 'T00:00:00');
@@ -210,9 +213,20 @@ export function HorizontalView({
     [navigateDate]
   );
 
+  // Sync the header scroll with the appointments grid
+  const syncScroll = React.useCallback(
+    (source: HTMLDivElement) => {
+      if (horizontalScrollRef.current && horizontalScrollRef.current !== source) {
+        horizontalScrollRef.current.scrollLeft = source.scrollLeft;
+      }
+    },
+    []
+  );
+
+  // Scroll to ~08:00 on mount (horizontal only)
   React.useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollLeft = 8 * HOUR_WIDTH;
+    if (horizontalScrollRef.current) {
+      horizontalScrollRef.current.scrollLeft = 8 * HOUR_WIDTH;
     }
   }, []);
 
@@ -259,17 +273,29 @@ export function HorizontalView({
     return heights;
   }, [weekDates, getFilteredAppointments]);
 
-  const totalHeight = 36 + weekDates.reduce(
+  const headerHeight = 36;
+  const totalHeight = headerHeight + weekDates.reduce(
     (sum, date) => sum + (dayRowHeights[date] || DAY_ROW_BASE_HEIGHT), 0
   );
+  const appointmentsWidth = 24 * HOUR_WIDTH;
 
-  // Render appointments for a single day
+  // Compute cumulative top offset for each day row (relative to appointments area, after header)
+  const dayRowTopMap = React.useMemo(() => {
+    const tops: Record<string, number> = {};
+    let cumulative = 0;
+    for (const date of weekDates) {
+      tops[date] = cumulative;
+      cumulative += dayRowHeights[date] || DAY_ROW_BASE_HEIGHT;
+    }
+    return tops;
+  }, [weekDates, dayRowHeights]);
+
+  // Render appointments for a single day (absolute positioned within horizontal scroll container)
   const renderDayAppointments = React.useCallback(
-    (date: string, dayIdx: number, rowHeight: number, dayRowTop: number) => {
+    (date: string) => {
       const dayAppointments = getFilteredAppointments(date);
       if (dayAppointments.length === 0) return null;
 
-      // Sort by start time
       const sorted = [...dayAppointments].sort((a, b) => {
         const aStart = parseInt(a.time.split(':')[0], 10) + parseInt(a.time.split(':')[1], 10) / 60;
         const bStart = parseInt(b.time.split(':')[0], 10) + parseInt(b.time.split(':')[1], 10) / 60;
@@ -297,8 +323,8 @@ export function HorizontalView({
         }
       }
 
-      // Fixed 15px for every appointment row
       const effectiveRowHeight = 15;
+      const dayTop = dayRowTopMap[date] ?? 0;
 
       const result: React.ReactNode[] = [];
       for (let ri = 0; ri < rows.length; ri++) {
@@ -330,9 +356,9 @@ export function HorizontalView({
                 ${isSelected ? 'ring-2 ring-offset-1 ring-blue-400 z-20' : 'z-10'}
                 overflow-hidden whitespace-nowrap`}
               style={{
-                left: `${80 + startHour * HOUR_WIDTH + 2}px`,
-                top: `${dayRowTop + 2 + ri * (effectiveRowHeight + APPT_ROW_GAP)}px`,
-                width: `${Math.min(width, 80 + 24 * HOUR_WIDTH - 84)}px`,
+                left: `${startHour * HOUR_WIDTH - 2}px`,
+                top: `${dayTop + headerHeight + 2 + ri * (effectiveRowHeight + APPT_ROW_GAP)}px`,
+                width: `${Math.min(width, appointmentsWidth - 4)}px`,
                 height: `${effectiveRowHeight}px`,
                 pointerEvents: 'auto' as never,
               }}
@@ -349,143 +375,244 @@ export function HorizontalView({
       }
       return result;
     },
-    [getFilteredAppointments, selectedAppointment, handleAppointmentClick]
+    [getFilteredAppointments, selectedAppointment, handleAppointmentClick, dayRowTopMap, headerHeight, appointmentsWidth]
   );
+
+  // Day label component (reused for sticky column and header)
+  const renderDayLabel = (date: string, dayIdx: number, compact: boolean) => {
+    const dayDate = new Date(date + 'T00:00:00');
+    const isToday = date === todayStr;
+    const isSelected = date === selectedDate;
+    const count = calendarCountByDate[date] || 0;
+    const rowHeight = dayRowHeights[date] || DAY_ROW_BASE_HEIGHT;
+
+    if (compact) {
+      // Compact version for the sticky header row (just day name + date)
+      return (
+        <button
+          type="button"
+          onClick={() => onDateSelect(date)}
+          className={`flex flex-col items-center justify-center px-1.5 py-1 transition-all duration-200
+            ${isSelected
+              ? isDark ? 'bg-zinc-700' : 'bg-zinc-200'
+              : isToday
+                ? isDark ? 'bg-zinc-800/80' : 'bg-emerald-50/60'
+                : isDark ? 'hover:bg-zinc-800/50' : 'hover:bg-zinc-100'
+            }`}
+          style={{ width: `${HOUR_WIDTH}px` }}
+        >
+          <span className={`text-[9px] font-bold uppercase tracking-wider
+            ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>
+            {DAY_NAMES_SHORT[dayIdx]}
+          </span>
+          <span className={`text-sm font-bold tabular-nums mt-0.5
+            ${isToday ? isDark ? 'text-zinc-100' : 'text-zinc-900' : isDark ? 'text-zinc-300' : 'text-zinc-600'}`}>
+            {dayDate.getDate()}
+          </span>
+        </button>
+      );
+    }
+
+    // Full version for the sticky day labels column
+    return (
+      <button
+        type="button"
+        onClick={() => onDateSelect(date)}
+        className={`flex flex-col items-center justify-center transition-all duration-200
+          ${isSelected
+            ? isDark ? 'border-l-2 border-l-zinc-400' : 'border-l-2 border-l-zinc-900'
+            : isToday
+              ? isDark ? 'hover:bg-zinc-800/40' : 'hover:bg-zinc-50'
+              : isDark ? 'hover:bg-zinc-800/40' : 'hover:bg-zinc-50'
+          }`}
+        style={{ height: `${rowHeight}px` }}
+      >
+        <div className={`flex flex-col items-center justify-center mx-auto w-[80px] rounded-lg transition-all duration-200
+          ${isToday
+            ? isDark ? 'bg-zinc-800/60 border border-zinc-600' : 'bg-emerald-100 border border-emerald-300'
+            : 'bg-transparent'
+          }
+          ${isSelected
+            ? isDark ? 'bg-zinc-800/80 border border-zinc-500' : 'bg-zinc-200 border border-zinc-400'
+            : ''
+          }`}
+          style={{ height: '118px' }}>
+          <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md
+            ${isDark ? 'bg-zinc-800 text-zinc-400' : 'bg-zinc-100 text-zinc-500'}`}>
+            {DAY_NAMES_SHORT[dayIdx]}
+          </span>
+          <span className={`text-lg font-bold mt-0.5 tabular-nums
+            ${isToday ? isDark ? 'text-zinc-100' : 'text-zinc-900' : isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>
+            {dayDate.getDate()}
+          </span>
+          {isToday && (
+            <span className={`text-[9px] font-bold px-1 py-0.5 rounded-md mt-0.5
+              ${isDark ? 'bg-zinc-100 text-zinc-900' : 'bg-zinc-900 text-white'}`}>
+              HOY
+            </span>
+          )}
+          {count > 0 && (
+            <span className={`text-[9px] font-semibold mt-0.5
+              ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>
+              {count}
+            </span>
+          )}
+        </div>
+      </button>
+    );
+  };
 
   return (
     <div className="flex flex-col flex-1 min-h-0">
-      {/* ── Horizontal grid view ── */}
-      <div className={`flex-1 min-h-0 rounded-2xl border overflow-hidden ${isDark ? 'bg-zinc-950 border-zinc-800' : 'bg-white border-zinc-200'}`}>
-        <div ref={scrollRef} className="flex-1 min-h-0 overflow-x-auto overflow-y-hidden">
-          <div className="relative" style={{ width: 80 + 24 * HOUR_WIDTH, height: totalHeight }}>
-            {/* ── Hour header (top row) ── */}
-            <div
-              className={`absolute left-0 right-0 z-20 grid border-b ${isDark ? 'border-zinc-800 bg-zinc-900/80' : 'border-zinc-200 bg-zinc-50/80'} backdrop-blur-sm`}
-              style={{
-                top: 0,
-                height: '36px',
-                gridTemplateColumns: `80px repeat(24, ${HOUR_WIDTH}px)`,
-              }}
-            >
-              <div className={`flex items-center justify-center text-[10px] font-bold uppercase tracking-widest ${isDark ? 'text-zinc-600' : 'text-zinc-400'}`}>
-                Día
-              </div>
+      {/* ── Two-axis scroll grid view ── */}
+      <div className={`flex-1 min-h-0 rounded-2xl border overflow-hidden flex flex-col ${isDark ? 'bg-zinc-950 border-zinc-800' : 'bg-white border-zinc-200'}`}>
+
+        {/* ═══════════════════════════════════════════
+            ROW 0: Sticky hour header (top)
+            Stays fixed when scrolling vertically.
+            ═══════════════════════════════════════════ */}
+        <div
+          className={`sticky top-0 z-30 flex border-b ${isDark ? 'border-zinc-800 bg-zinc-900/95' : 'border-zinc-200 bg-zinc-50/95'} backdrop-blur-md`}
+          style={{ height: `${headerHeight}px` }}
+        >
+          {/* Corner cell — top-left of day labels column */}
+          <div className={`flex-shrink-0 flex items-center justify-center border-r ${isDark ? 'border-zinc-700 bg-zinc-900' : 'border-zinc-200 bg-zinc-50'}`}
+            style={{ width: `${DAY_LABEL_WIDTH}px`, height: `${headerHeight}px` }}>
+            <span className={`text-[9px] font-bold uppercase tracking-widest ${isDark ? 'text-zinc-600' : 'text-zinc-400'}`}>
+              Día
+            </span>
+          </div>
+
+          {/* Hour labels — scroll horizontally with appointments */}
+          <div
+            ref={horizontalScrollRef}
+            onScroll={(e) => syncScroll(e.currentTarget)}
+            className="flex-1 flex items-stretch overflow-x-auto overflow-y-hidden scrollbar-hide"
+            style={{ minWidth: 0 }}
+          >
+            <div className="flex" style={{ width: `${appointmentsWidth}px` }}>
               {HOURS_24.map((hour) => (
                 <div
                   key={`hour-${hour}`}
-                  className={`flex items-center justify-center text-[10px] font-semibold tabular-nums ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}
+                  className={`flex-shrink-0 flex items-center justify-center border-l ${isDark ? 'border-zinc-800/50' : 'border-zinc-200'}`}
+                  style={{ width: `${HOUR_WIDTH}px` }}
                 >
-                  {String(hour).padStart(2, '0')}
+                  <span className={`text-[10px] font-semibold tabular-nums ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>
+                    {String(hour).padStart(2, '0')}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ═══════════════════════════════════════════
+            ROWS 1+: Scrollable body
+            — Vertical scroll: day rows move, hour header stays
+            — Horizontal scroll: appointments move, day labels stay
+            ═══════════════════════════════════════════ */}
+        <div
+          ref={verticalScrollRef}
+          className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden"
+        >
+          <div className="flex relative" style={{ height: `${totalHeight - headerHeight}px` }}>
+
+            {/* ── Day row backgrounds (full width) ── */}
+            <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }}>
+              {weekDates.map((date) => {
+                const rowHeight = dayRowHeights[date] || DAY_ROW_BASE_HEIGHT;
+                const dayTop = dayRowTopMap[date] ?? 0;
+                const isToday = date === todayStr;
+                const isSelected = date === selectedDate;
+                return (
+                  <div
+                    key={`bg-${date}`}
+                    style={{
+                      top: `${dayTop}px`,
+                      height: `${rowHeight}px`,
+                      backgroundColor: isSelected
+                        ? isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.10)'
+                        : isToday
+                          ? isDark ? 'rgba(16,185,129,0.08)' : 'rgba(16,185,129,0.12)'
+                          : 'transparent',
+                      zIndex: 0,
+                    }}
+                  />
+                );
+              })}
+            </div>
+
+            {/* ── Sticky day labels column (left) ── */}
+            {/* Stays fixed when scrolling horizontally. */}
+            <div
+              className="flex-shrink-0 flex flex-col border-r border-zinc-200 dark:border-zinc-700 relative z-20"
+              style={{
+                width: `${DAY_LABEL_WIDTH}px`,
+                height: `${totalHeight - headerHeight}px`,
+              }}
+            >
+              {weekDates.map((date, dayIdx) => (
+                <div key={date} style={{ height: `${dayRowHeights[date] || DAY_ROW_BASE_HEIGHT}px` }}>
+                  {renderDayLabel(date, dayIdx, false)}
                 </div>
               ))}
             </div>
 
-            {/* ── Hour grid lines (rendered once, behind everything) ── */}
-            {HOURS_24.map((hour) => (
+            {/* ── Appointments grid (scrolls horizontally) ── */}
+            <div
+              className="flex-1 relative overflow-x-auto overflow-y-hidden"
+              onScroll={(e) => syncScroll(e.currentTarget)}
+              style={{ minWidth: 0 }}
+            >
+              {/* Full-width background to establish scroll area */}
               <div
-                key={`grid-${hour}`}
-                className={`absolute border-l ${isDark ? 'border-zinc-800/20' : 'border-zinc-200'}`}
-                style={{
-                  left: `${80 + hour * HOUR_WIDTH}px`,
-                  top: '36px',
-                  width: '1px',
-                  height: `${totalHeight - 36}px`,
-                  zIndex: 0,
-                }}
+                className="absolute inset-0"
+                style={{ width: `${appointmentsWidth}px`, zIndex: 0 }}
               />
-            ))}
 
-            {/* ── Horizontal day separators (full width, behind appointments) ── */}
-            {weekDates.map((date, dayIdx) => {
-              const rowHeight = dayRowHeights[date] || DAY_ROW_BASE_HEIGHT;
-              const dayRowTop = 36 + weekDates.slice(0, dayIdx).reduce(
-                (sum, d) => sum + (dayRowHeights[d] || DAY_ROW_BASE_HEIGHT), 0
-              );
-              return (
+              {/* Grid background: hour lines + day separators */}
+              {/* Hour vertical lines */}
+              {HOURS_24.map((hour) => (
                 <div
-                  key={`hsep-${date}`}
-                  className={`absolute left-0 right-0 border-b ${isDark ? 'border-zinc-800/60' : 'border-zinc-200'}`}
+                  key={`grid-${hour}`}
+                  className={`absolute border-l ${isDark ? 'border-zinc-800/20' : 'border-zinc-200'}`}
                   style={{
-                    top: `${dayRowTop + rowHeight}px`,
-                    height: '1px',
+                    left: `${hour * HOUR_WIDTH}px`,
+                    top: 0,
+                    width: '1px',
+                    height: `${totalHeight - headerHeight}px`,
                     zIndex: 0,
                   }}
                 />
-              );
-            })}
+              ))}
 
-            {/* ── Day rows ── */}
-            {weekDates.map((date, dayIdx) => {
-              const dayDate = new Date(date + 'T00:00:00');
-              const isToday = date === todayStr;
-              const isSelected = date === selectedDate;
-              const count = calendarCountByDate[date] || 0;
-              const rowHeight = dayRowHeights[date] || DAY_ROW_BASE_HEIGHT;
-              const dayRowTop = 36 + weekDates.slice(0, dayIdx).reduce(
-                (sum, d) => sum + (dayRowHeights[d] || DAY_ROW_BASE_HEIGHT), 0
-              );
-
-              return (
-                <React.Fragment key={date}>
-                  {/* Day row background */}
+              {/* Day horizontal separators (full width) */}
+              {weekDates.map((date) => {
+                const rowHeight = dayRowHeights[date] || DAY_ROW_BASE_HEIGHT;
+                const dayTop = dayRowTopMap[date] ?? 0;
+                return (
                   <div
-                    className={`absolute left-0 right-0 ${isDark ? 'border-zinc-800/60' : 'border-zinc-200'}`}
+                    key={`hsep-${date}`}
+                    className={`absolute border-b ${isDark ? 'border-zinc-800/60' : 'border-zinc-200'}`}
                     style={{
-                      top: `${dayRowTop}px`,
-                      height: `${rowHeight}px`,
-                      backgroundColor: isToday
-                        ? isDark ? 'rgba(255,255,255,0.02)' : 'rgba(16,185,129,0.03)'
-                        : 'transparent',
+                      left: 0,
+                      right: 0,
+                      top: `${dayTop + rowHeight}px`,
+                      height: '1px',
+                      width: `${appointmentsWidth}px`,
                       zIndex: 0,
                     }}
                   />
+                );
+              })}
 
-                  {/* Day label (left column) */}
-                  <button
-                    type="button"
-                    onClick={() => onDateSelect(date)}
-                    className={`absolute flex flex-col items-center justify-center px-2 transition-all duration-200 border-r z-10
-                      ${isSelected
-                        ? isDark ? 'bg-zinc-800' : 'bg-zinc-50'
-                        : isToday
-                          ? isDark ? 'bg-zinc-900/60' : 'bg-emerald-50/40'
-                          : isDark ? 'hover:bg-zinc-900/30' : 'hover:bg-zinc-50'
-                      }
-                      ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}
-                    style={{
-                      left: 0,
-                      top: `${dayRowTop}px`,
-                      width: '80px',
-                      height: `${rowHeight}px`,
-                    }}
-                  >
-                    <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md
-                      ${isDark ? 'bg-zinc-800 text-zinc-400' : 'bg-zinc-100 text-zinc-500'}`}>
-                      {DAY_NAMES_SHORT[dayIdx]}
-                    </span>
-                    <span className={`text-lg font-bold mt-0.5 tabular-nums
-                      ${isToday ? isDark ? 'text-zinc-100' : 'text-zinc-900' : isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>
-                      {dayDate.getDate()}
-                    </span>
-                    {isToday && (
-                      <span className={`text-[9px] font-bold px-1 py-0.5 rounded-md mt-0.5
-                        ${isDark ? 'bg-zinc-100 text-zinc-900' : 'bg-zinc-900 text-white'}`}>
-                        HOY
-                      </span>
-                    )}
-                    {count > 0 && (
-                      <span className={`text-[9px] font-semibold mt-0.5
-                        ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>
-                        {count}
-                      </span>
-                    )}
-                  </button>
-
-                  {/* Appointments */}
-                  {renderDayAppointments(date, dayIdx, rowHeight, dayRowTop)}
+              {/* Appointments — absolutely positioned within this container */}
+              {weekDates.map((date) => (
+                <React.Fragment key={`apts-${date}`}>
+                  {renderDayAppointments(date)}
                 </React.Fragment>
-              );
-            })}
+              ))}
+            </div>
           </div>
         </div>
       </div>

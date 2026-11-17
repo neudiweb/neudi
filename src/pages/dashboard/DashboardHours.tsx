@@ -442,8 +442,8 @@ export function DashboardHours() {
                   >
                     <span className={`absolute top-1 left-1 w-5 h-5 rounded-full transition-transform duration-300 flex items-center justify-center border-2 ${
                       isOpen
-                        ? 'translate-x-5 bg-zinc-900 dark:bg-zinc-100 border-zinc-900 dark:border-zinc-100 text-white dark:text-zinc-900'
-                        : 'bg-zinc-300 dark:bg-zinc-500 border-zinc-300 dark:border-zinc-500 text-white'
+                        ? 'translate-x-5 bg-zinc-100 dark:bg-zinc-900 border-zinc-100 dark:border-zinc-900 text-zinc-900 dark:text-zinc-100'
+                        : 'bg-zinc-300 dark:bg-zinc-400 border-zinc-300 dark:border-zinc-400 text-white'
                     }`}>
                       {isOpen && (
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
@@ -480,7 +480,7 @@ export function DashboardHours() {
                           >
                             <div className={`w-5 h-5 rounded flex items-center justify-center transition-all duration-200 ${
                               range.isActive
-                                ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900'
+                                ? 'bg-zinc-900 dark:bg-zinc-900 text-white dark:text-zinc-100'
                                 : 'bg-zinc-200 dark:bg-zinc-700'
                             }`}>
                               {range.isActive && (

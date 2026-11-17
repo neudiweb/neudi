@@ -204,6 +204,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     password: string
   ) => {
     setState((prev) => ({ ...prev, isLoading: true }));
+    console.log('[AuthContext] register called with email:', email);
 
     try {
       const { data: authData, error: authError } =
@@ -212,20 +213,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           password,
         });
 
+      console.log('[AuthContext] signUp result:', { authData: !!authData, authError });
+
       if (authError) {
         setState((prev) => ({ ...prev, isLoading: false }));
-        return { error: getAuthErrorMessage(authError.message, authError.code) };
+        const errorMsg = getAuthErrorMessage(authError.message, authError.code);
+        console.log('[AuthContext] signUp error:', errorMsg);
+        return { error: errorMsg };
       }
 
       if (!authData.user) {
         setState((prev) => ({ ...prev, isLoading: false }));
+        console.log('[AuthContext] signUp returned no user');
         return { error: 'No se pudo crear la cuenta.' };
       }
 
-      // Profile created automatically by handle_new_user trigger
+      console.log('[AuthContext] signUp succeeded, user ID:', authData.user.id);
+
+      // Profile created automatically by handle_new_user trigger.
+      // After signUp, onAuthStateChange fires and updates the auth state.
+      // The PublicGuard checks for the 'register_success' flag to keep
+      // RegisterPage mounted so the redirect can execute.
       setState({ user: null, isLoading: false });
       return {};
-    } catch {
+    } catch (err) {
+      console.log('[AuthContext] signUp caught error:', err);
       setState((prev) => ({ ...prev, isLoading: false }));
       return { error: 'Error de red. Verificá tu conexión.' };
     }
@@ -392,6 +404,14 @@ function getAuthErrorMessage(message: string, code?: string): string {
   }
   if (message.includes('email') && message.includes('already registered') || message.includes('already been used')) {
     return 'Ya existe una cuenta con ese email.';
+  }
+  // Email ya registrado pero sin verificar: Supabase envía rate limit al intentar reenviar
+  if (code === 'over_email_send_rate_limit' || message.includes('over_email_send_rate_limit')) {
+    // Distinguir entre rate limit en registro nuevo vs reenvío para usuario existente
+    if (message.includes('already') || message.includes('registered') || message.includes('used')) {
+      return 'Este email ya está registrado. Se envió un mail de verificación. Revisá tu bandeja de entrada o spam.';
+    }
+    return 'Demasiados intentos de registro. Esperá unos minutos e intentá de nuevo.';
   }
   if (
     message.includes('Password should be at least') ||
