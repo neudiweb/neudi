@@ -420,7 +420,7 @@ export function HorizontalView({
         onClick={() => onDateSelect(date)}
         className={`flex flex-col items-center justify-center transition-all duration-200
           ${isSelected
-            ? isDark ? 'border-l-2 border-l-zinc-400' : 'border-l-2 border-l-zinc-900'
+            ? isDark ? 'hover:bg-zinc-800/40' : 'hover:bg-zinc-50'
             : isToday
               ? isDark ? 'hover:bg-zinc-800/40' : 'hover:bg-zinc-50'
               : isDark ? 'hover:bg-zinc-800/40' : 'hover:bg-zinc-50'
