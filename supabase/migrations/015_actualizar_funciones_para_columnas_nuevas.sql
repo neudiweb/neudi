@@ -1,5 +1,6 @@
 -- 015_actualizar_funciones_para_columnas_nuevas.sql
 -- Actualizar funciones para usar: is_deleted, service_name, max_appointments
+-- Verifica max concurrent appointments en cada punto de 15 min (no total overlaps)
 
 -- ============================================================================
 -- 1. create_public_appointment → populate service_name en appointment_services
@@ -21,11 +22,15 @@ DECLARE
   v_exception_start time;
   v_exception_end time;
   v_day_of_week integer;
-  v_local_start timestamp;
-  v_local_end timestamp;
+  v_local_start timestamptz;
+  v_local_end timestamptz;
   v_local_date date;
   v_lock_key bigint;
   v_fits_hours boolean;
+  v_max_appointments integer := 1;
+  v_current_slot_start timestamptz;
+  v_current_slot_end timestamptz;
+  v_appointments_at_point integer;
 BEGIN
   SELECT id, timezone INTO v_business_id, v_timezone
   FROM public.businesses WHERE slug = trim(p_business_slug) AND is_active = true LIMIT 1;
@@ -89,14 +94,25 @@ BEGIN
   IF extract(minute FROM v_local_start)::integer % 15 <> 0 OR extract(second FROM v_local_start) <> 0 THEN
     RETURN jsonb_build_object('success', false, 'error', 'INVALID_SLOT', 'message', 'Los turnos comienzan cada 15 minutos');
   END IF;
-  IF EXISTS (
-    SELECT 1 FROM public.appointments a
-    WHERE a.business_id = v_business_id AND a.status NOT IN ('CANCELLED', 'EXPIRED', 'REJECTED')
+  -- Get max_appointments for this day
+  SELECT COALESCE(MAX(bh.max_appointments), 1) INTO v_max_appointments
+  FROM public.business_hours bh
+  WHERE bh.business_id = v_business_id AND bh.day_of_week = v_day_of_week AND bh.is_active = true;
+  -- Check every 15-minute point within the proposed slot
+  v_current_slot_start := v_local_start;
+  WHILE v_current_slot_start < v_local_end LOOP
+    v_current_slot_end := v_current_slot_start + '15 minutes'::interval;
+    SELECT COUNT(*) INTO v_appointments_at_point
+    FROM public.appointments a
+    WHERE a.business_id = v_business_id
+      AND a.status NOT IN ('CANCELLED', 'EXPIRED', 'REJECTED')
       AND a.id <> COALESCE(p_exclude_appointment_id, '00000000-0000-0000-0000-000000000000'::uuid)
-      AND p_start_at < a.end_at AND p_end_at > a.start_at
-  ) THEN
-    RETURN jsonb_build_object('success', false, 'error', 'SLOT_UNAVAILABLE', 'message', 'Este horario ya esta reservado');
-  END IF;
+      AND v_current_slot_start < a.end_at AND v_current_slot_end > a.start_at;
+    IF v_appointments_at_point >= v_max_appointments THEN
+      RETURN jsonb_build_object('success', false, 'error', 'SLOT_UNAVAILABLE', 'message', 'Este horario ya esta reservado');
+    END IF;
+    v_current_slot_start := v_current_slot_start + '15 minutes'::interval;
+  END LOOP;
   v_customer_id := public.auto_find_or_create_customer(v_business_id, p_customer_name, p_customer_phone, p_customer_email);
   INSERT INTO public.appointments (
     business_id, service_id, customer_id, customer_name, customer_phone, customer_email,
@@ -120,7 +136,7 @@ END;
 $$;
 
 -- ============================================================================
--- 2. get_available_slots → usar max_appointments
+-- 2. get_available_slots → verificar max concurrent en cada punto de 15 min
 -- ============================================================================
 
 CREATE OR REPLACE FUNCTION public.get_available_slots(p_business_slug text, p_service_ids text[], p_date text, p_exclude_appointment_id uuid DEFAULT NULL::uuid)
@@ -135,7 +151,6 @@ DECLARE
   v_slots jsonb := '[]'::jsonb;
   v_slot_start timestamptz;
   v_slot_end timestamptz;
-  v_available boolean;
   v_schedule_start time;
   v_schedule_end time;
   v_schedule_slot timestamp;
@@ -146,7 +161,11 @@ DECLARE
   v_day_of_week integer;
   v_has_exception boolean;
   v_max_appointments integer := 1;
-  v_appointments_at_slot integer;
+  v_appointments_at_point integer;
+  v_available boolean;
+  v_current_slot_start timestamptz;
+  v_current_slot_end timestamptz;
+  v_max_point integer;
 BEGIN
   SELECT id, timezone INTO v_business_id, v_timezone
   FROM public.businesses WHERE slug = trim(p_business_slug) LIMIT 1;
@@ -191,19 +210,27 @@ BEGIN
       v_slot_start := v_schedule_slot AT TIME ZONE v_timezone;
       v_slot_end := v_slot_start + (v_total_duration || ' minutes')::interval;
       IF extract(minute FROM v_schedule_slot)::integer % 15 = 0 AND extract(second FROM v_schedule_slot) = 0 THEN
-        -- Check max_appointments
+        -- Get max_appointments for this day
         SELECT COALESCE(MAX(bh.max_appointments), 1) INTO v_max_appointments
         FROM public.business_hours bh
         WHERE bh.business_id = v_business_id AND bh.day_of_week = v_day_of_week AND bh.is_active = true;
-        
-        SELECT COUNT(*) INTO v_appointments_at_slot
-        FROM public.appointments a
-        WHERE a.business_id = v_business_id AND a.status NOT IN ('CANCELLED', 'EXPIRED', 'REJECTED')
-          AND a.id <> COALESCE(p_exclude_appointment_id, '00000000-0000-0000-0000-000000000000'::uuid)
-          AND v_slot_start < a.end_at AND v_slot_end > a.start_at;
-        
-        v_available := v_appointments_at_slot < v_max_appointments;
-        
+        -- Check every 15-minute point within the proposed slot to find the MAX concurrent count
+        v_max_point := 0;
+        v_current_slot_start := v_slot_start;
+        WHILE v_current_slot_start < v_slot_end LOOP
+          v_current_slot_end := v_current_slot_start + '15 minutes'::interval;
+          SELECT COUNT(*) INTO v_appointments_at_point
+          FROM public.appointments a
+          WHERE a.business_id = v_business_id
+            AND a.status NOT IN ('CANCELLED', 'EXPIRED', 'REJECTED')
+            AND a.id <> COALESCE(p_exclude_appointment_id, '00000000-0000-0000-0000-000000000000'::uuid)
+            AND v_current_slot_start < a.end_at AND v_current_slot_end > a.start_at;
+          IF v_appointments_at_point > v_max_point THEN
+            v_max_point := v_appointments_at_point;
+          END IF;
+          v_current_slot_start := v_current_slot_start + '15 minutes'::interval;
+        END LOOP;
+        v_available := v_max_point < v_max_appointments;
         v_slots := v_slots || jsonb_build_object('time', to_char(v_schedule_slot, 'HH24:MI'), 'available', v_available);
       END IF;
       v_schedule_slot := v_schedule_slot + '15 minutes'::interval;
