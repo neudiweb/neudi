@@ -283,9 +283,8 @@ export interface Database {
           p_service_ids?: string[];
           p_date: string;
           p_exclude_appointment_id?: string;
-          p_total_duration?: number | null;
         };
-        Returns: Array<{ time: string; available: boolean }>;
+        Returns: { date: string; slots: Array<{ time: string; available: boolean }> };
       };
       create_public_appointment: {
         Args: {
