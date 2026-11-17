@@ -60,15 +60,23 @@ export async function getAvailableSlots(
     p_service_ids: serviceIds,
     p_date: date,
     p_exclude_appointment_id: excludeAppointments?.[0] || null,
-    p_total_duration: totalDuration || null,
-  } as any) as { data: Array<{ time: string; available: boolean }> | null; error: unknown };
+  } as any) as {
+    data:
+      | Array<{ time: string; available: boolean }>
+      | { date: string; slots: Array<{ time: string; available: boolean }> }
+      | null;
+    error: unknown;
+  };
 
   if (error) {
     console.error('Error fetching available slots:', error);
     return [];
   }
 
-  const slots = data || [];
+  // The RPC returns { date, slots } but the type may be the raw array
+  const slots = data && typeof data === 'object' && !Array.isArray(data) && 'slots' in data
+    ? (data as { slots: Array<{ time: string; available: boolean }> }).slots
+    : (Array.isArray(data) ? data : []);
 
   // Return ALL slots (both available and unavailable) so the UI can show disabled times
   return slots.map((s) => ({
