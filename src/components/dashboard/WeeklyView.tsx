@@ -490,7 +490,7 @@ export function WeeklyView({
                   cursor-pointer focus:outline-none focus:ring-2 focus:ring-zinc-500
                   ${colors.bg} ${colors.text}
                   hover:opacity-90 hover:scale-[1.02]
-                  z-10 pointer-events-auto
+                  z-0 pointer-events-auto
                 `}
                 style={{
                   left: `calc(${leftOffset}% + 2px)`,
@@ -523,7 +523,9 @@ export function WeeklyView({
 
     return (
       <>
-        {dayHeaders}
+        <div className="sticky top-0 z-30 bg-zinc-50/95 dark:bg-zinc-900/95 backdrop-blur-md">
+          {dayHeaders}
+        </div>
         <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-hide">
           <div className="relative" style={{ height: `${HOURS.length * HOUR_HEIGHT}px` }}>
             {hourRows}
