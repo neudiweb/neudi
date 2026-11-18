@@ -381,13 +381,15 @@ export function WeeklyView({
                 px-3 py-3 text-center transition-all duration-200
                 ${isSelected
                   ? isDark
-                    ? 'bg-zinc-800'
-                    : 'bg-zinc-100'
+                    ? 'bg-zinc-500/20'
+                    : 'bg-zinc-400/20'
                   : isToday
                     ? isDark
-                      ? 'bg-emerald-900/20'
-                      : 'bg-emerald-50'
-                    : ''
+                      ? 'bg-emerald-900/30'
+                      : 'bg-green-100/80'
+                    : isDark
+                      ? 'bg-zinc-900'
+                      : 'bg-zinc-50'
                 }
               `}
             >
@@ -441,25 +443,39 @@ export function WeeklyView({
           {String(hour).padStart(2, '0')}:00
         </div>
 
-        {weekDates.map((date) => (
-          <div
-            key={date}
-            className={`
-              relative border-l-2
-              ${isDark ? 'border-zinc-800/40' : 'border-zinc-200'}
-            `}
-          />
-        ))}
+        {weekDates.map((date, idx) => {
+          const isToday = date === todayStr;
+          const isSelected = date === selectedDate;
+          const isTodaySelected = isToday && isSelected;
+          return (
+            <div
+              key={date}
+              className={`
+                relative border-l
+                ${isDark ? 'border-zinc-800/40' : 'border-zinc-200'}
+                ${isTodaySelected
+                  ? isDark ? 'bg-emerald-900/30' : 'bg-green-100/80'
+                  : isToday
+                    ? isDark ? 'bg-emerald-900/30' : 'bg-green-100/80'
+                    : isSelected
+                      ? isDark ? 'bg-zinc-500/20' : 'bg-zinc-400/20'
+                      : ''
+                }
+              `}
+            />
+          );
+        })}
       </div>
     ));
 
     // Vertical view - appointment cells
-    const dayColumns = weekDates.map((date) => {
+    const dayColumns = weekDates.map((date, idx) => {
+      const isLast = idx === weekDates.length - 1;
       const dayAppointments = getFilteredAppointments(date);
       const overlaps = computeOverlaps(dayAppointments);
 
       return (
-        <div key={date} className="relative pointer-events-none">
+        <div key={date} className={`relative pointer-events-none ${isLast ? 'border-r-2 ' + (isDark ? 'border-zinc-800' : 'border-zinc-200') : ''}`}>
           {overlaps.map((apt) => {
             const colors = getAppointmentColor(apt.status);
             const typedApt = apt as AgendaAppointment & { _colIndex?: number; _colCount?: number };
@@ -523,35 +539,12 @@ export function WeeklyView({
 
     return (
       <>
-        <div className="sticky top-0 z-30 bg-zinc-50/95 dark:bg-zinc-900/95 backdrop-blur-md">
+        <div className="sticky top-0 z-30 bg-zinc-50 dark:bg-zinc-900">
           {dayHeaders}
         </div>
         <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-hide">
           <div className="relative" style={{ height: `${HOURS.length * HOUR_HEIGHT}px` }}>
             {hourRows}
-
-            {/* Day column backgrounds (full height) */}
-            {weekDates.map((date, idx) => {
-              const isToday = date === todayStr;
-              const isSelected = date === selectedDate;
-              if (!isToday && !isSelected) return null;
-              return (
-                <div
-                  key={`vbg-${date}`}
-                  className="absolute pointer-events-none"
-                  style={{
-                    left: `${(idx + 1) * (100 / 8)}%`,
-                    width: `${100 / 8}%`,
-                    top: 0,
-                    height: `${HOURS.length * HOUR_HEIGHT}px`,
-                    backgroundColor: isSelected
-                      ? isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.06)'
-                      : isDark ? 'rgba(16,185,129,0.08)' : 'rgba(16,185,129,0.12)',
-                    zIndex: 0,
-                  }}
-                />
-              );
-            })}
 
             <div
               className="grid grid-cols-8 absolute inset-0 pointer-events-none"
