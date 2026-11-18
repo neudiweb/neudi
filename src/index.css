@@ -2,6 +2,13 @@
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
+/* Allow vertical page scroll through horizontal scroll containers on mobile */
+@layer utilities {
+  .touch-pan-y {
+    touch-action: pan-y !important;
+  }
+}
+
 /* Hide scrollbar utility */
 .scrollbar-hide {
   -ms-overflow-style: none;

@@ -761,7 +761,7 @@ export function WeeklyView({
         /* ── Mobile: responsive per sub-view ── */
         subViewMode === 'horizontal' ? (
           /* Mobile Horizontal: scroll horizontal */
-          <div className="flex-1 min-h-0">
+          <div className="flex-1 min-h-0 touch-pan-y">
             <HorizontalView
               appointmentsByDate={appointmentsByDate}
               calendarCountByDate={calendarCountByDate}

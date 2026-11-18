@@ -521,8 +521,8 @@ export function HorizontalView({
             — Vertical scroll: day rows move
             — Horizontal scroll: appointments move, day labels stay
             ═══════════════════════════════════════════ */}
-        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain" style={{ touchAction: 'pan-y' }}>
-          <div className="flex relative" style={{ height: `${totalHeight - headerHeight}px` }}>
+        <div className={`flex-1 min-h-0 overscroll-contain touch-pan-y ${isMobile ? 'overflow-x-hidden' : 'overflow-y-auto overflow-x-hidden'}`}>
+          <div className="flex relative" style={{ height: isMobile ? 'auto' : `${totalHeight - headerHeight}px` }}>
 
             {/* ── Day row backgrounds (full width) ── */}
             <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }}>
@@ -555,7 +555,7 @@ export function HorizontalView({
               className="flex-shrink-0 flex flex-col border-r border-zinc-200 dark:border-zinc-700 relative z-20"
               style={{
                 width: `${dayLabelWidth}px`,
-                height: `${totalHeight - headerHeight}px`,
+                height: isMobile ? 'auto' : `${totalHeight - headerHeight}px`,
               }}
             >
               {weekDates.map((date, dayIdx) => (
@@ -567,9 +567,12 @@ export function HorizontalView({
 
             {/* ── Appointments grid (scrolls horizontally) ── */}
             <div
-              className="flex-1 relative overflow-x-auto overflow-y-hidden"
+              className={`flex-1 relative ${isMobile ? 'overflow-x-scroll' : 'overflow-x-auto'} touch-pan-y`}
               onScroll={(e) => syncScroll(e.currentTarget)}
-              style={{ minWidth: 0, touchAction: 'pan-y' }}
+              style={{
+                minWidth: 0,
+                WebkitOverflowScrolling: isMobile ? 'touch' : undefined,
+              }}
             >
               {/* Full-width background to establish scroll area */}
               <div
