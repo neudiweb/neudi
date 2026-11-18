@@ -118,7 +118,6 @@ export function HorizontalView({
   const isDark = activeTheme === 'dark';
 
   // Refs for the two independent scroll containers
-  const verticalScrollRef = React.useRef<HTMLDivElement>(null);
   const horizontalScrollRef = React.useRef<HTMLDivElement>(null);
 
   const weekDates = React.useMemo(() => {
@@ -433,7 +432,7 @@ export function HorizontalView({
             : 'bg-transparent'
           }
           ${isSelected
-            ? isDark ? 'bg-zinc-800/80 border border-zinc-500' : 'bg-zinc-200 border border-zinc-400'
+            ? isDark ? 'bg-zinc-800/80 border border-zinc-500' : 'bg-zinc-300 border border-zinc-400'
             : ''
           }`}
           style={{ height: '118px' }}>
@@ -465,15 +464,18 @@ export function HorizontalView({
   return (
     <div className="flex flex-col flex-1 min-h-0">
       {/* ── Two-axis scroll grid view ── */}
-      <div className={`flex-1 min-h-0 rounded-2xl border overflow-hidden flex flex-col ${isDark ? 'bg-zinc-950 border-zinc-800' : 'bg-white border-zinc-200'}`}>
+      <div className={`flex-1 min-h-0 rounded-2xl border flex flex-col overflow-clip ${isDark ? 'bg-zinc-950 border-zinc-800' : 'bg-white border-zinc-200'}`}>
 
         {/* ═══════════════════════════════════════════
-            ROW 0: Sticky hour header (top)
-            Stays fixed when scrolling vertically.
+            ROW 0: Hour header (always visible, outside scroll)
             ═══════════════════════════════════════════ */}
         <div
-          className={`sticky top-0 z-30 flex border-b ${isDark ? 'border-zinc-800 bg-zinc-900/95' : 'border-zinc-200 bg-zinc-50/95'} backdrop-blur-md`}
-          style={{ height: `${headerHeight}px` }}
+          style={{
+            height: `${headerHeight}px`,
+            borderBottom: `1px solid ${isDark ? '#27272a' : '#e4e4e7'}`,
+            backgroundColor: isDark ? '#18181b' : '#fafafa',
+          }}
+          className="flex shrink-0"
         >
           {/* Corner cell — top-left of day labels column */}
           <div className={`flex-shrink-0 flex items-center justify-center border-r ${isDark ? 'border-zinc-700 bg-zinc-900' : 'border-zinc-200 bg-zinc-50'}`}
@@ -508,13 +510,10 @@ export function HorizontalView({
 
         {/* ═══════════════════════════════════════════
             ROWS 1+: Scrollable body
-            — Vertical scroll: day rows move, hour header stays
+            — Vertical scroll: day rows move
             — Horizontal scroll: appointments move, day labels stay
             ═══════════════════════════════════════════ */}
-        <div
-          ref={verticalScrollRef}
-          className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden"
-        >
+        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain">
           <div className="flex relative" style={{ height: `${totalHeight - headerHeight}px` }}>
 
             {/* ── Day row backgrounds (full width) ── */}
@@ -531,7 +530,7 @@ export function HorizontalView({
                       top: `${dayTop}px`,
                       height: `${rowHeight}px`,
                       backgroundColor: isSelected
-                        ? isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.10)'
+                        ? isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.22)'
                         : isToday
                           ? isDark ? 'rgba(16,185,129,0.08)' : 'rgba(16,185,129,0.12)'
                           : 'transparent',
