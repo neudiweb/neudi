@@ -498,7 +498,7 @@ export function HorizontalView({
             ref={horizontalScrollRef}
             onScroll={(e) => syncScroll(e.currentTarget)}
             className="flex-1 flex items-stretch overflow-x-auto overflow-y-hidden scrollbar-hide"
-            style={{ minWidth: 0 }}
+            style={{ minWidth: 0, touchAction: 'pan-y' }}
           >
             <div className="flex" style={{ width: `${appointmentsWidth}px` }}>
               {HOURS_24.map((hour) => (
@@ -521,7 +521,7 @@ export function HorizontalView({
             — Vertical scroll: day rows move
             — Horizontal scroll: appointments move, day labels stay
             ═══════════════════════════════════════════ */}
-        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain">
+        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain" style={{ touchAction: 'pan-y' }}>
           <div className="flex relative" style={{ height: `${totalHeight - headerHeight}px` }}>
 
             {/* ── Day row backgrounds (full width) ── */}
@@ -569,7 +569,7 @@ export function HorizontalView({
             <div
               className="flex-1 relative overflow-x-auto overflow-y-hidden"
               onScroll={(e) => syncScroll(e.currentTarget)}
-              style={{ minWidth: 0 }}
+              style={{ minWidth: 0, touchAction: 'pan-y' }}
             >
               {/* Full-width background to establish scroll area */}
               <div
