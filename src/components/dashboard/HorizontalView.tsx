@@ -272,7 +272,8 @@ export function HorizontalView({
       }
 
       const maxRows = Math.max(rows.length, 1);
-      heights[date] = Math.max(DAY_ROW_BASE_HEIGHT, maxRows * (15 + APPT_ROW_GAP));
+      const rowH = isMobile ? 40 : 15;
+      heights[date] = Math.max(isMobile ? 180 : DAY_ROW_BASE_HEIGHT, maxRows * (rowH + APPT_ROW_GAP));
     }
     return heights;
   }, [weekDates, getFilteredAppointments]);
@@ -327,7 +328,7 @@ export function HorizontalView({
         }
       }
 
-      const effectiveRowHeight = 15;
+      const effectiveRowHeight = isMobile ? 40 : 15;
       const dayTop = dayRowTopMap[date] ?? 0;
 
       const result: React.ReactNode[] = [];
