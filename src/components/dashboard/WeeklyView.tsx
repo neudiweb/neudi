@@ -209,8 +209,17 @@ export function WeeklyView({
   const [subViewMode, setSubViewMode] = React.useState<'vertical' | 'horizontal'>('vertical');
 
   React.useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+      if (window.innerWidth < 768) {
+        setSubViewMode('vertical');
+      }
+    };
     window.addEventListener('resize', handleResize);
+    // Init: if already mobile, force vertical
+    if (window.innerWidth < 768) {
+      setSubViewMode('vertical');
+    }
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
@@ -630,6 +639,7 @@ export function WeeklyView({
           <div className={`
             shrink-0 inline-flex items-center rounded-lg border p-0.5 transition-all duration-200
             ${isDark ? 'bg-zinc-900 border-zinc-700' : 'bg-white border-zinc-200'}
+            hidden sm:inline-flex
           `}>
             <button
               onClick={() => setSubViewMode('vertical')}
