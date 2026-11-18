@@ -94,6 +94,7 @@ interface HorizontalViewProps {
   goToday: () => void;
   activeTheme: 'light' | 'dark';
   showPastAppointments: boolean;
+  isMobile: boolean;
 }
 
 export function HorizontalView({
@@ -114,8 +115,12 @@ export function HorizontalView({
   goToday,
   activeTheme,
   showPastAppointments,
+  isMobile,
 }: HorizontalViewProps) {
   const isDark = activeTheme === 'dark';
+
+  // Use isMobile prop for responsive day label width
+  const dayLabelWidth = isMobile ? 56 : DAY_LABEL_WIDTH;
 
   // Refs for the two independent scroll containers
   const horizontalScrollRef = React.useRef<HTMLDivElement>(null);
@@ -417,7 +422,7 @@ export function HorizontalView({
       <button
         type="button"
         onClick={() => onDateSelect(date)}
-        className={`flex flex-col items-center justify-center transition-all duration-200
+        className={`flex flex-col items-center justify-center transition-all duration-200 w-full
           ${isSelected
             ? isDark ? 'hover:bg-zinc-800/40' : 'hover:bg-zinc-50'
             : isToday
@@ -426,7 +431,7 @@ export function HorizontalView({
           }`}
         style={{ height: `${rowHeight}px` }}
       >
-        <div className={`flex flex-col items-center justify-center mx-auto w-[80px] rounded-lg transition-all duration-200
+        <div className={`flex flex-col items-center justify-center mx-auto rounded-lg transition-all duration-200
           ${isToday
             ? isDark ? 'bg-zinc-800/60 border border-zinc-600' : 'bg-emerald-100 border border-emerald-300'
             : 'bg-transparent'
@@ -435,23 +440,26 @@ export function HorizontalView({
             ? isDark ? 'bg-zinc-800/80 border border-zinc-500' : 'bg-zinc-300 border border-zinc-400'
             : ''
           }`}
-          style={{ height: '118px' }}>
-          <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md
+          style={{
+            width: isMobile ? '44px' : '80px',
+            height: isMobile ? '80px' : '118px',
+          }}>
+          <span className={`text-[9px] font-bold uppercase tracking-wider px-1 py-0.5 rounded-md
             ${isDark ? 'bg-zinc-800 text-zinc-400' : 'bg-zinc-100 text-zinc-500'}`}>
             {DAY_NAMES_SHORT[dayIdx]}
           </span>
-          <span className={`text-lg font-bold mt-0.5 tabular-nums
+          <span className={`text-base font-bold mt-0.5 tabular-nums
             ${isToday ? isDark ? 'text-zinc-100' : 'text-zinc-900' : isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>
             {dayDate.getDate()}
           </span>
           {isToday && (
-            <span className={`text-[9px] font-bold px-1 py-0.5 rounded-md mt-0.5
+            <span className={`text-[8px] font-bold px-1 py-0.5 rounded-md mt-0.5
               ${isDark ? 'bg-zinc-100 text-zinc-900' : 'bg-zinc-900 text-white'}`}>
               HOY
             </span>
           )}
           {count > 0 && (
-            <span className={`text-[9px] font-semibold mt-0.5
+            <span className={`text-[8px] font-semibold mt-0.5
               ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>
               {count}
             </span>
@@ -479,7 +487,7 @@ export function HorizontalView({
         >
           {/* Corner cell — top-left of day labels column */}
           <div className={`flex-shrink-0 flex items-center justify-center border-r ${isDark ? 'border-zinc-700 bg-zinc-900' : 'border-zinc-200 bg-zinc-50'}`}
-            style={{ width: `${DAY_LABEL_WIDTH}px`, height: `${headerHeight}px` }}>
+            style={{ width: `${dayLabelWidth}px`, height: `${headerHeight}px` }}>
             <span className={`text-[9px] font-bold uppercase tracking-widest ${isDark ? 'text-zinc-600' : 'text-zinc-400'}`}>
               Día
             </span>
@@ -546,7 +554,7 @@ export function HorizontalView({
             <div
               className="flex-shrink-0 flex flex-col border-r border-zinc-200 dark:border-zinc-700 relative z-20"
               style={{
-                width: `${DAY_LABEL_WIDTH}px`,
+                width: `${dayLabelWidth}px`,
                 height: `${totalHeight - headerHeight}px`,
               }}
             >
