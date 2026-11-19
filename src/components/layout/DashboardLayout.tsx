@@ -257,7 +257,7 @@ export function DashboardLayout({ children, currentTab = 'agenda' }: DashboardLa
         </div>
 
         {/* Page content */}
-        <div className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+        <div className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full overflow-x-hidden">
           {children}
         </div>
       </main>
