@@ -639,7 +639,7 @@ export function WeeklyView({
           <div className={`
             shrink-0 inline-flex items-center rounded-lg border p-0.5 transition-all duration-200
             ${isDark ? 'bg-zinc-900 border-zinc-700' : 'bg-white border-zinc-200'}
-            hidden md:inline-flex
+            hidden sm:inline-flex
           `}>
             <button
               onClick={() => setSubViewMode('vertical')}
