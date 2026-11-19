@@ -636,10 +636,10 @@ export function WeeklyView({
         {/* Controls row: sub-view toggle + show past switch */}
         <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
           {/* Sub-view toggle: Vertical / Horizontal */}
+          {!isMobile && (
           <div className={`
             shrink-0 inline-flex items-center rounded-lg border p-0.5 transition-all duration-200
             ${isDark ? 'bg-zinc-900 border-zinc-700' : 'bg-white border-zinc-200'}
-            hidden sm:inline-flex
           `}>
             <button
               onClick={() => setSubViewMode('vertical')}
@@ -687,6 +687,7 @@ export function WeeklyView({
               <span className="sm:hidden">Horizontal</span>
             </button>
           </div>
+          )}
 
           {/* Show past toggle */}
           <div className={`
