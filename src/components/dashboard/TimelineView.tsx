@@ -410,7 +410,7 @@ export function TimelineView({
       >
         <div className="flex items-start gap-3">
           {/* Time */}
-          <div className="text-right shrink-0 min-w-[55px]">
+          <div className="text-right shrink-0 min-w-0">
             <span className="block text-base font-semibold text-zinc-900 dark:text-zinc-100">{apt.time}</span>
             <span className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400">{apt.endTime}</span>
           </div>
@@ -456,7 +456,7 @@ export function TimelineView({
             </svg>
           </button>
 
-          <h2 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 min-w-[120px] text-center flex-1 sm:flex-none">
+          <h2 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 min-w-0 text-center flex-1 sm:flex-none">
             {formatMonthLabel(selectedDate)}
           </h2>
 
@@ -503,7 +503,7 @@ export function TimelineView({
       </div>
 
       {/* Main layout */}
-      <div className="flex flex-col lg:flex-row gap-5">
+      <div className="flex flex-col lg:flex-row gap-5 overflow-x-hidden">
         {/* Calendar grid */}
         <div className="flex-1 min-w-0">
           {/* Day names header */}
@@ -525,7 +525,7 @@ export function TimelineView({
         </div>
 
         {/* Sidebar */}
-        <div className="lg:w-[380px] shrink-0">
+        <div className="w-full lg:w-[380px] shrink-0">
           {/* Search */}
           <div className="relative mb-3">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400">

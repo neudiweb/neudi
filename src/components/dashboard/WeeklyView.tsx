@@ -549,11 +549,11 @@ export function WeeklyView({
 
     return (
       <>
-        <div className="sticky top-0 z-30 bg-zinc-50 dark:bg-zinc-900">
+        <div className="sticky top-0 z-30 bg-zinc-50 dark:bg-zinc-900 overflow-x-hidden w-screen max-w-full">
           {dayHeaders}
         </div>
         <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-hide">
-          <div className="relative" style={{ height: `${HOURS.length * HOUR_HEIGHT}px` }}>
+          <div className="relative min-w-0" style={{ height: `${HOURS.length * HOUR_HEIGHT}px` }}>
             {hourRows}
 
             <div
@@ -571,7 +571,7 @@ export function WeeklyView({
 
   // ─── Render ───
   return (
-    <div className="flex flex-col flex-1 min-h-0">
+    <div className="flex flex-col flex-1 min-h-0 overflow-x-hidden">
       {/* ── Header ── */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4 mb-6">
         {/* Navigation row */}

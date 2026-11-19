@@ -522,7 +522,7 @@ export function HorizontalView({
             — Vertical scroll: day rows move
             — Horizontal scroll: appointments move, day labels stay
             ═══════════════════════════════════════════ */}
-        <div className={`flex-1 min-h-0 overscroll-contain touch-pan-y ${isMobile ? 'overflow-x-hidden' : 'overflow-y-auto overflow-x-hidden'}`}>
+        <div className={`flex-1 min-h-0 overscroll-contain touch-pan-y overflow-x-hidden ${isMobile ? '' : 'overflow-y-auto overflow-x-hidden'}`}>
           <div className="flex relative" style={{ height: isMobile ? 'auto' : `${totalHeight - headerHeight}px` }}>
 
             {/* ── Day row backgrounds (full width) ── */}

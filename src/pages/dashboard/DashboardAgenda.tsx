@@ -725,7 +725,7 @@ export function DashboardAgenda() {
       ) : (
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Calendar */}
-          <div className="lg:w-[35%] shrink-0">
+          <div className="w-full lg:w-[35%] shrink-0">
             <MonthlyCalendar
               currentDate={selectedDate}
               selectedDate={selectedDate}
@@ -754,7 +754,7 @@ export function DashboardAgenda() {
                 type="date"
                 value={selectedDate}
                 onChange={onDatePickerChange}
-                className="flex-1 min-w-[140px] border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-900/20 dark:focus:ring-zinc-100/20 focus:border-zinc-500/50 transition-all duration-200"
+                className="flex-1 min-w-0 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-900/20 dark:focus:ring-zinc-100/20 focus:border-zinc-500/50 transition-all duration-200"
               />
 
               <button
@@ -776,7 +776,7 @@ export function DashboardAgenda() {
                 </button>
               )}
 
-              <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 capitalize min-w-[140px]">
+              <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 capitalize min-w-0 flex-1">
                 {formatDateLabel(selectedDate)}
               </span>
             </div>
@@ -838,7 +838,7 @@ export function DashboardAgenda() {
                   >
                     <div className="flex items-start gap-4">
                       {/* Time */}
-                      <div className="text-right shrink-0 min-w-[60px]">
+                      <div className="text-right shrink-0 min-w-0">
                         <span className="block text-lg font-semibold text-zinc-900 dark:text-zinc-100">{apt.time}</span>
                         <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{apt.endTime}</span>
                       </div>
