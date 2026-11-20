@@ -895,7 +895,7 @@ export function WeeklyView({
                             const isGrouped = colCount > 1;
 
                             const topOffset = getTimePosition(apt.time) * 48;
-                            const height = Math.max((apt.totalDuration / 60) * 48, 32);
+                            const height = Math.max((apt.totalDuration / 60) * 48, 24);
                             const slotWidth = 100 / colCount;
                             const leftOffset = colIndex * slotWidth;
 
