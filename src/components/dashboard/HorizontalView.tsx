@@ -366,7 +366,7 @@ export function HorizontalView({
                 overflow-hidden whitespace-nowrap`}
               style={{
                 left: `${startHour * HOUR_WIDTH - 2}px`,
-                top: `${dayTop + headerHeight + 2 + ri * (effectiveRowHeight + APPT_ROW_GAP)}px`,
+                top: `${dayTop + 2 + ri * (effectiveRowHeight + APPT_ROW_GAP)}px`,
                 width: `${Math.min(width, appointmentsWidth - 4)}px`,
                 height: `${effectiveRowHeight}px`,
                 pointerEvents: 'auto' as never,
