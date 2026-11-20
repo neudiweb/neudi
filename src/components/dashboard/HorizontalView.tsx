@@ -526,7 +526,7 @@ export function HorizontalView({
             — Vertical scroll: day rows move
             — Horizontal scroll: appointments move, day labels stay
             ═══════════════════════════════════════════ */}
-        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
+        <div className="flex-1 min-h-0 overflow-y-hidden overflow-x-hidden">
           <div className="flex relative" style={{ height: isMobile ? 'auto' : `${totalHeight - headerHeight}px` }}>
 
             {/* ── Day row backgrounds (full width) ── */}
@@ -540,6 +540,8 @@ export function HorizontalView({
                   <div
                     key={`bg-${date}`}
                     style={{
+                      left: 0,
+                      width: `${appointmentsWidth}px`,
                       top: `${dayTop}px`,
                       height: `${rowHeight}px`,
                       backgroundColor: isSelected
@@ -572,7 +574,7 @@ export function HorizontalView({
 
             {/* ── Appointments grid (scrolls horizontally) ── */}
             <div
-              className={`flex-1 relative ${isMobile ? 'overflow-x-auto overflow-y-hidden' : 'overflow-x-auto'} touch-auto`}
+              className="flex-1 relative overflow-x-auto overflow-y-hidden touch-auto"
               onScroll={(e) => syncScroll(e.currentTarget)}
               style={{
                 minWidth: 0,
@@ -595,7 +597,7 @@ export function HorizontalView({
                     left: `${hour * HOUR_WIDTH}px`,
                     top: 0,
                     width: '1px',
-                    height: `${totalHeight - headerHeight}px`,
+                    height: '100%',
                     zIndex: 0,
                   }}
                 />
@@ -611,10 +613,9 @@ export function HorizontalView({
                     className={`absolute border-b ${isDark ? 'border-zinc-800/60' : 'border-zinc-200'}`}
                     style={{
                       left: 0,
-                      right: 0,
+                      width: `${appointmentsWidth}px`,
                       top: `${dayTop + rowHeight}px`,
                       height: '1px',
-                      width: `${appointmentsWidth}px`,
                       zIndex: 0,
                     }}
                   />

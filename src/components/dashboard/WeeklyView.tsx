@@ -770,36 +770,37 @@ export function WeeklyView({
       </div>
 
       {/* ── Weekly grid ── */}
-      {isMobile ? (
-        /* ── Mobile: responsive per sub-view ── */
-        subViewMode === 'horizontal' ? (
-          /* Mobile Horizontal: scroll horizontal */
-          <div className="flex-1 min-h-0 touch-auto">
-            <HorizontalView
-              appointmentsByDate={appointmentsByDate}
-              calendarCountByDate={calendarCountByDate}
-              calendarPendingCountByDate={calendarPendingCountByDate}
-              selectedDate={selectedDate}
-              onDateSelect={onDateSelect}
-              onMonthChange={onMonthChange}
-              filterStatus={filterStatus}
-              searchQuery={searchQuery}
-              setFilterStatus={setFilterStatus}
-              setSearchQuery={setSearchQuery}
-              STATUS_LABELS={STATUS_LABELS}
-              bizTimezone={bizTimezone}
-              selectedAppointment={selectedAppointment}
-              setSelectedAppointment={setSelectedAppointment}
-              todayStr={todayStr}
-              formatMonthLabel={formatMonthLabel}
-              navigateDate={navigateDate}
-              goToday={goToday}
-              activeTheme={activeTheme}
-              showPastAppointments={showPastAppointments}
-              isMobile={isMobile}
-            />
-          </div>
-        ) : (
+      <div className="flex-1 min-h-0 flex flex-col" style={isMobile ? undefined : { height: 'calc(100vh - 260px)' }}>
+        {isMobile ? (
+          /* ── Mobile: responsive per sub-view ── */
+          (subViewMode === 'horizontal' ? (
+            /* Mobile Horizontal: scroll horizontal */
+            <div className="flex-1 min-h-0 touch-auto">
+              <HorizontalView
+                appointmentsByDate={appointmentsByDate}
+                calendarCountByDate={calendarCountByDate}
+                calendarPendingCountByDate={calendarPendingCountByDate}
+                selectedDate={selectedDate}
+                onDateSelect={onDateSelect}
+                onMonthChange={onMonthChange}
+                filterStatus={filterStatus}
+                searchQuery={searchQuery}
+                setFilterStatus={setFilterStatus}
+                setSearchQuery={setSearchQuery}
+                STATUS_LABELS={STATUS_LABELS}
+                bizTimezone={bizTimezone}
+                selectedAppointment={selectedAppointment}
+                setSelectedAppointment={setSelectedAppointment}
+                todayStr={todayStr}
+                formatMonthLabel={formatMonthLabel}
+                navigateDate={navigateDate}
+                goToday={goToday}
+                activeTheme={activeTheme}
+                showPastAppointments={showPastAppointments}
+                isMobile={isMobile}
+              />
+            </div>
+          ) : (
           /* Mobile Vertical: single day timeline */
           <div className="flex-1 min-h-0">
             {(() => {
@@ -959,11 +960,14 @@ export function WeeklyView({
               );
             })()}
           </div>
-        )
-      ) : (
-        /* ── Desktop: full grid with overlap columns ── */
-        getDesktopContent()
-      )}
+          ))
+        ) : (
+          /* ── Desktop: full grid with overlap columns ── */
+          <div className="flex-1 min-h-0 overflow-hidden">
+            {getDesktopContent()}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
