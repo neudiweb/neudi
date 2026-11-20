@@ -154,6 +154,8 @@ interface WeeklyViewProps {
     totalPrice: number;
     status: AppointmentStatusLower;
     requiresDeposit: boolean;
+    createdAt?: string;
+    updatedAt?: string;
     serviceId?: string;
   } | null;
   setSelectedAppointment: (apt: {
@@ -170,6 +172,8 @@ interface WeeklyViewProps {
     totalPrice: number;
     status: AppointmentStatusLower;
     requiresDeposit: boolean;
+    createdAt?: string;
+    updatedAt?: string;
     serviceId?: string;
   } | null) => void;
   todayStr: string;

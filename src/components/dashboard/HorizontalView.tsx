@@ -54,6 +54,8 @@ interface AgendaAppointment {
   status: AppointmentStatusLower;
   requiresDeposit: boolean;
   serviceDetails?: Array<{ name: string; price: number; duration_minutes: number }>;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface SelectedAppointment {
@@ -70,6 +72,8 @@ interface SelectedAppointment {
   totalPrice: number;
   status: AppointmentStatusLower;
   requiresDeposit: boolean;
+  createdAt?: string;
+  updatedAt?: string;
   serviceId?: string;
 }
 

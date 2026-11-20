@@ -37,6 +37,8 @@ export interface AgendaAppointment {
   status: AppointmentStatusLower;
   requiresDeposit: boolean;
   serviceDetails?: Array<{ name: string; price: number; duration_minutes: number }>;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface UseAgendaDataReturn {
@@ -149,6 +151,8 @@ export function useAgendaData(
               status: mapDbStatus(apt.status),
               requiresDeposit: false,
               serviceDetails: serviceDetails.length > 0 ? serviceDetails : undefined,
+              createdAt: apt.created_at,
+              updatedAt: apt.updated_at,
             };
           }
         );
