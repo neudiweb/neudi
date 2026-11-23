@@ -216,6 +216,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('[AuthContext] signUp result:', { authData: !!authData, authError });
 
       if (authError) {
+        // Reset loading but preserve user state — prevents PublicGuard from redirecting
         setState((prev) => ({ ...prev, isLoading: false }));
         const errorMsg = getAuthErrorMessage(authError.message, authError.code);
         console.log('[AuthContext] signUp error:', errorMsg);
@@ -390,6 +391,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 }
 
 function getAuthErrorMessage(message: string, code?: string): string {
+  // Email address invalid: extract the email and show a localized message
+  if (code === 'email_address_invalid') {
+    const match = message.match(/["'](.*?)["']/);
+    const email = match ? match[1] : 'el email';
+    return `El email "${email}" no es válido.`;
+  }
+  // Email not confirmed (login with unverified account)
+  if (code === 'email_not_confirmed') {
+    return 'Email aún no autenticado. Por favor verifique su correo electrónico.';
+  }
   if (code === 'invalid_credentials') {
     return 'Email o contraseña incorrectos. Verificá tus datos e intentá de nuevo.';
   }

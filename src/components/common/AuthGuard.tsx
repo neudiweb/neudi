@@ -118,7 +118,6 @@ export function PublicGuard({ children }: { children: React.ReactNode }) {
         typeof window !== 'undefined' &&
         sessionStorage.getItem('register_success');
       if (justRegistered) return;
-
       if (user) {
         navigate('/dashboard', { replace: true });
       } else if (onboardingRequired) {

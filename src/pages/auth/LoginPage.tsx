@@ -216,6 +216,8 @@ export function LoginPage() {
       let msg = 'Email o contraseña incorrectos. Verificá tus datos e intentá de nuevo.';
       if (authError.code === 'invalid_credentials') {
         msg = 'Email o contraseña incorrectos. Verificá tus datos e intentá de nuevo.';
+      } else if (authError.code === 'email_not_confirmed') {
+        msg = 'Email aún no autenticado. Por favor verifique su correo electrónico.';
       } else if (authError.code === 'rate_limit') {
         msg = 'Demasiados intentos. Esperá un momento e intentá de nuevo.';
       } else if (authError.message?.includes('not found')) {

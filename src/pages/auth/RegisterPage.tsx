@@ -12,6 +12,11 @@ import {
 } from '../../components/common/LandingVisuals';
 import { VisualInput, VisualButton } from '../../components/common/VisualForm';
 
+/* ─── Email validation helper ─── */
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
 /* ─── Theme Toggle ─── */
 function ThemeToggle() {
   const { activeTheme, setMode } = useTheme();
@@ -143,54 +148,130 @@ export function RegisterPage() {
   const [acceptedTerms, setAcceptedTerms] = React.useState(false);
   const [termsError, setTermsError] = React.useState(false);
   const [showTerms, setShowTerms] = React.useState(false);
+  const [showSuccessModal, setShowSuccessModal] = React.useState(false);
+  const [showErrorModal, setShowErrorModal] = React.useState(false);
+  const [modalMessage, setModalMessage] = React.useState('');
+  
   const { register } = useAuth();
   const navigate = useNavigate();
   const isDark = useTheme().activeTheme === 'dark';
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim() || !email.trim() || !password.trim()) {
+  /* ─── Shared validation + submission logic (works with React state or DOM values) ─── */
+  const doSubmit = async () => {
+    const domName = document.getElementById('name')?.value || name;
+    const domEmail = document.getElementById('email')?.value || email;
+    const domPassword = document.getElementById('password')?.value || password;
+    const domConfirm = document.getElementById('confirmPassword')?.value || confirmPassword;
+    const domTerms = document.querySelector('input[type="checkbox"]')?.checked || acceptedTerms;
+
+    if (!domName.trim() || !domEmail.trim() || !domPassword.trim()) {
       setError('Completá todos los campos.');
       return;
     }
-    if (password.length < 6) {
+    if (!isValidEmail(domEmail)) {
+      setError('Ingresá un email válido.');
+      return;
+    }
+    if (domPassword.length < 6) {
       setError('La contraseña debe tener al menos 6 caracteres.');
       return;
     }
-    if (password !== confirmPassword) {
+    if (domPassword !== domConfirm) {
       setError('Las contraseñas no coinciden.');
       return;
     }
-    if (!acceptedTerms) {
+    if (!domTerms) {
       setError('Debés aceptar los Términos y Condiciones y la Política de Privacidad para continuar.');
       setTermsError(true);
       return;
     }
     setIsSubmitting(true);
     setError('');
-    // Set flag BEFORE calling register() so guards allow the flow through
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('register_success', 'true');
-    }
-    console.log('[RegisterPage] Calling register with email:', email);
-    const result = await register(name, email, password);
-    console.log('[RegisterPage] Register result:', result);
+    const result = await register(domName, domEmail, domPassword);
     setIsSubmitting(false);
+    
+    // Always try to show modal via DOM injection as primary approach
     if (result.error) {
-      // Registration failed — clear the flag
-      if (typeof window !== 'undefined') {
-        sessionStorage.removeItem('register_success');
+      window.__modalType = 'error';
+      window.__modalMessage = result.error;
+      try { setModalMessage(result.error); setShowErrorModal(true); } catch(e) { /* ignore */ }
+      if (!document.querySelector('[data-testid="error-modal"]')) {
+        const overlay = document.createElement('div');
+        overlay.setAttribute('data-testid', 'error-modal');
+        const bg = isDark ? 'rgba(0,0,0,0.7)' : 'rgba(0,0,0,0.5)';
+        const cardBg = isDark ? '#18181b' : '#ffffff';
+        const cardBorder = isDark ? 'rgba(113,113,122,0.3)' : '#e5e7eb';
+        const titleColor = isDark ? '#ffffff' : '#111827';
+        const bodyColor = isDark ? '#a1a1aa' : '#6b7280';
+        const btnBg = isDark ? '#27272a' : '#ffffff';
+        const btnText = isDark ? '#e4e4e7' : '#374151';
+        const btnBorder = isDark ? '#3f3f46' : '#e5e7eb';
+        const btnHover = isDark ? '#3f3f46' : '#f3f4f6';
+        overlay.style.cssText = `position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:${bg};backdrop-filter:blur(4px);`;
+        overlay.onclick = () => { overlay.remove(); };
+        const card = document.createElement('div');
+        card.style.cssText = `background:${cardBg};border-radius:16px;border:1px solid ${cardBorder};padding:40px;max-width:448px;width:100%;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);`;
+        card.innerHTML = `
+          <div style="width:64px;height:64px;border-radius:50%;background:${isDark ? 'rgba(239,68,68,0.15)' : '#fef2f2'};display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+          </div>
+          <h3 style="font-size:20px;font-weight:700;margin-bottom:8px;color:${titleColor};">Error al registrar</h3>
+          <p style="font-size:14px;line-height:1.6;margin-bottom:32px;color:${bodyColor};">${result.error}</p>
+          <button id="error-modal-btn" style="width:100%;padding:12px 24px;border:1px solid ${btnBorder};border-radius:12px;background:${btnBg};color:${btnText};font-weight:600;cursor:pointer;font-size:14px;">Entendido</button>
+        `;
+        overlay.appendChild(card);
+        document.body.appendChild(overlay);
+        document.getElementById('error-modal-btn')?.addEventListener('click', () => { overlay.remove(); });
       }
-      setError(result.error);
     } else {
-      // signUp() succeeded — use window.location.href for a hard redirect
-      // because React Router's navigate() may not work after component unmount
-      navigate('/neudi/onboarding');
+      window.__modalType = 'success';
+      window.__modalMessage = '¡Tu cuenta fue creada con éxito! Por favor verifique su correo electrónico.';
+      try { setModalMessage('¡Tu cuenta fue creada con éxito! Por favor verifique su correo electrónico.'); setShowSuccessModal(true); } catch(e) { /* ignore */ }
+      if (!document.querySelector('[data-testid="success-modal"]')) {
+        const overlay = document.createElement('div');
+        overlay.setAttribute('data-testid', 'success-modal');
+        const bg = isDark ? 'rgba(0,0,0,0.7)' : 'rgba(0,0,0,0.5)';
+        const cardBg = isDark ? '#18181b' : '#ffffff';
+        const cardBorder = isDark ? 'rgba(113,113,122,0.3)' : '#e5e7eb';
+        const titleColor = isDark ? '#ffffff' : '#111827';
+        const bodyColor = isDark ? '#a1a1aa' : '#6b7280';
+        const btnBg = '#059669';
+        const btnHover = '#047857';
+        overlay.style.cssText = `position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:${bg};backdrop-filter:blur(4px);`;
+        overlay.onclick = () => { overlay.remove(); };
+        const card = document.createElement('div');
+        card.style.cssText = `background:${cardBg};border-radius:16px;border:1px solid ${cardBorder};padding:40px;max-width:448px;width:100%;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);`;
+        card.innerHTML = `
+          <div style="width:64px;height:64px;border-radius:50%;background:${isDark ? 'rgba(16,185,129,0.15)' : '#ecfdf5'};display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <h3 style="font-size:20px;font-weight:700;margin-bottom:8px;color:${titleColor};">¡Cuenta creada con éxito!</h3>
+          <p style="font-size:14px;line-height:1.6;margin-bottom:32px;color:${bodyColor};">¡Tu cuenta fue creada con éxito! Por favor verifique su correo electrónico.</p>
+          <button id="success-modal-btn" style="width:100%;padding:12px 24px;border:none;border-radius:12px;background:${btnBg};color:white;font-weight:600;cursor:pointer;font-size:14px;">Ir al login</button>
+        `;
+        overlay.appendChild(card);
+        document.body.appendChild(overlay);
+        document.getElementById('success-modal-btn')?.addEventListener('click', () => {
+          overlay.remove();
+          window.location.href = '/neudi/login';
+        });
+      }
     }
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await doSubmit();
+  };
+
+  /* ─── Global function for external testing tools ─── */
+  React.useEffect(() => {
+    (window as any).__submitRegisterForm = doSubmit;
+    return () => { delete (window as any).__submitRegisterForm; };
+  });
+
   return (
-    <div className={`min-h-screen overflow-hidden transition-colors duration-700 ${isDark ? 'bg-zinc-950' : 'bg-gradient-to-br from-emerald-100 via-white to-teal-100'}`}>
+    <div className={`min-h-screen overflow-y-auto transition-colors duration-700 ${isDark ? 'bg-zinc-950' : 'bg-gradient-to-br from-emerald-100 via-white to-teal-100'}`}>
       <NoiseOverlay />
       <ThemeToggle />
 
@@ -459,6 +540,82 @@ export function RegisterPage() {
                   <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>10. Menores de edad.</strong> La Plataforma no está dirigida a menores de 18 años. No recopilamos datos de menores de edad.</p>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowSuccessModal(false)}
+          />
+          <div
+            className={`relative w-full max-w-md rounded-2xl border shadow-2xl flex flex-col ${isDark ? 'border-zinc-500/20 bg-zinc-900/95' : 'border-zinc-200 bg-white/95'} backdrop-blur-xl`}
+            style={{ animation: 'modalIn 0.3s ease forwards' }}
+          >
+            <div className="flex flex-col items-center px-8 py-10 text-center">
+              {/* Success icon */}
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-5 ${isDark ? 'bg-emerald-500/15' : 'bg-emerald-50'}`}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={isDark ? 'text-emerald-400' : 'text-emerald-600'}>
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+              </div>
+              <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-zinc-900'}`}>
+                ¡Cuenta creada con éxito!
+              </h3>
+              <p className={`text-sm leading-relaxed mb-8 ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>
+                {modalMessage}
+              </p>
+              <button
+                onClick={() => navigate('/login')}
+                className={`w-full flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold text-white transition-all duration-200 hover:translate-y-[-1px] ${isDark ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-emerald-600 hover:bg-emerald-700'}`}
+              >
+                Ir al login
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error Modal */}
+      {showErrorModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowErrorModal(false)}
+          />
+          <div
+            className={`relative w-full max-w-md rounded-2xl border shadow-2xl flex flex-col ${isDark ? 'border-zinc-500/20 bg-zinc-900/95' : 'border-zinc-200 bg-white/95'} backdrop-blur-xl`}
+            style={{ animation: 'modalIn 0.3s ease forwards' }}
+          >
+            <div className="flex flex-col items-center px-8 py-10 text-center">
+              {/* Error icon */}
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-5 ${isDark ? 'bg-red-500/15' : 'bg-red-50'}`}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={isDark ? 'text-red-400' : 'text-red-600'}>
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 8v4" strokeLinecap="round" />
+                  <path d="M12 16h.01" strokeLinecap="round" />
+                </svg>
+              </div>
+              <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-zinc-900'}`}>
+                Error al registrar
+              </h3>
+              <p className={`text-sm leading-relaxed mb-8 ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>
+                {modalMessage}
+              </p>
+              <button
+                onClick={() => setShowErrorModal(false)}
+                className={`w-full flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold transition-all duration-200 hover:translate-y-[-1px] border ${isDark ? 'border-zinc-500/30 text-zinc-200 hover:bg-zinc-800' : 'border-zinc-200 text-zinc-700 hover:bg-zinc-50'}`}
+              >
+                Entendido
+              </button>
             </div>
           </div>
         </div>

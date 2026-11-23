@@ -128,6 +128,7 @@ export function HorizontalView({
 
   // Refs for the two independent scroll containers
   const horizontalScrollRef = React.useRef<HTMLDivElement>(null);
+  const rowBackgroundsRef = React.useRef<HTMLDivElement>(null);
 
   const weekDates = React.useMemo(() => {
     const selected = new Date(selectedDate + 'T00:00:00');
@@ -236,6 +237,20 @@ export function HorizontalView({
     if (horizontalScrollRef.current) {
       horizontalScrollRef.current.scrollLeft = 8 * HOUR_WIDTH;
     }
+  }, []);
+
+  // Sync row backgrounds horizontal scroll with appointments scroll
+  React.useEffect(() => {
+    const el = horizontalScrollRef.current;
+    const bg = rowBackgroundsRef.current;
+    if (!el || !bg) return;
+
+    const onScroll = () => {
+      bg.style.transform = `translateX(${-el.scrollLeft}px)`;
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    onScroll(); // initial position
+    return () => el.removeEventListener('scroll', onScroll);
   }, []);
 
   // Calculate dynamic day row heights based on max vertical overlaps
@@ -526,35 +541,46 @@ export function HorizontalView({
             — Vertical scroll: day rows move
             — Horizontal scroll: appointments move, day labels stay
             ═══════════════════════════════════════════ */}
-        <div className="flex-1 min-h-0 overflow-y-hidden overflow-x-hidden">
-          <div className="flex relative" style={{ height: isMobile ? 'auto' : `${totalHeight - headerHeight}px` }}>
+        <div className="flex-1 min-h-0 overflow-y-hidden relative">
+          {/* ── Day row backgrounds (full width, outside inner flex so they span entire content) ── */}
+          <div
+            ref={rowBackgroundsRef}
+            className="pointer-events-none"
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: `${dayLabelWidth + appointmentsWidth}px`,
+              height: isMobile ? 'auto' : `${totalHeight - headerHeight}px`,
+              zIndex: 0,
+            }}
+          >
+            {weekDates.map((date) => {
+              const rowHeight = dayRowHeights[date] || DAY_ROW_BASE_HEIGHT;
+              const dayTop = dayRowTopMap[date] ?? 0;
+              const isToday = date === todayStr;
+              const isSelected = date === selectedDate;
+              return (
+                <div
+                  key={`bg-${date}`}
+                  style={{
+                    left: `${dayLabelWidth}px`,
+                    width: `${appointmentsWidth}px`,
+                    top: `${dayTop}px`,
+                    height: `${rowHeight}px`,
+                    backgroundColor: isSelected
+                      ? isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.22)'
+                      : isToday
+                        ? isDark ? 'rgba(16,185,129,0.08)' : 'rgba(16,185,129,0.12)'
+                        : 'transparent',
+                    zIndex: 0,
+                  }}
+                />
+              );
+            })}
+          </div>
 
-            {/* ── Day row backgrounds (full width) ── */}
-            <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }}>
-              {weekDates.map((date) => {
-                const rowHeight = dayRowHeights[date] || DAY_ROW_BASE_HEIGHT;
-                const dayTop = dayRowTopMap[date] ?? 0;
-                const isToday = date === todayStr;
-                const isSelected = date === selectedDate;
-                return (
-                  <div
-                    key={`bg-${date}`}
-                    style={{
-                      left: 0,
-                      width: `${appointmentsWidth}px`,
-                      top: `${dayTop}px`,
-                      height: `${rowHeight}px`,
-                      backgroundColor: isSelected
-                        ? isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.22)'
-                        : isToday
-                          ? isDark ? 'rgba(16,185,129,0.08)' : 'rgba(16,185,129,0.12)'
-                          : 'transparent',
-                      zIndex: 0,
-                    }}
-                  />
-                );
-              })}
-            </div>
+          <div className="flex relative" style={{ height: isMobile ? 'auto' : `${totalHeight - headerHeight}px` }}>
 
             {/* ── Sticky day labels column (left) ── */}
             {/* Stays fixed when scrolling horizontally. */}
