@@ -1,0 +1,162 @@
+/* ════════════════════════════════════════════
+   LANDING REDESIGN — "Editorial Ledger"
+   Appointment-ledger identity: warm paper (light)
+   and deep ink green-black (dark), one deep-green
+   accent. Fraunces display + Inter body + IBM Plex Mono
+   ════════════════════════════════════════════ */
+
+.landing {
+  --lp-paper: #f5f2ec;
+  --lp-surface: #fffefb;
+  --lp-surface-2: #edeae1;
+  --lp-ink: #182219;
+  --lp-ink-2: #465349;
+  --lp-ink-3: #667267;
+  --lp-hairline: #e0dbcd;
+  --lp-hairline-strong: #cdc7b6;
+  --lp-accent: #0c6b45;
+  --lp-accent-strong: #093f30;
+  --lp-accent-soft: #dfe9de;
+  --lp-accent-glow: rgba(12, 107, 69, 0.18);
+  --lp-ticket: #ffffff;
+  --lp-shadow: 0 28px 60px -28px rgba(24, 34, 25, 0.35);
+  --lp-shadow-tight: 0 2px 6px rgba(24, 34, 25, 0.12);
+  background: var(--lp-paper);
+  color: var(--lp-ink);
+  font-family: 'Inter', system-ui, sans-serif;
+  color-scheme: light;
+}
+
+[data-theme="dark"] .landing {
+  --lp-paper: #0c120e;
+  --lp-surface: #131a15;
+  --lp-surface-2: #1a231c;
+  --lp-ink: #ecf2ec;
+  --lp-ink-2: #a6b5a9;
+  --lp-ink-3: #6f7f71;
+  --lp-hairline: #222d25;
+  --lp-hairline-strong: #31402f;
+  --lp-accent: #3fd78c;
+  --lp-accent-strong: #2bd07a;
+  --lp-accent-soft: #18251d;
+  --lp-accent-glow: rgba(63, 215, 140, 0.18);
+  --lp-ticket: #161f19;
+  --lp-shadow: 0 30px 70px -28px rgba(0, 0, 0, 0.7);
+  --lp-shadow-tight: 0 2px 10px rgba(0, 0, 0, 0.45);
+  color-scheme: dark;
+}
+
+.landing .lp-serif {
+  font-family: 'Fraunces', Georgia, serif;
+  font-optical-sizing: auto;
+}
+
+.landing .lp-mono {
+  font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* faint engineering-paper grid for the hero */
+.landing .lp-grid-bg {
+  background-image:
+    linear-gradient(var(--lp-hairline) 1px, transparent 1px),
+    linear-gradient(90deg, var(--lp-hairline) 1px, transparent 1px);
+  background-size: 52px 52px;
+  -webkit-mask-image: radial-gradient(ellipse 120% 90% at 50% 40%, black 40%, transparent 100%);
+  mask-image: radial-gradient(ellipse 120% 90% at 50% 40%, black 40%, transparent 100%);
+  opacity: 0.55;
+}
+
+/* perforated ticket hole strip */
+.landing .lp-perforation {
+  background-image: radial-gradient(circle 7px at 50% 50%, var(--lp-paper) 6px, transparent 7px);
+  background-size: 14px 14px;
+  background-repeat: repeat-y;
+}
+
+/* barcode strip */
+.landing .lp-barcode {
+  background-image: repeating-linear-gradient(
+    90deg,
+    currentColor 0 1px,
+    transparent 1px 3px,
+    currentColor 3px 4px,
+    transparent 4px 8px,
+    currentColor 8px 11px,
+    transparent 11px 13px,
+    currentColor 13px 14px,
+    transparent 14px 18px
+  );
+}
+
+/* marquee */
+@keyframes lp-marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.landing .lp-marquee-track {
+  animation: lp-marquee 46s linear infinite;
+}
+.landing .lp-marquee:hover .lp-marquee-track {
+  animation-play-state: paused;
+}
+
+/* ticket float */
+@keyframes lp-float {
+  0%, 100% { transform: translateY(0px) rotate(var(--lp-tilt, 0deg)); }
+  50% { transform: translateY(-10px) rotate(var(--lp-tilt, 0deg)); }
+}
+.landing .lp-ticket {
+  animation: lp-float 7s ease-in-out infinite;
+}
+
+/* blinking live dot */
+@keyframes lp-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.landing .lp-blink {
+  animation: lp-blink 1.6s ease-in-out infinite;
+}
+
+/* pulse ring on hero CTA (subtle, single accent) */
+@keyframes lp-pulse {
+  0% { box-shadow: 0 0 0 0 var(--lp-accent-glow); }
+  70% { box-shadow: 0 0 0 16px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.landing .lp-pulse {
+  animation: lp-pulse 2.6s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing .lp-marquee-track,
+  .landing .lp-ticket,
+  .landing .lp-pulse,
+  .landing .lp-blink {
+    animation: none !important;
+  }
+}
+
+/* feature rows */
+.landing .lp-feature-row {
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+.landing .lp-feature-row:hover {
+  background-color: var(--lp-surface);
+}
+.landing .lp-feature-row:hover .lp-feature-index {
+  color: var(--lp-accent);
+}
+.landing .lp-feature-cell-icon {
+  transition: transform 0.25s ease;
+}
+.landing .lp-feature-row:hover .lp-feature-cell-icon {
+  transform: translate(-2px, 2px);
+}
+
+/* focus visibility */
+.landing a:focus-visible,
+.landing button:focus-visible {
+  outline: 2px solid var(--lp-accent);
+  outline-offset: 3px;
+}
