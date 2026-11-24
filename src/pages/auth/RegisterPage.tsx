@@ -158,11 +158,11 @@ export function RegisterPage() {
 
   /* ─── Shared validation + submission logic (works with React state or DOM values) ─── */
   const doSubmit = async () => {
-    const domName = document.getElementById('name')?.value || name;
-    const domEmail = document.getElementById('email')?.value || email;
-    const domPassword = document.getElementById('password')?.value || password;
-    const domConfirm = document.getElementById('confirmPassword')?.value || confirmPassword;
-    const domTerms = document.querySelector('input[type="checkbox"]')?.checked || acceptedTerms;
+    const domName = (document.getElementById('name') as HTMLInputElement)?.value || name;
+    const domEmail = (document.getElementById('email') as HTMLInputElement)?.value || email;
+    const domPassword = (document.getElementById('password') as HTMLInputElement)?.value || password;
+    const domConfirm = (document.getElementById('confirmPassword') as HTMLInputElement)?.value || confirmPassword;
+    const domTerms = (document.querySelector('input[type="checkbox"]') as HTMLInputElement)?.checked || acceptedTerms;
 
     if (!domName.trim() || !domEmail.trim() || !domPassword.trim()) {
       setError('Completá todos los campos.');
@@ -192,8 +192,8 @@ export function RegisterPage() {
     
     // Always try to show modal via DOM injection as primary approach
     if (result.error) {
-      window.__modalType = 'error';
-      window.__modalMessage = result.error;
+      (window as any).__modalType = 'error';
+      (window as any).__modalMessage = result.error;
       try { setModalMessage(result.error); setShowErrorModal(true); } catch(e) { /* ignore */ }
       if (!document.querySelector('[data-testid="error-modal"]')) {
         const overlay = document.createElement('div');
@@ -224,8 +224,8 @@ export function RegisterPage() {
         document.getElementById('error-modal-btn')?.addEventListener('click', () => { overlay.remove(); });
       }
     } else {
-      window.__modalType = 'success';
-      window.__modalMessage = '¡Tu cuenta fue creada con éxito! Por favor verifique su correo electrónico.';
+      (window as any).__modalType = 'success';
+      (window as any).__modalMessage = '¡Tu cuenta fue creada con éxito! Por favor verifique su correo electrónico.';
       try { setModalMessage('¡Tu cuenta fue creada con éxito! Por favor verifique su correo electrónico.'); setShowSuccessModal(true); } catch(e) { /* ignore */ }
       if (!document.querySelector('[data-testid="success-modal"]')) {
         const overlay = document.createElement('div');
