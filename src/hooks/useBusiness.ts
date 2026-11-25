@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { supabase, type Business } from '@/lib';
+import { supabase, type Business } from '@/lib/supabase';
 import { BUSINESS_TIMEZONE } from '@/utils/dateTime';
 
 export interface UseBusinessResult {

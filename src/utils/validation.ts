@@ -1,6 +1,6 @@
 /**
  * Validación y generación de slugs — fuente única de verdad.
- * (Antes duplicadas en AuthContext.tsx, authService.ts y RegisterPage.tsx)
+ * (Antes duplicadas en AuthContext.tsx y RegisterPage.tsx)
  */
 
 /** Valida un correo electrónico con una regex simple. */

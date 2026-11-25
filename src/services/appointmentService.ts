@@ -1,4 +1,4 @@
-import { supabase, type Service } from '@/lib';
+import { supabase, type Service } from '@/lib/supabase';
 import type { Slot, AppointmentStatus, AppointmentStatusLower } from '@/types';
 import { buildTimestampISO, parseLocalDate } from '@/utils/dateTime';
 import { toDbStatus } from '@/utils/status';

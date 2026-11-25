@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { supabase, type Profile, type BusinessMember } from '@/lib';
+import { supabase, type Profile, type BusinessMember } from '@/lib/supabase';
 import { generateSlug } from '@/utils/validation';
 
 export interface UserBusiness {
