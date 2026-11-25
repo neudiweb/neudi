@@ -8,6 +8,7 @@ import { ErrorModal } from '@/components/ErrorModal';
 import { Modal } from '@/components/ui/Modal';
 import { Toast } from '@/components/ui/Toast';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { formatPrice } from '@/utils/dateTime';
 
 interface ServiceItem {
   id: string;
@@ -204,10 +205,6 @@ export function DashboardServices() {
   const cancelForm = () => {
     setShowForm(false);
     resetForm();
-  };
-
-  const formatPrice = (p: number) => {
-    return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 0 }).format(p);
   };
 
   const filteredServices = React.useMemo(() => {

@@ -122,17 +122,6 @@ export function buildTimestampISO(
 }
 
 /**
- * Dado un date/time en la timezone del negocio, devuelve el Date object UTC.
- */
-export function buildTimestampDate(
-  dateStr: string,
-  timeStr: string,
-  timezone: string = BUSINESS_TIMEZONE
-): Date {
-  return new Date(buildTimestampISO(dateStr, timeStr, timezone));
-}
-
-/**
  * Formatea un timestamp ISO (UTC) a la hora local del negocio.
  */
 export function formatTimeInBusinessTimezone(
@@ -241,42 +230,12 @@ export function formatTimeInTimezone(isoString: string, timezone: string = BUSIN
 }
 
 /**
- * Format an ISO timestamp to date string (DD/MM) in the business timezone.
- */
-export function formatDateShortInTimezone(isoString: string, timezone: string = BUSINESS_TIMEZONE): string {
-  const date = new Date(isoString);
-  
-  return new Intl.DateTimeFormat('es-AR', {
-    timeZone: timezone,
-    day: '2-digit',
-    month: '2-digit',
-  }).format(date);
-}
-
-/**
  * Formatea un date string (YYYY-MM-DD) a formato legible en español.
  * Usa Intl para parsing correcto sin drift UTC.
  */
 export function formatDate(dateStr: string, timezone: string = BUSINESS_TIMEZONE): string {
   const date = parseLocalDate(dateStr, timezone);
   return new Intl.DateTimeFormat('es-AR', { weekday: 'long', day: 'numeric', month: 'long' }).format(date);
-}
-
-/**
- * Formatea un timestamp ISO a formato legible.
- */
-export function formatDateTime(isoString: string): string {
-  const date = new Date(isoString);
-  return new Intl.DateTimeFormat('es-AR', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(date);
-}
-
-const DAY_NAMES = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-
-export function getDayName(dayOfWeek: number): string {
-  return DAY_NAMES[dayOfWeek];
 }
 
 export function getTimeSlots(
@@ -299,22 +258,6 @@ export function getTimeSlots(
   }
 
   return slots;
-}
-
-export function getDaysInMonth(year: number, month: number): Date[] {
-  const days: Date[] = [];
-  const lastDay = new Date(year, month + 1, 0);
-
-  for (let d = 1; d <= lastDay.getDate(); d++) {
-    days.push(new Date(year, month, d));
-  }
-
-  return days;
-}
-
-export function isToday(date: Date): boolean {
-  const today = new Date();
-  return date.toDateString() === today.toDateString();
 }
 
 /**
@@ -359,55 +302,6 @@ export function isDayOfWeek(dateStr: string, businessDay: number, timezone: stri
 export function timeToMinutes(timeStr: string): number {
   const [h, m] = timeStr.split(':').map(Number);
   return h * 60 + m;
-}
-
-/**
- * Convert total minutes from midnight to time string HH:mm.
- */
-export function minutesToTime(totalMinutes: number): string {
-  const h = Math.floor(totalMinutes / 60);
-  const m = totalMinutes % 60;
-  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-}
-
-/**
- * Generate time slots for a single time range.
- */
-export function generateSlotsForRange(
-  startTime: string,
-  endTime: string,
-  stepMinutes: number = 15
-): string[] {
-  const startMin = timeToMinutes(startTime);
-  const endMin = timeToMinutes(endTime);
-  const slots: string[] = [];
-
-  let currentMin = startMin;
-  while (currentMin < endMin) {
-    slots.push(minutesToTime(currentMin));
-    currentMin += stepMinutes;
-  }
-
-  return slots;
-}
-
-/**
- * Generate all available time slots for multiple time ranges.
- * Returns sorted array of unique time strings.
- */
-export function generateSlotsForRanges(
-  ranges: Array<{ startTime: string; endTime: string }>,
-  stepMinutes: number = 15
-): string[] {
-  const allSlots = new Set<string>();
-
-  for (const range of ranges) {
-    const slots = generateSlotsForRange(range.startTime, range.endTime, stepMinutes);
-    slots.forEach(slot => allSlots.add(slot));
-  }
-
-  // Sort by time
-  return Array.from(allSlots).sort((a, b) => timeToMinutes(a) - timeToMinutes(b));
 }
 
 /**
