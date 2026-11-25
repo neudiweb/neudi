@@ -1,8 +1,8 @@
 import { useParams, Link } from 'react-router-dom';
 import * as React from 'react';
-import { PublicLayout } from '../../components/layout/PublicLayout';
-import { getBusiness } from '../../services/businessService';
-import { formatPrice } from '../../utils/helpers';
+import { PublicLayout } from '@/components/layout/PublicLayout';
+import { getBusiness } from '@/services/businessService';
+import { formatPrice } from '@/utils/dateTime';
 
 export function BusinessPage() {
   const { slug } = useParams<{ slug: string }>();

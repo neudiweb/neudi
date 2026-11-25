@@ -93,3 +93,23 @@ export type Slot = {
   time: string;
   available: boolean;
 };
+/** Shape of the appointment currently selected in the agenda (drawer/reschedule/add context). */
+export interface SelectedAppointment {
+  id: string;
+  clientName: string;
+  clientPhone: string;
+  service: string;
+  services: string[];
+  serviceNames: string;
+  date: string;
+  time: string;
+  endTime: string;
+  totalDuration: number;
+  totalPrice: number;
+  status: AppointmentStatusLower;
+  requiresDeposit: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  serviceId?: string;
+  serviceDetails?: Array<{ name: string; price: number; duration_minutes: number }>;
+}

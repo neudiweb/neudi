@@ -1,5 +1,5 @@
 import { supabase, type Service, type Business, type BusinessHour } from '@/lib';
-import type { TimeRange } from '../types';
+import type { TimeRange } from '@/types';
 
 export interface BusinessData {
   slug: string;

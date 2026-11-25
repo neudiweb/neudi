@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
-import { BusinessNotFoundPage } from './BusinessNotFoundPage';
+import { supabase } from '@/lib/supabase';
+import { BusinessNotFoundPage } from '@/pages/BusinessNotFoundPage';
 
 export function BusinessPage() {
   const { slug } = useParams<{ slug: string }>();

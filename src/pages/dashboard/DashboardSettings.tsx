@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { DashboardLayout } from '../../components/layout/DashboardLayout';
-import { Button } from '../../components/ui/Button';
-import { Input, Textarea } from '../../components/ui/Input';
-import AppearanceSettings from '../../components/ui/AppearanceSettings';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { Button } from '@/components/ui/Button';
+import { Input, Textarea } from '@/components/ui/Input';
+import AppearanceSettings from '@/components/ui/AppearanceSettings';
 
 export function DashboardSettings() {
   const [saved, setSaved] = React.useState(false);

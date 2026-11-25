@@ -1,6 +1,7 @@
 import { supabase, type Service } from '@/lib';
-import type { Slot, AppointmentStatus, AppointmentStatusLower } from '../types';
-import { buildTimestampISO, parseLocalDate } from '../utils/helpers';
+import type { Slot, AppointmentStatus, AppointmentStatusLower } from '@/types';
+import { buildTimestampISO, parseLocalDate } from '@/utils/dateTime';
+import { toDbStatus } from '@/utils/status';
 
 const VALID_TRANSITIONS: Record<AppointmentStatus, AppointmentStatus[]> = {
   PENDING: ['CONFIRMED', 'CANCELLED', 'EXPIRED'],
@@ -25,10 +26,6 @@ export function isTerminalStatus(status: AppointmentStatus): boolean {
 
 export function getValidTransitions(from: AppointmentStatus): AppointmentStatus[] {
   return VALID_TRANSITIONS[from] || [];
-}
-
-function lowerToUpper(status: AppointmentStatusLower): AppointmentStatus {
-  return status.toUpperCase() as AppointmentStatus;
 }
 
 export interface CreateAppointmentInput {
@@ -241,7 +238,7 @@ export async function updateAppointmentStatusLower(
   appointmentId: string,
   status: AppointmentStatusLower
 ): Promise<{ success: boolean; error?: string }> {
-  return updateAppointmentStatus(appointmentId, lowerToUpper(status));
+  return updateAppointmentStatus(appointmentId, toDbStatus(status));
 }
 
 export async function getBusinessAppointments(

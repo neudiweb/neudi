@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { getUpcomingHolidays, type Holiday } from '../services/holidayService';
+import { getUpcomingHolidays, type Holiday } from '@/services/holidayService';
 import {
   parseLocalDate,
   getTodayInTimezone,
   BUSINESS_TIMEZONE,
-} from '../utils/helpers';
+} from '@/utils/dateTime';
 
 export interface UpcomingHoliday {
   date: string;

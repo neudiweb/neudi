@@ -14,7 +14,7 @@ import {
   jsDayToBusinessDay,
   businessDayToJsDay,
   BUSINESS_TIMEZONE,
-} from '../dateTime';
+} from '@/utils/dateTime';
 
 describe('parseLocalDate', () => {
   it('debería parsear una fecha correctamente en timezone de Buenos Aires', () => {

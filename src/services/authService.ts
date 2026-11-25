@@ -1,4 +1,5 @@
 
+import { generateSlug } from '@/utils/validation';
 
 export interface User {
   email: string;
@@ -35,15 +36,6 @@ export interface RegisterData {
 
 export type AuthError = 'INVALID_CREDENTIALS' | 'EMAIL_EXISTS' | 'WEAK_PASSWORD' | 'NETWORK_ERROR';
 
-function generateSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 40);
-}
 
 function getMockUsers(): MockUser[] {
   try {

@@ -1,173 +1,11 @@
 import * as React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '@/contexts/ThemeContext';
-import { useAuth } from '../../contexts/AuthContext';
-import { supabase } from '../../lib/supabase';
-
-/* ===========================
-   ANIMATED BACKGROUND COMPONENTS
-   =========================== */
-
-function GlowOrb({ className }: { className?: string }) {
-  return <div className={`pointer-events-none absolute rounded-full blur-3xl ${className}`} />;
-}
-
-function AuroraBackground() {
-  return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      <div className="absolute -top-40 -left-40 w-[800px] h-[800px] rounded-full bg-gradient-to-br from-emerald-500/20 via-teal-500/10 to-transparent blur-3xl animate-aurora-1" />
-      <div className="absolute top-1/3 -right-40 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-teal-500/15 via-green-500/10 to-transparent blur-3xl animate-aurora-2" />
-      <div className="absolute -bottom-40 left-1/4 w-[700px] h-[700px] rounded-full bg-gradient-to-br from-emerald-500/10 via-lime-500/5 to-transparent blur-3xl animate-aurora-3" />
-    </div>
-  );
-}
-
-function ParticleField() {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {Array.from({ length: 15 }, (_, i) => (
-        <div
-          key={i}
-          className="absolute rounded-full bg-emerald-400/15 dark:bg-emerald-300/10 animate-float-slow"
-          style={{
-            left: `${(i * 7.3) % 100}%`,
-            top: `${(i * 11.7) % 100}%`,
-            width: `${2 + (i % 5)}px`,
-            height: `${2 + (i % 5)}px`,
-            animationDelay: `${(i % 8)}s`,
-            animationDuration: `${10 + (i % 10)}s`,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-function NoiseOverlay() {
-  return (
-    <div
-      className="pointer-events-none fixed inset-0 z-40 opacity-[0.03] mix-blend-overlay"
-      style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-        backgroundRepeat: 'repeat',
-        backgroundSize: '256px 256px',
-      }}
-    />
-  );
-}
-
-/* ─── Floating Logo Badge ─── */
-function FloatingLogo() {
-  const [hovered, setHovered] = React.useState(false);
-
-  return (
-    <div
-      className="relative perspective-1000"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      <div
-        className="transition-transform duration-500 ease-out"
-        style={{
-          transform: hovered ? 'rotateY(10deg) scale(1.05)' : 'rotateY(0) scale(1)',
-          transformStyle: 'preserve-3d',
-        }}
-      >
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-500 shadow-2xl shadow-emerald-500/30 transition-all duration-500 hover:rotate-6 hover:scale-110">
-          <span className="text-3xl font-black text-white">N</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ─── Glowing Border Card ─── */
-function GlowingCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  const [mousePos, setMousePos] = React.useState({ x: 0, y: 0 });
-  const [isHovered, setIsHovered] = React.useState(false);
-  const ref = React.useRef<HTMLDivElement>(null);
-
-  const handleMouseMove = React.useCallback((e: React.MouseEvent) => {
-    const el = ref.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-  }, []);
-
-  return (
-    <div
-      ref={ref}
-      className={`relative overflow-hidden rounded-2xl ${className}`}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {isHovered && (
-        <div
-          className="pointer-events-none absolute -inset-px rounded-2xl opacity-100 transition-opacity duration-300"
-          style={{
-            background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, rgba(16, 185, 129, 0.15), transparent 40%)`,
-          }}
-        />
-      )}
-      {children}
-    </div>
-  );
-}
-
-/* ─── Shimmer Button ─── */
-function ShimmerButton({ children, onClick, className = '', disabled = false }: {
-  children: React.ReactNode;
-  onClick?: (e: React.MouseEvent) => void;
-  className?: string;
-  disabled?: boolean;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={`group relative inline-flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-9 py-3 text-lg font-bold text-white shadow-2xl shadow-emerald-500/25 transition-all duration-500 hover:shadow-emerald-500/40 hover:scale-105 active:scale-100 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${className}`}
-    >
-      <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
-      <span className="relative z-10 flex items-center gap-2">{children}</span>
-    </button>
-  );
-}
-
-/* ─── Pulse Dot ─── */
-function PulseDot() {
-  return (
-    <span className="relative flex h-3 w-3">
-      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-      <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-    </span>
-  );
-}
-
-/* ─── Theme Toggle ─── */
-function ThemeToggle() {
-  const { activeTheme, setMode } = useTheme();
-  const isDark = activeTheme === 'dark';
-
-  return (
-    <button
-      onClick={() => setMode(isDark ? 'light' : 'dark')}
-      className="fixed top-4 right-4 z-50 flex items-center justify-center rounded-full border border-zinc-300/50 dark:border-zinc-700/50 bg-white/90 dark:bg-zinc-900/90 w-10 h-10 shadow-lg shadow-zinc-500/5 dark:shadow-zinc-500/10 backdrop-blur-sm transition-all duration-300 hover:scale-105 cursor-pointer"
-      aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-    >
-      {isDark ? (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-400">
-          <circle cx="12" cy="12" r="4" />
-          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-        </svg>
-      ) : (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-600">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-        </svg>
-      )}
-    </button>
-  );
-}
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
+import { AuthLayout } from '@/components/auth/AuthLayout';
+import { GlowingCard, FloatingLogo, ShimmerButton, PulseDot } from '@/components/auth/AuthVisuals';
+import { Modal } from '@/components/ui/Modal';
 
 /* ===========================
    MAIN LOGIN PAGE
@@ -282,25 +120,130 @@ export function LoginPage() {
   };
 
   return (
-    <div className={`relative min-h-screen overflow-hidden transition-colors duration-700 ${isDark ? 'bg-zinc-950' : 'bg-gradient-to-br from-emerald-100 via-white to-teal-100'}`}>
-      <NoiseOverlay />
-      <ThemeToggle />
-      <AuroraBackground />
-      <ParticleField />
+    <AuthLayout after={showResetModal && (
+        <Modal
+          shellClassName="fixed inset-0 z-50 flex items-center justify-center px-4"
+          testId="reset-modal"
+          backdropClassName="absolute inset-0 bg-black/50 backdrop-blur-sm"
+          backdropTestId="reset-modal-backdrop"
+          onBackdropClick={() => { setShowResetModal(false); setResetSent(false); setResetError(''); }}
+          panelClassName={`relative w-full max-w-sm rounded-2xl border p-6 sm:p-8 shadow-2xl transition-all duration-300 ${isDark ? 'border-emerald-500/20 bg-emerald-950/30 backdrop-blur-xl' : 'border-emerald-200 bg-white/95 backdrop-blur-xl'}`}
+          panelStyle={{ animation: 'modalIn 0.3s ease-out' }}
+        >
+            <style>{`
+              @keyframes modalIn {
+                from { opacity: 0; transform: scale(0.95) translateY(10px); }
+                to { opacity: 1; transform: scale(1) translateY(0); }
+              }
+            `}</style>
 
-      {/* Grid overlay */}
-      <div
-        className={`absolute inset-0 opacity-[0.03] dark:opacity-[0.06] pointer-events-none`}
-        style={{
-          backgroundImage: `linear-gradient(rgba(16,185,129,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(16,185,129,0.5) 1px, transparent 1px)`,
-          backgroundSize: '60px 60px',
-          animation: 'gridMove 20s linear infinite',
-        }}
-      />
+            {resetSent ? (
+              <div className="text-center">
+                <div className={`inline-flex items-center justify-center w-14 h-14 rounded-full mb-4 ${isDark ? 'bg-emerald-500/20' : 'bg-emerald-100'}`}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={` ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" strokeLinecap="round" />
+                    <path d="M22 4L12 14.01l-3-3" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+                <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-zinc-900'}`}>
+                  Email enviado
+                </h3>
+                <p className={`text-sm leading-relaxed mb-6 ${isDark ? 'text-emerald-200/60' : 'text-zinc-500'}`}>
+                  Te enviamos un enlace para recuperar tu contraseña a <strong className={`font-semibold ${isDark ? 'text-emerald-200' : 'text-zinc-700'}`}>{resetEmail}</strong>. Revisá tu bandeja de entrada.
+                </p>
+                <button
+                  onClick={() => { setShowResetModal(false); setResetSent(false); setResetError(''); }}
+                  className={`w-full rounded-xl border-2 px-6 py-3 text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] ${
+                    isDark
+                      ? 'border-emerald-500/20 bg-emerald-500/5 text-emerald-300 hover:border-emerald-500/40 hover:bg-emerald-500/10'
+                      : 'border-emerald-300 bg-emerald-50/50 text-emerald-700 hover:border-emerald-400 hover:bg-emerald-100/70'
+                  }`}
+                >
+                  Entendido
+                </button>
+              </div>
+            ) : (
+              <>
+                <button
+                  data-testid="reset-modal-close"
+                  onClick={() => { setShowResetModal(false); setResetSent(false); setResetError(''); }}
+                  className={`absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-lg transition-colors duration-200 ${isDark ? 'text-emerald-200/40 hover:text-emerald-200/80 hover:bg-emerald-500/10' : 'text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100'}`}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
 
-      {/* Main content */}
-      <div className="relative flex min-h-screen items-center justify-center px-4 py-12">
-        <div className="w-full max-w-md">
+                <div className="mb-5">
+                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl mb-3 ${isDark ? 'bg-emerald-500/20' : 'bg-emerald-100'}`}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={`${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                  </div>
+                  <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-zinc-900'}`}>
+                    Recuperar contraseña
+                  </h3>
+                  <p className={`text-sm mt-1 ${isDark ? 'text-emerald-200/50' : 'text-zinc-500'}`}>
+                    Ingresá tu email y te enviaremos un enlace para crear una nueva contraseña.
+                  </p>
+                </div>
+
+                {resetError && (
+                  <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 rounded-xl px-4 py-3 mb-4">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M12 8v4" strokeLinecap="round" />
+                      <path d="M12 16h.01" strokeLinecap="round" />
+                    </svg>
+                    {resetError}
+                  </div>
+                )}
+
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="reset-email" className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-emerald-100/80' : 'text-zinc-700'}`}>
+                      Email
+                    </label>
+                    <input
+                      id="reset-email"
+                      type="email"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      placeholder="tu@email.com"
+                      onKeyDown={(e) => { if (e.key === 'Enter') handleReset(e as unknown as React.FormEvent); }}
+                      autoFocus
+                      className={`w-full rounded-xl border bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm px-4 py-3 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-secondary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 ${isDark ? 'border-emerald-500/20 hover:border-emerald-500/30' : 'border-emerald-200 hover:border-emerald-300'}`}
+                    />
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={(e) => { e.preventDefault(); handleReset(e as unknown as React.FormEvent); }}
+                    disabled={isResetting}
+                    className={`group relative inline-flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-9 py-4 text-lg font-bold text-white shadow-2xl shadow-emerald-500/25 transition-all duration-500 hover:shadow-emerald-500/40 hover:scale-105 active:scale-100 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 w-full`}
+                  >
+                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
+                    <span className="relative z-10">
+                      {isResetting ? (
+                        <span className="inline-flex items-center gap-2">
+                          <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                          Enviando...
+                        </span>
+                      ) : (
+                        'Enviar enlace'
+                      )}
+                    </span>
+                  </button>
+                </div>
+              </>
+            )}
+        </Modal>
+      )}>
+
           {/* Logo + Title */}
           <div
             className="text-center mb-10 transition-all duration-1000"
@@ -501,137 +444,6 @@ export function LoginPage() {
               </span>
             ))}
           </div>
-        </div>
-      </div>
-
-      {/* Reset Password Modal */}
-      {showResetModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" data-testid="reset-modal">
-          <div
-            data-testid="reset-modal-backdrop"
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={() => { setShowResetModal(false); setResetSent(false); setResetError(''); }}
-          />
-          <div
-            className={`relative w-full max-w-sm rounded-2xl border p-6 sm:p-8 shadow-2xl transition-all duration-300 ${isDark ? 'border-emerald-500/20 bg-emerald-950/30 backdrop-blur-xl' : 'border-emerald-200 bg-white/95 backdrop-blur-xl'}`}
-            style={{
-              animation: 'modalIn 0.3s ease-out',
-            }}
-          >
-            <style>{`
-              @keyframes modalIn {
-                from { opacity: 0; transform: scale(0.95) translateY(10px); }
-                to { opacity: 1; transform: scale(1) translateY(0); }
-              }
-            `}</style>
-
-            {resetSent ? (
-              <div className="text-center">
-                <div className={`inline-flex items-center justify-center w-14 h-14 rounded-full mb-4 ${isDark ? 'bg-emerald-500/20' : 'bg-emerald-100'}`}>
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={` ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" strokeLinecap="round" />
-                    <path d="M22 4L12 14.01l-3-3" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </div>
-                <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-zinc-900'}`}>
-                  Email enviado
-                </h3>
-                <p className={`text-sm leading-relaxed mb-6 ${isDark ? 'text-emerald-200/60' : 'text-zinc-500'}`}>
-                  Te enviamos un enlace para recuperar tu contraseña a <strong className={`font-semibold ${isDark ? 'text-emerald-200' : 'text-zinc-700'}`}>{resetEmail}</strong>. Revisá tu bandeja de entrada.
-                </p>
-                <button
-                  onClick={() => { setShowResetModal(false); setResetSent(false); setResetError(''); }}
-                  className={`w-full rounded-xl border-2 px-6 py-3 text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] ${
-                    isDark
-                      ? 'border-emerald-500/20 bg-emerald-500/5 text-emerald-300 hover:border-emerald-500/40 hover:bg-emerald-500/10'
-                      : 'border-emerald-300 bg-emerald-50/50 text-emerald-700 hover:border-emerald-400 hover:bg-emerald-100/70'
-                  }`}
-                >
-                  Entendido
-                </button>
-              </div>
-            ) : (
-              <>
-                <button
-                  data-testid="reset-modal-close"
-                  onClick={() => { setShowResetModal(false); setResetSent(false); setResetError(''); }}
-                  className={`absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-lg transition-colors duration-200 ${isDark ? 'text-emerald-200/40 hover:text-emerald-200/80 hover:bg-emerald-500/10' : 'text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100'}`}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </button>
-
-                <div className="mb-5">
-                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl mb-3 ${isDark ? 'bg-emerald-500/20' : 'bg-emerald-100'}`}>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={`${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                    </svg>
-                  </div>
-                  <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-zinc-900'}`}>
-                    Recuperar contraseña
-                  </h3>
-                  <p className={`text-sm mt-1 ${isDark ? 'text-emerald-200/50' : 'text-zinc-500'}`}>
-                    Ingresá tu email y te enviaremos un enlace para crear una nueva contraseña.
-                  </p>
-                </div>
-
-                {resetError && (
-                  <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 rounded-xl px-4 py-3 mb-4">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
-                      <circle cx="12" cy="12" r="10" />
-                      <path d="M12 8v4" strokeLinecap="round" />
-                      <path d="M12 16h.01" strokeLinecap="round" />
-                    </svg>
-                    {resetError}
-                  </div>
-                )}
-
-                <div className="space-y-4">
-                  <div>
-                    <label htmlFor="reset-email" className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-emerald-100/80' : 'text-zinc-700'}`}>
-                      Email
-                    </label>
-                    <input
-                      id="reset-email"
-                      type="email"
-                      value={resetEmail}
-                      onChange={(e) => setResetEmail(e.target.value)}
-                      placeholder="tu@email.com"
-                      onKeyDown={(e) => { if (e.key === 'Enter') handleReset(e as unknown as React.FormEvent); }}
-                      autoFocus
-                      className={`w-full rounded-xl border bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm px-4 py-3 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-secondary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 ${isDark ? 'border-emerald-500/20 hover:border-emerald-500/30' : 'border-emerald-200 hover:border-emerald-300'}`}
-                    />
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={(e) => { e.preventDefault(); handleReset(e as unknown as React.FormEvent); }}
-                    disabled={isResetting}
-                    className={`group relative inline-flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-9 py-4 text-lg font-bold text-white shadow-2xl shadow-emerald-500/25 transition-all duration-500 hover:shadow-emerald-500/40 hover:scale-105 active:scale-100 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 w-full`}
-                  >
-                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
-                    <span className="relative z-10">
-                      {isResetting ? (
-                        <span className="inline-flex items-center gap-2">
-                          <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                          </svg>
-                          Enviando...
-                        </span>
-                      ) : (
-                        'Enviar enlace'
-                      )}
-                    </span>
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
+    </AuthLayout>
   );
 }

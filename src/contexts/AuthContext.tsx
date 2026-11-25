@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { supabase, type Profile, type BusinessMember } from '@/lib';
+import { generateSlug } from '@/utils/validation';
 
 export interface UserBusiness {
   businessId: string;
@@ -43,15 +44,6 @@ interface AuthContextValue extends AuthState {
 
 const AuthContext = React.createContext<AuthContextValue | null>(null);
 
-function generateSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 40);
-}
 
 function mapProfileToUser(fullName: string | null, email: string, businessSlug: string, businessId: string, plan: 'FREE' | 'PRO', businesses: UserBusiness[]): User {
   return {

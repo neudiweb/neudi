@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { useTheme } from '../../contexts/ThemeContext';
-import { BusinessSwitcher } from '../dashboard/BusinessSwitcher';
+import { useAuth } from '@/contexts/AuthContext';
+import { ThemeToggle } from '@/components/common/ThemeToggle';
+import { BusinessSwitcher } from '@/components/dashboard/BusinessSwitcher';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -66,32 +66,6 @@ const settingsTab = {
     </svg>
   ),
 };
-
-function ThemeToggle() {
-  const { activeTheme, setMode } = useTheme();
-  const isDark = activeTheme === 'dark';
-
-  return (
-    <button
-      onClick={() => setMode(isDark ? 'light' : 'dark')}
-      className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
-      aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-      title={isDark ? 'Modo claro' : 'Modo oscuro'}
-    >
-      {isDark ? (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="4" />
-          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-        </svg>
-      ) : (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-        </svg>
-      )}
-      <span className="hidden xl:inline">{isDark ? 'Claro' : 'Oscuro'}</span>
-    </button>
-  );
-}
 
 export function DashboardLayout({ children, currentTab = 'agenda' }: DashboardLayoutProps) {
   const { user, logout } = useAuth();
@@ -242,7 +216,7 @@ export function DashboardLayout({ children, currentTab = 'agenda' }: DashboardLa
               <span className="font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Neudi</span>
             </Link>
           </div>
-          <ThemeToggle />
+          <ThemeToggle variant="pill" />
         </header>
 
         {/* Top bar (desktop) */}
@@ -253,7 +227,7 @@ export function DashboardLayout({ children, currentTab = 'agenda' }: DashboardLa
               {new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
             </div>
           </div>
-          <ThemeToggle />
+          <ThemeToggle variant="pill" />
         </div>
 
         {/* Page content */}

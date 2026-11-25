@@ -445,3 +445,8 @@ export function validateTimeRanges(ranges: Array<{ startTime: string; endTime: s
 
   return errors;
 }
+
+/** Formatea un precio con la moneda dada (por defecto ARS es-AR, sin decimales). */
+export function formatPrice(price: number, currency = 'ARS'): string {
+  return new Intl.NumberFormat('es-AR', { style: 'currency', currency, minimumFractionDigits: 0 }).format(price);
+}

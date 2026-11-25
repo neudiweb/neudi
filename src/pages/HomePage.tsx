@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { useTheme } from '@/contexts/ThemeContext';
-import '../landing.css';
+import { ThemeToggle } from '@/components/common/ThemeToggle';
+import '@/landing.css';
 
 /* ═══════════════════════════════════════════════════════════
    Neudi — landing page ("Editorial Ledger")
@@ -20,29 +20,6 @@ function getTodayLabel() {
   return { day, date: `${date} ${month} ${d.getFullYear()}` };
 }
 
-/* ─── Theme toggle ─── */
-function ThemeToggle({ isDark }: { isDark: boolean }) {
-  const { setMode } = useTheme();
-  return (
-    <button
-      onClick={() => setMode(isDark ? 'light' : 'dark')}
-      aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-      title={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-      className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[var(--lp-hairline-strong)] bg-[var(--lp-surface)] text-[var(--lp-ink-2)] transition-all duration-200 hover:scale-105 hover:text-[var(--lp-accent)]"
-    >
-      {isDark ? (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="4" />
-          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-        </svg>
-      ) : (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-        </svg>
-      )}
-    </button>
-  );
-}
 
 /* ─── Wordmark ─── */
 function Wordmark() {
@@ -239,9 +216,6 @@ const STATS = [
 ];
 
 export function HomePage() {
-  const { activeTheme } = useTheme();
-  const isDark = activeTheme === 'dark';
-
   return (
     <div className="landing min-h-screen transition-colors duration-500">
       {/* ══════════ HEADER ══════════ */}
@@ -264,7 +238,7 @@ export function HomePage() {
             ))}
           </nav>
           <div className="flex items-center gap-3">
-            <ThemeToggle isDark={isDark} />
+            <ThemeToggle variant="landing" />
             <Link
               to="/register"
               className="lp-mono inline-flex items-center gap-2 bg-[var(--lp-accent)] px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--lp-paper)] transition-all duration-200 hover:opacity-90 active:scale-[0.98] sm:px-5"

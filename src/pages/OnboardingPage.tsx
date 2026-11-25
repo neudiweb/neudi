@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { LoadingSpinner } from '../components/common/States';
-import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
+import { Input } from '@/components/ui/Input';
+import { LoadingSpinner } from '@/components/common/States';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export function OnboardingPage() {
   const [businessName, setBusinessName] = React.useState('');
@@ -144,14 +145,12 @@ export function OnboardingPage() {
 
       {/* Account Created Success Popup — shown when user just registered */}
       {showSuccess && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-          <div
-            className={`relative w-full max-w-sm rounded-2xl border shadow-2xl flex flex-col items-center text-center p-8 ${
-              isDark ? 'border-zinc-500/20 bg-zinc-950/95' : 'border-zinc-200 bg-white/95'
-            } backdrop-blur-xl`}
-            style={{ animation: 'modalIn 0.4s cubic-bezier(0.22, 1, 0.36, 1)' }}
-          >
+        <Modal
+          shellClassName="fixed inset-0 z-50 flex items-center justify-center px-4"
+          backdropClassName="absolute inset-0 bg-black/50 backdrop-blur-sm"
+          panelClassName={`relative w-full max-w-sm rounded-2xl border shadow-2xl flex flex-col items-center text-center p-8 ${isDark ? 'border-zinc-500/20 bg-zinc-950/95' : 'border-zinc-200 bg-white/95'} backdrop-blur-xl`}
+          panelStyle={{ animation: 'modalIn 0.4s cubic-bezier(0.22, 1, 0.36, 1)' }}
+        >
             {/* Checkmark circle */}
             <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-500">
@@ -192,8 +191,7 @@ export function OnboardingPage() {
                 to { width: 100%; }
               }
             `}</style>
-          </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

@@ -1,46 +1,13 @@
 import * as React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '@/contexts/ThemeContext';
-import { useAuth } from '../../contexts/AuthContext';
-import { LoadingSpinner } from '../../components/common/States';
-import {
-  AuroraBackground,
-  NoiseOverlay,
-  ParticleField,
-  FloatingBadge,
-  GlowingCard,
-} from '../../components/common/LandingVisuals';
-import { VisualInput, VisualButton } from '../../components/common/VisualForm';
-
-/* ─── Email validation helper ─── */
-function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-/* ─── Theme Toggle ─── */
-function ThemeToggle() {
-  const { activeTheme, setMode } = useTheme();
-  const isDark = activeTheme === 'dark';
-
-  return (
-    <button
-      onClick={() => setMode(isDark ? 'light' : 'dark')}
-      className="fixed top-4 right-4 z-50 flex items-center justify-center rounded-full border border-zinc-300/50 dark:border-zinc-700/50 bg-white/90 dark:bg-zinc-900/90 w-10 h-10 shadow-lg shadow-zinc-500/5 dark:shadow-zinc-500/10 backdrop-blur-sm transition-all duration-300 hover:scale-105 cursor-pointer"
-      aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-    >
-      {isDark ? (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-400">
-          <circle cx="12" cy="12" r="4" />
-          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-        </svg>
-      ) : (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-600">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-        </svg>
-      )}
-    </button>
-  );
-}
+import { useAuth } from '@/contexts/AuthContext';
+import { LoadingSpinner } from '@/components/common/States';
+import { AuthLayout } from '@/components/auth/AuthLayout';
+import { Modal } from '@/components/ui/Modal';
+import { FloatingBadge, GlowingCard } from '@/components/auth/AuthVisuals';
+import { VisualInput, VisualButton } from '@/components/common/VisualForm';
+import { isValidEmail } from '@/utils/validation';
 
 /* ─── Animated Hero Title ─── */
 function AnimatedHeroTitle() {
@@ -271,23 +238,142 @@ export function RegisterPage() {
   });
 
   return (
-    <div className={`min-h-screen overflow-y-auto transition-colors duration-700 ${isDark ? 'bg-zinc-950' : 'bg-gradient-to-br from-emerald-100 via-white to-teal-100'}`}>
-      <NoiseOverlay />
-      <ThemeToggle />
+    <AuthLayout scroll maxWidth="max-w-lg mx-auto" after={<>
+      {/* Bottom fade */}
+      <div className={`absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t ${isDark ? 'from-zinc-950' : 'from-emerald-100/80'} to-transparent pointer-events-none`} />
+      {/* Terms & Conditions Modal */}
+      {showTerms && (
+        <Modal
+          shellClassName="fixed inset-0 z-50 flex items-center justify-center px-4"
+          testId="terms-modal"
+          backdropClassName="absolute inset-0 bg-black/50 backdrop-blur-sm"
+          onBackdropClick={() => setShowTerms(false)}
+          panelClassName={`relative w-full max-w-2xl max-h-[80vh] rounded-2xl border shadow-2xl flex flex-col ${isDark ? 'border-zinc-500/20 bg-zinc-950/95' : 'border-zinc-200 bg-white/95'} backdrop-blur-xl`}
+        >
+            <style>{`
+              @keyframes modalIn {
+                from { opacity: 0; transform: scale(0.95) translateY(10px); }
+                to { opacity: 1; transform: scale(1) translateY(0); }
+              }
+            `}</style>
+            <div className={`sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b ${isDark ? 'border-zinc-500/20 bg-zinc-950/95' : 'border-zinc-200 bg-white/95'}`}>
+              <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-zinc-900'}`}>Términos y Condiciones · Política de Privacidad</h3>
+              <button
+                onClick={() => setShowTerms(false)}
+                className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${isDark ? 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800' : 'text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100'}`}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            </div>
+            <div className="overflow-y-auto px-6 py-5 space-y-6" style={{ maxHeight: 'calc(80vh - 64px)' }}>
+              {/* Términos y Condiciones */}
+              <div>
+                <h4 className={`text-sm font-bold mb-3 ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`}>Términos y Condiciones de Servicio</h4>
+                <div className={`text-xs leading-relaxed space-y-3 ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>
+                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>1. Aceptación de los términos.</strong> Al registrarte y utilizar Neudi ("la Plataforma"), confirmás que tenés al menos 18 años de edad y aceptás de forma voluntaria, expresa e inequívoca todos los términos, condiciones y políticas aquí establecidas. Si no estás de acuerdo con cualquiera de estos términos, debés abstenerte de utilizar la Plataforma.</p>
+                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>2. Datos personales y responsabilidades del usuario.</strong> Vos garantizás que toda la información proporcionada durante el registro es veraz, correcta, completa y actualizada. Usted es el único responsable de la confidencialidad y resguardo de sus credenciales de acceso. Neudi se reserva el derecho de suspender o cancelar cualquier cuenta en la que se detecte información falsa, incompleta o que viole estos términos.</p>
+                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>3. Consentimiento para el tratamiento de datos.</strong> Al utilizar Neudi, usted consiente expresamente que Neudi y sus proveedores de servicios terceros (incluyendo, pero no limitándose a, proveedores de infraestructura en la nube, bases de datos, servicios de autenticación y plataformas de alojamiento) podrán recopilar, almacenar y procesar los datos proporcionados por usted y por sus clientes o usuarios finales, incluyendo pero no limitándose a: nombre, apellido, email, teléfono, dirección, horarios de atención, datos de reservas, historial de clientes y cualquier otra información que usted decida ingresar en la Plataforma. Este tratamiento de datos se realiza exclusivamente con el propósito de brindar el servicio de gestión de turnos y reservas que Neudi ofrece.</p>
+                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>4. Servicios de terceros y limitación de responsabilidad en materia de seguridad.</strong> Neudi utiliza infraestructura y servicios de terceros independientes (incluyendo, entre otros, Supabase, Google Firebase, AWS, y cualquier otra plataforma de base de datos, autenticación o alojamiento) para operar la Plataforma. Usted reconoce y acepta expresamente que: (a) Neudi no controla directamente los servidores, bases de datos o sistemas de seguridad de dichos terceros; (b) aunque los proveedores de servicios terziarios implementan medidas de seguridad razonables y estándares de la industria, ninguna transmisión de datos por Internet o sistema de almacenamiento electrónico es 100% seguro o infalible; (c) Neudi no garantiza ni ofrece ninguna representación de que los sistemas de terceros sean inmunes a accesos no autorizados, hackeos, brechas de seguridad, ataques cibernéticos, fallos técnicos, desastres naturales, o cualquier otro evento que pueda comprometer la confidencialidad, integridad o disponibilidad de los datos; (d) en caso de que ocurra una brecha de seguridad, incidente de ciberseguridad o acceso no autorizado a los sistemas de terceros, Neudi no será responsable directa ni indirectamente por daños, pérdidas, perjuicios, filtraciones de datos, daños punitivos, lucro cesante, daño emergente, daño moral, o cualquier otro tipo de daño que resulte directa o indirectamente de dicho incidente; (e) usted asume total y expresamente el riesgo asociado al almacenamiento y procesamiento de datos en infraestructura de terceros.</p>
+                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>5. Limitación de responsabilidad general.</strong> Neudi se provee la Plataforma "tal cual" y "según disponibilidad", sin ningún tipo de garantía, expresa o implícita. Neudi, sus desarrolladores, socios, empleados, proveedores de servicios y afiliados no serán bajo ninguna circunstancia responsables por: (a) daños directos, indirectos, incidentales, especiales, consecuentes, punitivos, emergentes, lucro cesante, pérdida de datos, pérdida de clientes, perjuicios comerciales o cualquier otro daño de cualquier naturaleza; (b) interrupciones, errores, omisiones, retrasos en el funcionamiento de la Plataforma; (c) pérdida o corrupción de datos almacenados en la Plataforma; (d) inaccesibilidad temporal o permanente a la Plataforma; (e) decisiones comerciales tomadas por usted basadas en información proporcionada por la Plataforma; (f) cualquier modificación, suspensión o terminación del servicio, temporal o permanente. Esta limitación de responsabilidad aplica sin importar la causa, teoría legal (contractual, extracontractual, negligencia, responsabilidad estricta, etc.), aunque se haya advertido de la posibilidad de dichos daños.</p>
+                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>6. Uso de datos de clientes y usuarios finales.</strong> Usted es el responsable exclusivo de: (a) obtener el consentimiento de sus clientes y usuarios finales para recopilar, almacenar y procesar sus datos personales a través de la Plataforma; (b) cumplir con todas las leyes, regulaciones y obligaciones de protección de datos aplicables en su jurisdicción en relación con el tratamiento de datos de terceros; (c) informar adecuadamente a sus clientes sobre el uso de sus datos; (d) responder ante cualquier reclamación, denuncia, acción legal o sanción que surja del tratamiento de datos de clientes o usuarios finales. Neudi actúa únicamente como proveedor de tecnología de la Plataforma y no como responsable del tratamiento de datos de sus clientes. Usted acepta indemnizar, defender y eximir de responsabilidad a Neudi ante cualquier reclamación derivada del tratamiento de datos de sus clientes.</p>
+                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>7. Propiedad intelectual.</strong> Todos los derechos de propiedad intelectual e industrial sobre la Plataforma, su código fuente, interfaz, diseño, logotipos, marcas, contenido y funcionalidades, pertenecen exclusivamente a Neudi y sus licenciantes. Se prohíbe la reproducción, distribución, modificación, creación de obras derivadas, ingeniería inversa o descompilación de la Plataforma sin autorización previa y por escrito de Neudi.</p>
+                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>8. Suspensión y terminación.</strong> Neudi se reserva el derecho, a su entera discreción, de suspender, restringir o terminar su acceso a la Plataforma en cualquier momento y por cualquier motivo, con o sin previo aviso, incluyendo pero no limitándose a: violación de estos términos, actividades ilegales, conducta abusiva, solicitud del usuario, o cambio, modificación o discontinuación de la Plataforma.</p>
+                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>9. Modificaciones.</strong> Neudi se reserva el derecho de modificar estos Términos y Condiciones, la Política de Privacidad y cualquier otra política en cualquier momento. Las modificaciones serán efectivas desde su publicación en la Plataforma. El uso continuado de la Plataforma después de las modificaciones constituye aceptación de los términos actualizados.</p>
+                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>10. Ley aplicable y jurisdicción.</strong> Estos términos se rigen por las leyes aplicables en la jurisdicción donde Neudi opera. Para cualquier controversia derivada de estos términos, las partes se someten a la jurisdicción de los tribunales competentes, renunciando expresamente a cualquier otro fuero que pudiera corresponderles.</p>
+                </div>
+              </div>
+              {/* Política de Privacidad */}
+              <div>
+                <h4 className={`text-sm font-bold mb-3 ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`}>Política de Privacidad y Tratamiento de Datos</h4>
+                <div className={`text-xs leading-relaxed space-y-3 ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>
+                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>1. Responsable del tratamiento.</strong> Los datos personales recogidos a través de Neudi son tratados por Neudi como responsable del tratamiento de la Plataforma. Los datos se procesan utilizando infraestructura de terceros proveedores de servicios en la nube.</p>
+                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>2. Datos que recopilamos.</strong> Recopilamos los datos que usted proporciona voluntariamente al registrarse (nombre, email, contraseña) y los datos que usted ingrese al configurar su negocio y gestionar turnos (datos de clientes, horarios, servicios, reservas, etc.).</p>
+                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>3. Finalidad del tratamiento.</strong> Los datos se procesan exclusivamente para: brindar el servicio de gestión de turnos y reservas, mantener su cuenta activa, comunicarnos con usted en relación al servicio, y mejorar la funcionalidad de la Plataforma.</p>
+                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>4. Base legal.</strong> La base legal para el tratamiento de datos es su consentimiento expreso (al registrarse), la ejecución del contrato de servicios, y nuestro interés legítimo en mejorar la Plataforma.</p>
+                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>5. Transferencias internacionales y terceros.</strong> Sus datos pueden ser almacenados y procesados en servidores de terceros proveedores ubicados en diferentes jurisdicciones. Usted consiente expresamente estas transferencias internacionales de datos y reconoce que las leyes de protección de datos pueden variar según la jurisdicción del servidor.</p>
+                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>6. Seguridad.</strong> Implementamos medidas de seguridad técnicas y organizativas razonables para proteger sus datos. Sin embargo, usted reconoce que ninguna medida de seguridad es infalible y que los servicios de terceros operan bajo sus propios estándares de seguridad.</p>
+                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>7. Derechos del usuario.</strong> Usted tiene derecho a acceder, rectificar, suprimir, limitar el tratamiento de sus datos, portabilidad de datos, y oponerse al tratamiento. Para ejercer estos derechos, contacte a Neudi a través de los canales disponibles en la Plataforma.</p>
+                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>8. Conservación de datos.</strong> Los datos se conservarán mientras su cuenta esté activa y durante los plazos establecidos por la ley aplicable. Usted puede solicitar la eliminación de sus datos en cualquier momento.</p>
+                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>9. Cookies y tecnologías similares.</strong> La Plataforma puede utilizar cookies y tecnologías similares para mejorar la experiencia de usuario, analizar el uso de la Plataforma y personalizar el contenido.</p>
+                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>10. Menores de edad.</strong> La Plataforma no está dirigida a menores de 18 años. No recopilamos datos de menores de edad.</p>
+                </div>
+              </div>
+            </div>
+        </Modal>
+      )}
 
-      <section className="relative overflow-hidden">
-        <AuroraBackground />
-        <div className={`absolute inset-0 opacity-[0.03] dark:opacity-[0.06] pointer-events-none`}
-          style={{
-            backgroundImage: `linear-gradient(rgba(16,185,129,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(16,185,129,0.5) 1px, transparent 1px)`,
-            backgroundSize: '60px 60px',
-            animation: 'gridMove 20s linear infinite',
-          }}
-        />
-        <ParticleField />
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <Modal
+          shellClassName="fixed inset-0 z-50 flex items-center justify-center px-4"
+          backdropClassName="absolute inset-0 bg-black/50 backdrop-blur-sm"
+          onBackdropClick={() => setShowSuccessModal(false)}
+          panelClassName={`relative w-full max-w-md rounded-2xl border shadow-2xl flex flex-col ${isDark ? 'border-zinc-500/20 bg-zinc-900/95' : 'border-zinc-200 bg-white/95'} backdrop-blur-xl`}
+          panelStyle={{ animation: 'modalIn 0.3s ease forwards' }}
+        >
+            <div className="flex flex-col items-center px-8 py-10 text-center">
+              {/* Success icon */}
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-5 ${isDark ? 'bg-emerald-500/15' : 'bg-emerald-50'}`}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={isDark ? 'text-emerald-400' : 'text-emerald-600'}>
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+              </div>
+              <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-zinc-900'}`}>
+                ¡Cuenta creada con éxito!
+              </h3>
+              <p className={`text-sm leading-relaxed mb-8 ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>
+                {modalMessage}
+              </p>
+              <button
+                onClick={() => navigate('/login')}
+                className={`w-full flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold text-white transition-all duration-200 hover:translate-y-[-1px] ${isDark ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-emerald-600 hover:bg-emerald-700'}`}
+              >
+                Ir al login
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            </div>
+        </Modal>
+      )}
 
-        <div className="relative min-h-screen flex items-center justify-center px-4 py-12">
-          <div className="w-full max-w-lg mx-auto">
+      {/* Error Modal */}
+      {showErrorModal && (
+        <Modal
+          shellClassName="fixed inset-0 z-50 flex items-center justify-center px-4"
+          backdropClassName="absolute inset-0 bg-black/50 backdrop-blur-sm"
+          onBackdropClick={() => setShowErrorModal(false)}
+          panelClassName={`relative w-full max-w-md rounded-2xl border shadow-2xl flex flex-col ${isDark ? 'border-zinc-500/20 bg-zinc-900/95' : 'border-zinc-200 bg-white/95'} backdrop-blur-xl`}
+          panelStyle={{ animation: 'modalIn 0.3s ease forwards' }}
+        >
+            <div className="flex flex-col items-center px-8 py-10 text-center">
+              {/* Error icon */}
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-5 ${isDark ? 'bg-red-500/15' : 'bg-red-50'}`}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={isDark ? 'text-red-400' : 'text-red-600'}>
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 8v4" strokeLinecap="round" />
+                  <path d="M12 16h.01" strokeLinecap="round" />
+                </svg>
+              </div>
+              <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-zinc-900'}`}>
+                Error al registrar
+              </h3>
+              <p className={`text-sm leading-relaxed mb-8 ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>
+                {modalMessage}
+              </p>
+              <button
+                onClick={() => setShowErrorModal(false)}
+                className={`w-full flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold transition-all duration-200 hover:translate-y-[-1px] border ${isDark ? 'border-zinc-500/30 text-zinc-200 hover:bg-zinc-800' : 'border-zinc-200 text-zinc-700 hover:bg-zinc-50'}`}
+              >
+                Entendido
+              </button>
+            </div>
+        </Modal>
+      )}
+    </>}>
             <div className="text-center max-w-2xl mx-auto">
               {/* Badge */}
               <FloatingBadge>
@@ -473,153 +559,6 @@ export function RegisterPage() {
                 ))}
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Bottom fade */}
-        <div className={`absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t ${isDark ? 'from-zinc-950' : 'from-emerald-100/80'} to-transparent pointer-events-none`} />
-      </section>
-
-      {/* Terms & Conditions Modal */}
-      {showTerms && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" data-testid="terms-modal">
-          <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={() => setShowTerms(false)}
-          />
-          <div
-            className={`relative w-full max-w-2xl max-h-[80vh] rounded-2xl border shadow-2xl flex flex-col ${isDark ? 'border-zinc-500/20 bg-zinc-950/95' : 'border-zinc-200 bg-white/95'} backdrop-blur-xl`}
-          >
-            <style>{`
-              @keyframes modalIn {
-                from { opacity: 0; transform: scale(0.95) translateY(10px); }
-                to { opacity: 1; transform: scale(1) translateY(0); }
-              }
-            `}</style>
-            <div className={`sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b ${isDark ? 'border-zinc-500/20 bg-zinc-950/95' : 'border-zinc-200 bg-white/95'}`}>
-              <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-zinc-900'}`}>Términos y Condiciones · Política de Privacidad</h3>
-              <button
-                onClick={() => setShowTerms(false)}
-                className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${isDark ? 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800' : 'text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100'}`}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-            </div>
-            <div className="overflow-y-auto px-6 py-5 space-y-6" style={{ maxHeight: 'calc(80vh - 64px)' }}>
-              {/* Términos y Condiciones */}
-              <div>
-                <h4 className={`text-sm font-bold mb-3 ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`}>Términos y Condiciones de Servicio</h4>
-                <div className={`text-xs leading-relaxed space-y-3 ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>
-                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>1. Aceptación de los términos.</strong> Al registrarte y utilizar Neudi ("la Plataforma"), confirmás que tenés al menos 18 años de edad y aceptás de forma voluntaria, expresa e inequívoca todos los términos, condiciones y políticas aquí establecidas. Si no estás de acuerdo con cualquiera de estos términos, debés abstenerte de utilizar la Plataforma.</p>
-                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>2. Datos personales y responsabilidades del usuario.</strong> Vos garantizás que toda la información proporcionada durante el registro es veraz, correcta, completa y actualizada. Usted es el único responsable de la confidencialidad y resguardo de sus credenciales de acceso. Neudi se reserva el derecho de suspender o cancelar cualquier cuenta en la que se detecte información falsa, incompleta o que viole estos términos.</p>
-                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>3. Consentimiento para el tratamiento de datos.</strong> Al utilizar Neudi, usted consiente expresamente que Neudi y sus proveedores de servicios terceros (incluyendo, pero no limitándose a, proveedores de infraestructura en la nube, bases de datos, servicios de autenticación y plataformas de alojamiento) podrán recopilar, almacenar y procesar los datos proporcionados por usted y por sus clientes o usuarios finales, incluyendo pero no limitándose a: nombre, apellido, email, teléfono, dirección, horarios de atención, datos de reservas, historial de clientes y cualquier otra información que usted decida ingresar en la Plataforma. Este tratamiento de datos se realiza exclusivamente con el propósito de brindar el servicio de gestión de turnos y reservas que Neudi ofrece.</p>
-                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>4. Servicios de terceros y limitación de responsabilidad en materia de seguridad.</strong> Neudi utiliza infraestructura y servicios de terceros independientes (incluyendo, entre otros, Supabase, Google Firebase, AWS, y cualquier otra plataforma de base de datos, autenticación o alojamiento) para operar la Plataforma. Usted reconoce y acepta expresamente que: (a) Neudi no controla directamente los servidores, bases de datos o sistemas de seguridad de dichos terceros; (b) aunque los proveedores de servicios terziarios implementan medidas de seguridad razonables y estándares de la industria, ninguna transmisión de datos por Internet o sistema de almacenamiento electrónico es 100% seguro o infalible; (c) Neudi no garantiza ni ofrece ninguna representación de que los sistemas de terceros sean inmunes a accesos no autorizados, hackeos, brechas de seguridad, ataques cibernéticos, fallos técnicos, desastres naturales, o cualquier otro evento que pueda comprometer la confidencialidad, integridad o disponibilidad de los datos; (d) en caso de que ocurra una brecha de seguridad, incidente de ciberseguridad o acceso no autorizado a los sistemas de terceros, Neudi no será responsable directa ni indirectamente por daños, pérdidas, perjuicios, filtraciones de datos, daños punitivos, lucro cesante, daño emergente, daño moral, o cualquier otro tipo de daño que resulte directa o indirectamente de dicho incidente; (e) usted asume total y expresamente el riesgo asociado al almacenamiento y procesamiento de datos en infraestructura de terceros.</p>
-                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>5. Limitación de responsabilidad general.</strong> Neudi se provee la Plataforma "tal cual" y "según disponibilidad", sin ningún tipo de garantía, expresa o implícita. Neudi, sus desarrolladores, socios, empleados, proveedores de servicios y afiliados no serán bajo ninguna circunstancia responsables por: (a) daños directos, indirectos, incidentales, especiales, consecuentes, punitivos, emergentes, lucro cesante, pérdida de datos, pérdida de clientes, perjuicios comerciales o cualquier otro daño de cualquier naturaleza; (b) interrupciones, errores, omisiones, retrasos en el funcionamiento de la Plataforma; (c) pérdida o corrupción de datos almacenados en la Plataforma; (d) inaccesibilidad temporal o permanente a la Plataforma; (e) decisiones comerciales tomadas por usted basadas en información proporcionada por la Plataforma; (f) cualquier modificación, suspensión o terminación del servicio, temporal o permanente. Esta limitación de responsabilidad aplica sin importar la causa, teoría legal (contractual, extracontractual, negligencia, responsabilidad estricta, etc.), aunque se haya advertido de la posibilidad de dichos daños.</p>
-                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>6. Uso de datos de clientes y usuarios finales.</strong> Usted es el responsable exclusivo de: (a) obtener el consentimiento de sus clientes y usuarios finales para recopilar, almacenar y procesar sus datos personales a través de la Plataforma; (b) cumplir con todas las leyes, regulaciones y obligaciones de protección de datos aplicables en su jurisdicción en relación con el tratamiento de datos de terceros; (c) informar adecuadamente a sus clientes sobre el uso de sus datos; (d) responder ante cualquier reclamación, denuncia, acción legal o sanción que surja del tratamiento de datos de clientes o usuarios finales. Neudi actúa únicamente como proveedor de tecnología de la Plataforma y no como responsable del tratamiento de datos de sus clientes. Usted acepta indemnizar, defender y eximir de responsabilidad a Neudi ante cualquier reclamación derivada del tratamiento de datos de sus clientes.</p>
-                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>7. Propiedad intelectual.</strong> Todos los derechos de propiedad intelectual e industrial sobre la Plataforma, su código fuente, interfaz, diseño, logotipos, marcas, contenido y funcionalidades, pertenecen exclusivamente a Neudi y sus licenciantes. Se prohíbe la reproducción, distribución, modificación, creación de obras derivadas, ingeniería inversa o descompilación de la Plataforma sin autorización previa y por escrito de Neudi.</p>
-                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>8. Suspensión y terminación.</strong> Neudi se reserva el derecho, a su entera discreción, de suspender, restringir o terminar su acceso a la Plataforma en cualquier momento y por cualquier motivo, con o sin previo aviso, incluyendo pero no limitándose a: violación de estos términos, actividades ilegales, conducta abusiva, solicitud del usuario, o cambio, modificación o discontinuación de la Plataforma.</p>
-                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>9. Modificaciones.</strong> Neudi se reserva el derecho de modificar estos Términos y Condiciones, la Política de Privacidad y cualquier otra política en cualquier momento. Las modificaciones serán efectivas desde su publicación en la Plataforma. El uso continuado de la Plataforma después de las modificaciones constituye aceptación de los términos actualizados.</p>
-                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>10. Ley aplicable y jurisdicción.</strong> Estos términos se rigen por las leyes aplicables en la jurisdicción donde Neudi opera. Para cualquier controversia derivada de estos términos, las partes se someten a la jurisdicción de los tribunales competentes, renunciando expresamente a cualquier otro fuero que pudiera corresponderles.</p>
-                </div>
-              </div>
-              {/* Política de Privacidad */}
-              <div>
-                <h4 className={`text-sm font-bold mb-3 ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`}>Política de Privacidad y Tratamiento de Datos</h4>
-                <div className={`text-xs leading-relaxed space-y-3 ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>
-                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>1. Responsable del tratamiento.</strong> Los datos personales recogidos a través de Neudi son tratados por Neudi como responsable del tratamiento de la Plataforma. Los datos se procesan utilizando infraestructura de terceros proveedores de servicios en la nube.</p>
-                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>2. Datos que recopilamos.</strong> Recopilamos los datos que usted proporciona voluntariamente al registrarse (nombre, email, contraseña) y los datos que usted ingrese al configurar su negocio y gestionar turnos (datos de clientes, horarios, servicios, reservas, etc.).</p>
-                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>3. Finalidad del tratamiento.</strong> Los datos se procesan exclusivamente para: brindar el servicio de gestión de turnos y reservas, mantener su cuenta activa, comunicarnos con usted en relación al servicio, y mejorar la funcionalidad de la Plataforma.</p>
-                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>4. Base legal.</strong> La base legal para el tratamiento de datos es su consentimiento expreso (al registrarse), la ejecución del contrato de servicios, y nuestro interés legítimo en mejorar la Plataforma.</p>
-                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>5. Transferencias internacionales y terceros.</strong> Sus datos pueden ser almacenados y procesados en servidores de terceros proveedores ubicados en diferentes jurisdicciones. Usted consiente expresamente estas transferencias internacionales de datos y reconoce que las leyes de protección de datos pueden variar según la jurisdicción del servidor.</p>
-                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>6. Seguridad.</strong> Implementamos medidas de seguridad técnicas y organizativas razonables para proteger sus datos. Sin embargo, usted reconoce que ninguna medida de seguridad es infalible y que los servicios de terceros operan bajo sus propios estándares de seguridad.</p>
-                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>7. Derechos del usuario.</strong> Usted tiene derecho a acceder, rectificar, suprimir, limitar el tratamiento de sus datos, portabilidad de datos, y oponerse al tratamiento. Para ejercer estos derechos, contacte a Neudi a través de los canales disponibles en la Plataforma.</p>
-                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>8. Conservación de datos.</strong> Los datos se conservarán mientras su cuenta esté activa y durante los plazos establecidos por la ley aplicable. Usted puede solicitar la eliminación de sus datos en cualquier momento.</p>
-                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>9. Cookies y tecnologías similares.</strong> La Plataforma puede utilizar cookies y tecnologías similares para mejorar la experiencia de usuario, analizar el uso de la Plataforma y personalizar el contenido.</p>
-                  <p><strong className={isDark ? 'text-zinc-200' : 'text-zinc-700'}>10. Menores de edad.</strong> La Plataforma no está dirigida a menores de 18 años. No recopilamos datos de menores de edad.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Success Modal */}
-      {showSuccessModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={() => setShowSuccessModal(false)}
-          />
-          <div
-            className={`relative w-full max-w-md rounded-2xl border shadow-2xl flex flex-col ${isDark ? 'border-zinc-500/20 bg-zinc-900/95' : 'border-zinc-200 bg-white/95'} backdrop-blur-xl`}
-            style={{ animation: 'modalIn 0.3s ease forwards' }}
-          >
-            <div className="flex flex-col items-center px-8 py-10 text-center">
-              {/* Success icon */}
-              <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-5 ${isDark ? 'bg-emerald-500/15' : 'bg-emerald-50'}`}>
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={isDark ? 'text-emerald-400' : 'text-emerald-600'}>
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                  <polyline points="22 4 12 14.01 9 11.01" />
-                </svg>
-              </div>
-              <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-zinc-900'}`}>
-                ¡Cuenta creada con éxito!
-              </h3>
-              <p className={`text-sm leading-relaxed mb-8 ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>
-                {modalMessage}
-              </p>
-              <button
-                onClick={() => navigate('/login')}
-                className={`w-full flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold text-white transition-all duration-200 hover:translate-y-[-1px] ${isDark ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-emerald-600 hover:bg-emerald-700'}`}
-              >
-                Ir al login
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Error Modal */}
-      {showErrorModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={() => setShowErrorModal(false)}
-          />
-          <div
-            className={`relative w-full max-w-md rounded-2xl border shadow-2xl flex flex-col ${isDark ? 'border-zinc-500/20 bg-zinc-900/95' : 'border-zinc-200 bg-white/95'} backdrop-blur-xl`}
-            style={{ animation: 'modalIn 0.3s ease forwards' }}
-          >
-            <div className="flex flex-col items-center px-8 py-10 text-center">
-              {/* Error icon */}
-              <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-5 ${isDark ? 'bg-red-500/15' : 'bg-red-50'}`}>
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={isDark ? 'text-red-400' : 'text-red-600'}>
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M12 8v4" strokeLinecap="round" />
-                  <path d="M12 16h.01" strokeLinecap="round" />
-                </svg>
-              </div>
-              <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-zinc-900'}`}>
-                Error al registrar
-              </h3>
-              <p className={`text-sm leading-relaxed mb-8 ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>
-                {modalMessage}
-              </p>
-              <button
-                onClick={() => setShowErrorModal(false)}
-                className={`w-full flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold transition-all duration-200 hover:translate-y-[-1px] border ${isDark ? 'border-zinc-500/30 text-zinc-200 hover:bg-zinc-800' : 'border-zinc-200 text-zinc-700 hover:bg-zinc-50'}`}
-              >
-                Entendido
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    </AuthLayout>
   );
 }

@@ -1,12 +1,13 @@
 import * as React from 'react';
-import { supabase, type BusinessHour, type Business } from '../../lib/supabase';
-import { useAuth } from '../../contexts/AuthContext';
-import { DashboardLayout } from '../../components/layout/DashboardLayout';
-import { LoadingSpinner } from '../../components/common/States';
-import { timeToMinutes, validateTimeRanges, jsDayToBusinessDay, businessDayToJsDay } from '../../utils/dateTime';
-import { ErrorModal } from '../../components/ErrorModal';
-import { TimePicker } from '../../components/TimePicker';
-import { HolidaysNotice } from '../../components/dashboard/HolidaysNotice';
+import { supabase, type BusinessHour } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
+import { useBusiness } from '@/hooks/useBusiness';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { LoadingSpinner } from '@/components/common/States';
+import { timeToMinutes, validateTimeRanges, jsDayToBusinessDay, businessDayToJsDay } from '@/utils/dateTime';
+import { ErrorModal } from '@/components/ErrorModal';
+import { TimePicker } from '@/components/TimePicker';
+import { HolidaysNotice } from '@/components/dashboard/HolidaysNotice';
 
 const DAYS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
@@ -48,7 +49,7 @@ const DEFAULT_RANGE: TimeRangeState = {
 
 export function DashboardHours() {
   const { businessSlug } = useAuth();
-  const [businessId, setBusinessId] = React.useState<string | null>(null);
+  const { businessId } = useBusiness(businessSlug);
   const [dayHours, setDayHours] = React.useState<Map<number, DayHoursState>>(new Map());
   const dayHoursRef = React.useRef<Map<number, DayHoursState>>(new Map());
   const [loading, setLoading] = React.useState(true);
@@ -60,23 +61,6 @@ export function DashboardHours() {
   React.useEffect(() => {
     dayHoursRef.current = dayHours;
   }, [dayHours]);
-
-  // Fetch business_id from slug
-  React.useEffect(() => {
-    if (!businessSlug) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const { data } = await supabase
-          .from('businesses')
-          .select('id')
-          .eq('slug', businessSlug)
-          .single() as { data: { id: string } | null; error: string | null };
-        if (!cancelled && data) setBusinessId(data.id);
-      } catch (e) { console.error(e); }
-    })();
-    return () => { cancelled = true; };
-  }, [businessSlug]);
 
   // Fetch business hours
   const fetchHours = React.useCallback(async (bizId: string) => {

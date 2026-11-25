@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { parseLocalDate, BUSINESS_TIMEZONE } from '../../utils/helpers';
-import { useTheme } from '../../contexts/ThemeContext';
-import { useUpcomingHoliday } from '../../hooks/useUpcomingHoliday';
+import { parseLocalDate, BUSINESS_TIMEZONE } from '@/utils/dateTime';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useUpcomingHoliday } from '@/hooks/useUpcomingHoliday';
 
 const HOLIDAY_DAY_NAMES = [
   'Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado',

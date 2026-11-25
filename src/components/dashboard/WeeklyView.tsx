@@ -1,14 +1,14 @@
 import * as React from 'react';
-import { useTheme } from '../../contexts/ThemeContext';
-import { useAgendaData, type AgendaAppointment } from '../../hooks/useAgendaData';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useAgendaData, type AgendaAppointment } from '@/hooks/useAgendaData';
 import {
   parseLocalDate,
   BUSINESS_TIMEZONE,
   addDaysToDate,
   getTodayInTimezone,
-} from '../../utils/helpers';
-import type { AppointmentStatusLower } from '../../types/index';
-import { HorizontalView } from './HorizontalView';
+} from '@/utils/dateTime';
+import type { AppointmentStatusLower } from '@/types/index';
+import { HorizontalView } from '@/components/dashboard/HorizontalView';
 
 const MONTH_NAMES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',

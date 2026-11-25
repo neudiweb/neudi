@@ -1,4 +1,4 @@
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const ACCENT_PRESETS = [
   { name: 'Azul', value: 'blue', hex: '#3b82f6' },

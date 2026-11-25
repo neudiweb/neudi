@@ -1,9 +1,13 @@
 import * as React from 'react';
-import { supabase, type Service } from '../../lib/supabase';
-import { useAuth } from '../../contexts/AuthContext';
-import { DashboardLayout } from '../../components/layout/DashboardLayout';
-import { EmptyState, LoadingSpinner } from '../../components/common/States';
-import { ErrorModal } from '../../components/ErrorModal';
+import { supabase, type Service } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
+import { useBusiness } from '@/hooks/useBusiness';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { EmptyState, LoadingSpinner } from '@/components/common/States';
+import { ErrorModal } from '@/components/ErrorModal';
+import { Modal } from '@/components/ui/Modal';
+import { Toast } from '@/components/ui/Toast';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 interface ServiceItem {
   id: string;
@@ -20,7 +24,7 @@ const serviceIcons = [
 
 export function DashboardServices() {
   const { businessSlug } = useAuth();
-  const [businessId, setBusinessId] = React.useState<string | null>(null);
+  const { businessId } = useBusiness(businessSlug);
   const [services, setServices] = React.useState<ServiceItem[]>([]);
   const [showForm, setShowForm] = React.useState(false);
   const [showSuccess, setShowSuccess] = React.useState(false);
@@ -36,22 +40,6 @@ export function DashboardServices() {
   const [formDescription, setFormDescription] = React.useState('');
   const [formDuration, setFormDuration] = React.useState(30);
   const [formPrice, setFormPrice] = React.useState(0);
-
-  React.useEffect(() => {
-    if (!businessSlug) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const { data } = await supabase
-          .from('businesses')
-          .select('id')
-          .eq('slug', businessSlug)
-          .single() as { data: { id: string } | null; error: string | null };
-        if (!cancelled && data) setBusinessId(data.id);
-      } catch (e) { console.error(e); }
-    })();
-    return () => { cancelled = true; };
-  }, [businessSlug]);
 
   const fetchServices = React.useCallback(async (bizId: string) => {
     if (!bizId) return;
@@ -709,9 +697,11 @@ export function DashboardServices() {
 
       {/* Form Modal */}
       {showForm && (
-        <>
-          <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" onClick={() => { setShowForm(false); resetForm(); }} />
-          <div className="fixed inset-x-4 bottom-8 z-[60] sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-lg sm:rounded-3xl">
+        <Modal
+          backdropClassName="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
+          onBackdropClick={() => { setShowForm(false); resetForm(); }}
+          panelClassName="fixed inset-x-4 bottom-8 z-[60] sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-lg sm:rounded-3xl"
+        >
             <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xl overflow-hidden max-h-[85vh] sm:max-h-none overflow-y-auto">
               {/* Form header */}
               <div className="sticky top-0 px-6 py-4 border-b border-zinc-100 dark:border-zinc-800 bg-gradient-to-r from-zinc-50 to-zinc-100/50 dark:from-zinc-800/80 dark:to-zinc-900/50 flex items-center justify-between">
@@ -811,8 +801,7 @@ export function DashboardServices() {
                 </div>
               </form>
             </div>
-          </div>
-        </>
+        </Modal>
       )}
 
       {(saveError || deleteError) && (
@@ -824,56 +813,18 @@ export function DashboardServices() {
 
       {/* Success toast */}
       {showSuccess && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none px-4">
-          <div className="max-w-sm w-full" style={{ animation: 'toastIn 0.3s ease-out' }}>
-            <div className="bg-white dark:bg-zinc-900 border border-green-200 dark:border-green-800/50 rounded-2xl shadow-xl shadow-green-500/10 dark:shadow-green-500/20 p-6 flex items-center gap-4">
-              <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-md shadow-green-500/20">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M20 6L9 17l-5-5" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Servicio guardado con éxito</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Toast variant="success" position="center" title="Servicio guardado con éxito" />
       )}
 
       {/* Delete confirmation modal */}
       {deleteConfirmId && (
-        <>
-          <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" onClick={() => setDeleteConfirmId(null)} />
-          <div className="fixed inset-x-4 bottom-8 z-[60] sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-sm">
-            <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xl overflow-hidden">
-              <div className="p-6 text-center">
-                <div className="w-14 h-14 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/50 flex items-center justify-center mx-auto mb-4">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-red-500 dark:text-red-400">
-                    <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V7h14z" strokeLinecap="round" />
-                  </svg>
-                </div>
-                <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 mb-2">¿Eliminar servicio?</h3>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Este servicio dejará de estar disponible para nuevos turnos. Los clientes que ya tengan turnos agendados con este servicio los conservarán con el mismo nombre y precio.</p>
-                <div className="flex gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setDeleteConfirmId(null)}
-                    className="flex-1 px-4 py-2.5 rounded-2xl text-sm font-semibold text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 border-2 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors active:scale-[0.97]"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={confirmDelete}
-                    className="flex-1 px-4 py-2.5 rounded-2xl text-sm font-bold text-white bg-red-600 hover:bg-red-700 transition-colors active:scale-[0.97]"
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
+        <ConfirmDialog
+          title="¿Eliminar servicio?"
+          message="Este servicio dejará de estar disponible para nuevos turnos. Los clientes que ya tengan turnos agendados con este servicio los conservarán con el mismo nombre y precio."
+          confirmLabel="Eliminar"
+          onConfirm={confirmDelete}
+          onCancel={() => setDeleteConfirmId(null)}
+        />
       )}
     </DashboardLayout>
   );

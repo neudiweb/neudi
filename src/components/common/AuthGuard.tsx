@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { LoadingSpinner } from './States';
+import { useAuth } from '@/contexts/AuthContext';
+import { LoadingSpinner } from '@/components/common/States';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, isLoading, onboardingRequired } = useAuth();

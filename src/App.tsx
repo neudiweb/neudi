@@ -1,20 +1,31 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import * as React from 'react';
-import { AuthProvider } from './contexts/AuthContext';
-import { ThemeProvider } from './contexts/ThemeContext';
-import { AuthGuard, PublicGuard, OnboardingGuard, PlanGuard } from './components/common/AuthGuard';
-import { HomePage } from './pages/HomePage';
-import { LoginPage } from './pages/auth/LoginPage';
-import { RegisterPage } from './pages/auth/RegisterPage';
-import { OnboardingPage } from './pages/OnboardingPage';
-import { BusinessPage } from './pages/BusinessPage';
-import { BusinessNotFoundPage } from './pages/BusinessNotFoundPage';
-import { ResetPasswordPage } from './pages/auth/ResetPasswordPage';
-import { DashboardAgenda } from './pages/dashboard/DashboardAgenda';
-import { DashboardServices } from './pages/dashboard/DashboardServices';
-import { DashboardClients } from './pages/dashboard/DashboardClients';
-import { DashboardHours } from './pages/dashboard/DashboardHours';
-import { DashboardSettings } from './pages/dashboard/DashboardSettings';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
+import { AuthGuard, PublicGuard, OnboardingGuard, PlanGuard } from '@/components/common/AuthGuard';
+import { HomePage } from '@/pages/HomePage';
+import { LoginPage } from '@/pages/auth/LoginPage';
+import { RegisterPage } from '@/pages/auth/RegisterPage';
+import { OnboardingPage } from '@/pages/OnboardingPage';
+import { BusinessPage } from '@/pages/BusinessPage';
+import { BusinessNotFoundPage } from '@/pages/BusinessNotFoundPage';
+import { ResetPasswordPage } from '@/pages/auth/ResetPasswordPage';
+import { DashboardAgenda } from '@/pages/dashboard/DashboardAgenda';
+import { DashboardServices } from '@/pages/dashboard/DashboardServices';
+import { DashboardClients } from '@/pages/dashboard/DashboardClients';
+import { DashboardHours } from '@/pages/dashboard/DashboardHours';
+import { DashboardSettings } from '@/pages/dashboard/DashboardSettings';
+
+// Wrapper: every dashboard page sits behind AuthGuard + PlanGuard
+function ProtectedDashboard({ children }: { children: React.ReactNode }) {
+  return (
+    <AuthGuard>
+      <PlanGuard>
+        {children}
+      </PlanGuard>
+    </AuthGuard>
+  );
+}
 
 // Component that redirects from ?_route= query param to the actual path
 function RouteRedirector() {
@@ -63,46 +74,34 @@ function App() {
 
           {/* Dashboard routes */}
           <Route path="/dashboard" element={
-            <AuthGuard>
-              <PlanGuard>
-                <Navigate to="agenda" replace />
-              </PlanGuard>
-            </AuthGuard>
+            <ProtectedDashboard>
+              <Navigate to="agenda" replace />
+            </ProtectedDashboard>
           } />
           <Route path="/dashboard/agenda" element={
-            <AuthGuard>
-              <PlanGuard>
-                <DashboardAgenda />
-              </PlanGuard>
-            </AuthGuard>
+            <ProtectedDashboard>
+              <DashboardAgenda />
+            </ProtectedDashboard>
           } />
           <Route path="/dashboard/services" element={
-            <AuthGuard>
-              <PlanGuard>
-                <DashboardServices />
-              </PlanGuard>
-            </AuthGuard>
+            <ProtectedDashboard>
+              <DashboardServices />
+            </ProtectedDashboard>
           } />
           <Route path="/dashboard/clients" element={
-            <AuthGuard>
-              <PlanGuard>
-                <DashboardClients />
-              </PlanGuard>
-            </AuthGuard>
+            <ProtectedDashboard>
+              <DashboardClients />
+            </ProtectedDashboard>
           } />
           <Route path="/dashboard/hours" element={
-            <AuthGuard>
-              <PlanGuard>
-                <DashboardHours />
-              </PlanGuard>
-            </AuthGuard>
+            <ProtectedDashboard>
+              <DashboardHours />
+            </ProtectedDashboard>
           } />
           <Route path="/dashboard/settings" element={
-            <AuthGuard>
-              <PlanGuard>
-                <DashboardSettings />
-              </PlanGuard>
-            </AuthGuard>
+            <ProtectedDashboard>
+              <DashboardSettings />
+            </ProtectedDashboard>
           } />
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />

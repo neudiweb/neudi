@@ -1,27 +1,12 @@
 import * as React from 'react';
-import { supabase, type Appointment, type Service } from '../lib/supabase';
+import { supabase, type Appointment, type Service } from '@/lib/supabase';
 import {
   getTodayInTimezone,
   getLocalDateInTimezone,
   formatTimeInTimezone,
-} from '../utils/helpers';
-import type { AppointmentStatusLower } from '../types/index';
-
-const PENDING_STATUSES = ['PENDING', 'REQUIRES_DEPOSIT'];
-
-function mapDbStatus(status: string): AppointmentStatusLower {
-  const mapping: Record<string, AppointmentStatusLower> = {
-    PENDING: 'pending',
-    CONFIRMED: 'confirmed',
-    COMPLETED: 'completed',
-    CANCELLED: 'cancelled',
-    REQUIRES_DEPOSIT: 'requires_deposit',
-    REJECTED: 'rejected',
-    EXPIRED: 'expired',
-    NO_SHOW: 'no_show',
-  };
-  return mapping[status] ?? ('pending' as AppointmentStatusLower);
-}
+} from '@/utils/dateTime';
+import type { AppointmentStatusLower } from '@/types/index';
+import { PENDING_STATUSES, mapDbStatus } from '@/utils/status';
 
 export interface AgendaAppointment {
   id: string;

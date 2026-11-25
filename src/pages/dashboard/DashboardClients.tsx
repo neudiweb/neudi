@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { supabase, type Customer, type Appointment } from '../../lib/supabase';
-import { useAuth } from '../../contexts/AuthContext';
-import { DashboardLayout } from '../../components/layout/DashboardLayout';
-import { Input } from '../../components/ui/Input';
-import { EmptyState, LoadingSpinner } from '../../components/common/States';
+import { supabase, type Customer, type Appointment } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
+import { useBusiness } from '@/hooks/useBusiness';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { Input } from '@/components/ui/Input';
+import { EmptyState, LoadingSpinner } from '@/components/common/States';
 
 interface Client {
   id: string;
@@ -39,26 +40,10 @@ function getVisitBadge(totalVisits: number) {
 
 export function DashboardClients() {
   const { businessSlug } = useAuth();
-  const [businessId, setBusinessId] = React.useState<string | null>(null);
+  const { businessId } = useBusiness(businessSlug);
   const [clients, setClients] = React.useState<Client[]>([]);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [loading, setLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    if (!businessSlug) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const { data } = await supabase
-          .from('businesses')
-          .select('id')
-          .eq('slug', businessSlug)
-          .single() as { data: { id: string } | null; error: string | null };
-        if (!cancelled && data) setBusinessId(data.id);
-      } catch (e) { console.error(e); }
-    })();
-    return () => { cancelled = true; };
-  }, [businessSlug]);
 
   const fetchClients = React.useCallback(async (bizId: string) => {
     if (!bizId) return;
